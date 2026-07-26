@@ -140,7 +140,7 @@ export default function FloatingMusicControl({ tracks }) {
           className="fixed z-[60] w-[calc(100vw-1.5rem)] max-w-80 animate-fade-in-up"
           style={{ left: Math.max(160, Math.min(window.innerWidth - 160, pos.x)), top: panelTop, transform: "translateX(-50%)" }}
         >
-          <div className="glass-morphism rounded-2xl p-4 shadow-2xl">
+          <div className="liquid rounded-2xl p-4 shadow-2xl">
             <div className="flex items-center gap-3 mb-3">
               <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 transition-all duration-300 ${isPlaying ? "bg-gradient-to-br from-rose-500 to-pink-500 animate-pulse-glow" : "bg-white/30"}`}>
                 {isPlaying ? (
@@ -213,7 +213,7 @@ export default function FloatingMusicControl({ tracks }) {
         onPointerDown={handlePointerDown}
         onClick={handleClick}
       >
-        <div className={`glass-morphism rounded-full w-14 h-14 md:w-16 md:h-16 flex items-center justify-center cursor-pointer shadow-xl transition-all duration-300 ${isDragging ? "scale-110 shadow-2xl" : "hover:scale-105"} ${isPlaying ? "ring-2 ring-rose-400/60 animate-pulse-glow" : ""}`}>
+        <div className={`liquid rounded-full w-14 h-14 md:w-16 md:h-16 flex items-center justify-center cursor-pointer shadow-xl transition-all duration-300 ${isDragging ? "scale-110 shadow-2xl" : "hover:scale-105"} ${isPlaying ? "ring-2 ring-rose-400/60 animate-pulse-glow" : ""}`}>
           {isPlaying ? (
             <div className="flex gap-0.5 items-end h-5">
               <span className="w-[3px] rounded-full bg-rose-500 animate-bounce" style={{ height: "60%", animationDelay: "0ms" }} />

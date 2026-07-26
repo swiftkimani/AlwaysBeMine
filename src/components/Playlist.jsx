@@ -7,7 +7,7 @@ export default function Playlist({ data, compact }) {
 
   if (compact) {
     return (
-      <div className="glass-card p-4 w-72">
+      <div className="liquid p-4 w-72">
         <p className="text-xs font-bold text-zinc-700 mb-3" style={{ fontFamily: "Charm, serif" }}>
           🎵 {data.title || "Our Songs"}
         </p>
@@ -39,8 +39,8 @@ export default function Playlist({ data, compact }) {
   }
 
   return (
-    <div className="w-full max-w-2xl mx-auto">
-      <div className="glass-card p-6 md:p-8">
+    <div className="w-full max-w-3xl mx-auto">
+      <div className="liquid p-6 md:p-8">
         {/* Header */}
         <div className="text-center mb-5">
           <span className="text-3xl mb-2 block">🎵</span>

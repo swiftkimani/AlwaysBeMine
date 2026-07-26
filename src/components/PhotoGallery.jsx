@@ -17,9 +17,9 @@ export default function PhotoGallery({ data, onProgress }) {
   const pct = Math.round((viewed.size / data.length) * 100);
 
   return (
-    <div className="w-full max-w-4xl mx-auto">
+    <div className="w-full max-w-5xl mx-auto">
       {/* Gallery Header */}
-      <div className="glass-card p-4 md:p-5 mb-4 md:mb-6 flex items-center gap-3">
+      <div className="liquid p-4 md:p-5 mb-4 md:mb-6 flex items-center gap-3">
         <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-purple-400 to-indigo-500 flex items-center justify-center text-white text-sm shrink-0">
           📸
         </div>
@@ -82,7 +82,7 @@ export default function PhotoGallery({ data, onProgress }) {
 
       {/* Active caption */}
       {activeIdx !== null && (
-        <div className="glass-card mt-3 p-4 text-center animate-fade-in">
+        <div className="liquid mt-3 p-4 text-center animate-fade-in">
           <p className="text-sm text-zinc-800 font-medium" style={{ fontFamily: "Charm, serif" }}>
             {data[activeIdx].caption} 💕
           </p>

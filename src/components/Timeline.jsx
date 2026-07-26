@@ -44,9 +44,9 @@ export default function Timeline({ data, onProgress }) {
   const pct = Math.round((visibleItems.size / data.length) * 100);
 
   return (
-    <div className="w-full max-w-3xl mx-auto">
+    <div className="w-full max-w-4xl mx-auto">
       {/* Progress Header */}
-      <div className="glass-card p-5 md:p-6 mb-6 md:mb-8 flex items-center gap-4">
+      <div className="liquid p-5 md:p-6 mb-6 md:mb-8 flex items-center gap-4">
         <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-rose-400 to-pink-500 flex items-center justify-center text-white font-bold text-sm shrink-0">
           {visibleItems.size}/{data.length}
         </div>
@@ -75,7 +75,7 @@ export default function Timeline({ data, onProgress }) {
             >
               {/* Desktop card */}
               <div className={`hidden md:block w-5/12 ${idx % 2 === 0 ? "text-right pr-10" : "text-left pl-10"}`}>
-                <div className={`inline-block glass-card p-5 md:p-6 transition-all duration-300 ${isVisible ? "hover:shadow-2xl hover:scale-[1.02]" : ""}`}>
+                <div className={`inline-block liquid p-5 md:p-6 transition-all duration-300 ${isVisible ? "hover:shadow-2xl hover:scale-[1.02]" : ""}`}>
                   <div className="flex items-center gap-2 mb-1.5" style={{ justifyContent: idx % 2 === 0 ? "flex-end" : "flex-start" }}>
                     {isVisible && <span className="xp-badge">+15 XP</span>}
                     <span className="text-[10px] font-bold text-rose-400 uppercase tracking-wider">{item.date}</span>
@@ -90,7 +90,7 @@ export default function Timeline({ data, onProgress }) {
 
               {/* Mobile card */}
               <div className="ml-14 md:hidden w-full">
-                <div className={`glass-card p-5 md:p-6 transition-all duration-300 ${isVisible ? "hover:shadow-xl" : ""}`}>
+                <div className={`liquid p-5 md:p-6 transition-all duration-300 ${isVisible ? "hover:shadow-xl" : ""}`}>
                   <div className="flex items-center gap-2 mb-1.5">
                     {isVisible && <span className="xp-badge">+15 XP</span>}
                     <span className="text-[10px] font-bold text-rose-400 uppercase tracking-wider">{item.date}</span>

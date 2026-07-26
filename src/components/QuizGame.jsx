@@ -91,8 +91,8 @@ export default function QuizGame({ data, results, onProgress }) {
 
   if (finished) {
     return (
-      <div className="w-full max-w-xl mx-auto text-center">
-        <div className="glass-card p-6 md:p-10 animate-fade-in">
+      <div className="w-full max-w-2xl mx-auto text-center">
+        <div className="liquid p-6 md:p-10 animate-fade-in">
           <div className="text-6xl mb-3">{percentage === 100 ? "🏆" : percentage >= 75 ? "🌟" : percentage >= 50 ? "💖" : "💕"}</div>
           <h2 className="text-3xl md:text-4xl font-bold text-zinc-900 mb-2" style={{ fontFamily: "Charm, serif" }}>
             {score}/{total}
@@ -133,8 +133,8 @@ export default function QuizGame({ data, results, onProgress }) {
   }
 
   return (
-    <div className="w-full max-w-xl mx-auto">
-      <div className="glass-card p-6 md:p-8">
+    <div className="w-full max-w-2xl mx-auto">
+      <div className="liquid p-6 md:p-8">
         {/* Header */}
         <div className="flex justify-between items-center mb-3">
           <span className="text-xs font-bold text-rose-500 bg-rose-50 px-2.5 py-1 rounded-full border border-rose-200">

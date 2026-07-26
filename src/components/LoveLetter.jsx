@@ -53,11 +53,11 @@ export default function LoveLetter({ data, onProgress }) {
   const pct = Math.round((revealedParagraphs / data.paragraphs.length) * 100);
 
   return (
-    <div className="w-full max-w-2xl mx-auto">
+    <div className="w-full max-w-3xl mx-auto">
       {/* Letter Card */}
       <div
         ref={containerRef}
-        className="glass-card relative overflow-hidden max-h-[60vh] overflow-y-auto no-scrollbar"
+        className="liquid relative overflow-hidden max-h-[60vh] overflow-y-auto no-scrollbar"
         style={{
           background: "linear-gradient(135deg, rgba(255,251,235,0.95), rgba(255,237,213,0.95))",
           border: "1px solid rgba(217,119,6,0.2)",
@@ -117,7 +117,7 @@ export default function LoveLetter({ data, onProgress }) {
       </div>
 
       {/* Gamification footer */}
-      <div className="glass-card mt-3 p-3 md:p-4 flex items-center gap-3">
+      <div className="liquid mt-3 p-3 md:p-4 flex items-center gap-3">
         <div className="w-8 h-8 rounded-lg bg-amber-500/15 flex items-center justify-center text-sm">✉️</div>
         <div className="flex-1">
           <p className="text-[10px] font-bold text-zinc-600">Letter Progress</p>

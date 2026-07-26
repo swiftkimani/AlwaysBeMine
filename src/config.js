@@ -23,6 +23,7 @@ const themes = {
     title: "Wanna Be My Valentine? ❤️",
     navTitle: "Our Love Story",
     heroName: "My Love",
+    togetherSince: "2024-01-01",
 
     // Which modes to show (order = nav order)
     modes: ["proposal", "timeline", "letter", "quiz", "jar", "gallery", "promises", "playlist"],
@@ -195,6 +196,7 @@ const themes = {
     title: "Happy Birthday! 🎂🎉",
     navTitle: "Birthday Celebration",
     heroName: "Birthday Star",
+    togetherSince: "2000-01-01",
     modes: ["proposal", "timeline", "letter", "quiz", "jar", "gallery", "playlist"],
     heading: "Make a Wish! 🎂",
     acceptBtn: "Let's Party! 🎉",
@@ -317,6 +319,7 @@ const themes = {
     title: "Happy Anniversary! 💑",
     navTitle: "Our Journey Together",
     heroName: "My Everything",
+    togetherSince: "2024-01-01",
     modes: ["proposal", "timeline", "letter", "quiz", "jar", "gallery", "promises"],
     heading: "Here's to Us! 💑",
     acceptBtn: "I Love You! ❤️",
@@ -442,6 +445,7 @@ const themes = {
     title: "I Have Something to Say... 💝",
     navTitle: "My Confession",
     heroName: "You",
+    togetherSince: "2024-01-01",
     modes: ["proposal", "timeline", "letter", "quiz", "jar", "promises"],
     heading: "I Really Like You! 💝",
     acceptBtn: "Tell Me! 👀",

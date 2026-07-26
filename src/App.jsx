@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect, useCallback } from "react";
+import { useState, useRef, useEffect, useCallback, useMemo } from "react";
 import Spline from "@splinetool/react-spline";
 import Swal from "sweetalert2";
 import config from "./config.js";
@@ -102,6 +102,85 @@ function createFloatingGifs(gifSrc, idPrefix) {
   return gifs;
 }
 
+function daysBetween(dateStr) {
+  if (!dateStr) return null;
+  const d = new Date(dateStr);
+  if (isNaN(d.getTime())) return null;
+  const now = new Date();
+  return Math.floor((now - d) / (1000 * 60 * 60 * 24));
+}
+
+function AmbientHearts() {
+  const hearts = useMemo(() => {
+    return Array.from({ length: 8 }, (_, i) => ({
+      id: i,
+      left: `${8 + Math.random() * 84}%`,
+      size: 12 + Math.random() * 14,
+      duration: 12 + Math.random() * 10,
+      delay: Math.random() * 15,
+      emoji: ["💕", "💗", "💖", "✨", "🤍", "💕"][i % 6],
+    }));
+  }, []);
+
+  return (
+    <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden" aria-hidden="true">
+      {hearts.map((h) => (
+        <span
+          key={h.id}
+          className="ambient-heart"
+          style={{
+            left: h.left,
+            fontSize: `${h.size}px`,
+            animationDuration: `${h.duration}s`,
+            animationDelay: `${h.delay}s`,
+          }}
+        >
+          {h.emoji}
+        </span>
+      ))}
+    </div>
+  );
+}
+
+function ConfettiBurst({ onDone }) {
+  const particles = useMemo(() => {
+    return Array.from({ length: 30 }, (_, i) => ({
+      id: i,
+      color: ["#f43f5e", "#ec4899", "#a855f7", "#fbbf24", "#f472b6", "#fb7185", "#c084fc", "#fda4af"][i % 8],
+      x: (Math.random() - 0.5) * 200,
+      rot: Math.random() * 720,
+      delay: Math.random() * 0.4,
+      size: 6 + Math.random() * 8,
+      shape: i % 3 === 0 ? "circle" : "rect",
+    }));
+  }, []);
+
+  useEffect(() => {
+    const t = setTimeout(onDone, 3000);
+    return () => clearTimeout(t);
+  }, [onDone]);
+
+  return (
+    <div className="fixed inset-0 pointer-events-none z-[200]" aria-hidden="true">
+      {particles.map((p) => (
+        <div
+          key={p.id}
+          className="confetti-particle"
+          style={{
+            "--confetti-x": `${p.x}px`,
+            "--confetti-rot": `${p.rot}deg`,
+            animationDelay: `${p.delay}s`,
+            width: `${p.size}px`,
+            height: `${p.shape === "circle" ? p.size : p.size * 0.6}px`,
+            borderRadius: p.shape === "circle" ? "50%" : "2px",
+            backgroundColor: p.color,
+          }}
+        />
+      ))}
+    </div>
+  );
+}
+
 function AchievementToast({ achievement, onDone }) {
   const [exiting, setExiting] = useState(false);
 
@@ -121,7 +200,7 @@ function AchievementToast({ achievement, onDone }) {
       role="alert"
       aria-live="polite"
     >
-      <div className="glass-card px-5 py-3 flex items-center gap-3 shadow-2xl border border-amber-200/40">
+      <div className="liquid px-5 py-3 flex items-center gap-3 shadow-2xl border border-amber-200/40">
         <span className="text-2xl" aria-hidden="true">{achievement.icon}</span>
         <div className="flex-1">
           <p className="text-[10px] font-bold text-amber-500 uppercase tracking-wider">Achievement Unlocked!</p>
@@ -142,7 +221,7 @@ function AchievementToast({ achievement, onDone }) {
 function Footer() {
   return (
       <a
-        className="fixed bottom-20 right-4 md:bottom-4 md:right-4 backdrop-blur-md opacity-80 hover:opacity-100 border px-3 py-1.5 rounded-xl border-white/20 bg-white/60 text-[10px] md:text-xs text-zinc-700 hover:text-zinc-900 transition-all duration-300 z-40"
+        className="fixed bottom-20 right-4 md:bottom-4 md:right-4 liquid opacity-80 hover:opacity-100 px-3 py-1.5 rounded-xl text-[10px] md:text-xs text-zinc-700 hover:text-zinc-900 transition-all duration-300 z-40"
       href="https://github.com/swiftkimani/AlwaysBeMine"
       target="_blank"
       rel="noopener noreferrer"
@@ -154,8 +233,8 @@ function Footer() {
 
 function Nav({ activeMode, setActiveMode, visitedModes }) {
   return (
-    <nav className="fixed inset-x-0 top-0 z-50 bg-white/75 backdrop-blur-xl border-b border-white/40" role="navigation" aria-label="Main navigation" style={{ paddingTop: "var(--safe-top)" }}>
-      <div className="w-full max-w-5xl mx-auto px-5 sm:px-8 py-2 md:py-2.5 flex gap-1.5 md:gap-2 overflow-x-auto no-scrollbar">
+    <nav className="fixed inset-x-0 top-0 z-50 liquid rounded-none border-x-0 border-t-0" role="navigation" aria-label="Main navigation" style={{ paddingTop: "var(--safe-top)" }}>
+      <div className="w-full max-w-5xl mx-auto px-3 sm:px-6 py-2 md:py-2.5 flex gap-1.5 md:gap-2 overflow-x-auto no-scrollbar">
         {config.modes.map((mode) => (
           <div key={mode} className="flex flex-col items-center gap-1 shrink-0">
             <button
@@ -203,6 +282,9 @@ export default function Page() {
   const [scrollProgress, setScrollProgress] = useState(0);
   const [showBackToTop, setShowBackToTop] = useState(false);
   const [showAchievementHistory, setShowAchievementHistory] = useState(false);
+  const [showConfetti, setShowConfetti] = useState(false);
+  const [tapHearts, setTapHearts] = useState([]);
+  const tapTimerRef = useRef(null);
 
   const gifRef = useRef(null);
   const mainRef = useRef(null);
@@ -320,6 +402,7 @@ export default function Page() {
 
   useEffect(() => {
     if (yesPressed && noCount > 3 && !yesPopupShown) {
+      setShowConfetti(true);
       setIsTransitioning(true);
       setTimeout(() => {
         Swal.fire({ title: config.latePopup, width: 800, padding: "2em", color: config.popupColor, background: `#fff url(${swalbg})`, backdrop: `rgba(0,0,123,0.7) url(${purposerose}) right no-repeat` });
@@ -336,6 +419,24 @@ export default function Page() {
   }, [noCount]);
 
   const [mouseStealMin, mouseStealMax] = config.mouseStealerRange;
+
+  // Double-tap / double-click to spawn hearts
+  useEffect(() => {
+    let lastTap = 0;
+    const handleTap = (e) => {
+      const now = Date.now();
+      if (now - lastTap < 350) {
+        const id = `${now}-${Math.random()}`;
+        const x = e.touches ? e.touches[0].clientX : e.clientX;
+        const y = e.touches ? e.touches[0].clientY : e.clientY;
+        setTapHearts((prev) => [...prev.slice(-8), { id, x, y }]);
+        setTimeout(() => setTapHearts((prev) => prev.filter((h) => h.id !== id)), 1100);
+      }
+      lastTap = now;
+    };
+    window.addEventListener("dblclick", handleTap);
+    return () => window.removeEventListener("dblclick", handleTap);
+  }, []);
 
   const handleModeProgress = useCallback((mode, progress) => {
     setTotalXP((prev) => {
@@ -359,6 +460,15 @@ export default function Page() {
               </div>
             ) : (
               <div className="animate-fade-in">
+                {config.togetherSince && (() => {
+                  const days = daysBetween(config.togetherSince);
+                  return days !== null ? (
+                    <div className="days-counter">
+                      <span className="days-num">{days}</span>
+                      <span>days of love</span>
+                    </div>
+                  ) : null;
+                })()}
                 <img src={lovesvg} className="animate-pulse w-20 md:w-32 drop-shadow-lg mx-auto mb-4" alt="Love SVG" />
                 <img ref={gifRef} className="h-[180px] md:h-[220px] rounded-2xl shadow-2xl mx-auto" src={Lovegif} alt="Love Animation" />
                 <h1 className="text-2xl md:text-5xl my-4 md:my-5 font-bold" style={{ fontFamily: "Charm, serif" }}>{config.heading}</h1>
@@ -403,6 +513,9 @@ export default function Page() {
 
   return (
     <div className="page-shell transition-opacity duration-700" style={{ opacity: isTransitioning ? 0 : 1 }}>
+      {/* Ambient Floating Hearts */}
+      <AmbientHearts />
+
       {/* Spline Background with Fallback */}
       <div className="fixed inset-0 -z-10">
         <div className={`absolute inset-0 bg-gradient-to-br from-rose-100 via-pink-50 to-purple-100 ${splineLoaded && !splineError ? "opacity-0" : "opacity-100"} transition-opacity duration-1000`} />
@@ -418,6 +531,14 @@ export default function Page() {
         <div className="scroll-progress-bar" style={{ width: `${scrollProgress}%` }} role="progressbar" aria-valuenow={Math.round(scrollProgress)} aria-valuemin={0} aria-valuemax={100} aria-label="Scroll progress" />
       )}
 
+      {/* Confetti on Yes */}
+      {showConfetti && <ConfettiBurst onDone={() => setShowConfetti(false)} />}
+
+      {/* Tap Hearts */}
+      {tapHearts.map((h) => (
+        <span key={h.id} className="tap-heart" style={{ left: h.x - 16, top: h.y - 16 }} aria-hidden="true">❤️</span>
+      ))}
+
       <Nav activeMode={activeMode} setActiveMode={setActiveMode} visitedModes={visitedModes} />
 
       <main ref={mainRef} className="page-scroll" style={{ paddingTop: "calc(var(--safe-top) + 3.5rem)" }}>
@@ -427,7 +548,7 @@ export default function Page() {
               {renderMode()}
             </div>
           ) : (
-            <div className="mode-stage animate-fade-in">
+            <div className="mode-stage mode-enter" key={activeMode}>
               <div className="mode-header relative">
                 <div>
                   <h1
@@ -485,7 +606,7 @@ export default function Page() {
       {achievements.length > 0 && (
         <button
           onClick={() => setShowAchievementHistory(!showAchievementHistory)}
-          className="fixed bottom-20 left-4 md:bottom-4 md:left-4 z-40 w-9 h-9 rounded-full flex items-center justify-center backdrop-blur-md bg-white/60 border border-white/40 text-zinc-600 hover:text-amber-500 hover:bg-white/80 transition-all cursor-pointer shadow-lg"
+          className="fixed bottom-20 left-4 md:bottom-4 md:left-4 z-40 w-9 h-9 rounded-full flex items-center justify-center liquid text-zinc-600 hover:text-amber-500 transition-all cursor-pointer shadow-lg"
           aria-label={`View ${achievements.length} achievements`}
           title={`${achievements.length} achievements`}
         >
@@ -498,7 +619,7 @@ export default function Page() {
         <div className="fixed inset-0 z-[90] flex items-end md:items-center justify-center p-4" onClick={() => setShowAchievementHistory(false)}>
           <div className="absolute inset-0 bg-black/20 backdrop-blur-sm" />
           <div
-            className="relative glass-card p-5 w-full max-w-sm max-h-[60vh] overflow-y-auto no-scrollbar animate-fade-in-up"
+            className="relative liquid p-5 w-full max-w-sm max-h-[60vh] overflow-y-auto no-scrollbar animate-fade-in-up"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex items-center justify-between mb-4">

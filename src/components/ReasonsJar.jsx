@@ -27,9 +27,9 @@ export default function ReasonsJar({ data, onProgress }) {
   };
 
   return (
-    <div className="w-full max-w-lg mx-auto">
+    <div className="w-full max-w-xl mx-auto">
       {/* Jar Section */}
-      <div className="glass-card p-6 md:p-8 text-center">
+      <div className="liquid p-6 md:p-8 text-center">
         <div className="relative mb-5">
           <div
             className={`mx-auto w-40 h-48 md:w-48 md:h-56 relative cursor-pointer transition-transform duration-300 ${isShaking ? "animate-shake" : "hover:scale-105"}`}
@@ -95,7 +95,7 @@ export default function ReasonsJar({ data, onProgress }) {
 
       {/* Current Reason Popup */}
       {currentReason !== null && !isShaking && (
-        <div className="glass-card mt-3 p-4 md:p-5 animate-bounce-in border-l-4 border-rose-400">
+        <div className="liquid mt-3 p-4 md:p-5 animate-bounce-in border-l-4 border-rose-400">
           <p className="text-xs font-bold text-rose-400 mb-1">Reason #{revealedReasons.length}</p>
           <p className="text-sm text-zinc-800 font-medium" style={{ fontFamily: "Charm, serif" }}>
             {data[currentReason]} 💝
@@ -107,7 +107,7 @@ export default function ReasonsJar({ data, onProgress }) {
       {revealedReasons.length > 1 && (
         <div className="mt-3 space-y-2 max-h-[30vh] overflow-y-auto no-scrollbar">
           {revealedReasons.slice().reverse().map((idx, i) => (
-            <div key={idx} className="glass-card p-3 md:p-4 flex items-start gap-3 animate-slide-in" style={{ animationDelay: `${i * 50}ms` }}>
+            <div key={idx} className="liquid p-3 md:p-4 flex items-start gap-3 animate-slide-in" style={{ animationDelay: `${i * 50}ms` }}>
               <span className="w-6 h-6 rounded-full bg-rose-500/15 flex items-center justify-center text-[10px] font-bold text-rose-500 shrink-0 mt-0.5">
                 {revealedReasons.indexOf(idx) + 1}
               </span>
