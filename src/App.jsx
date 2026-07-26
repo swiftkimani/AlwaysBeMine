@@ -161,7 +161,7 @@ function Footer() {
 
 function Nav({ activeMode, setActiveMode, visitedModes }) {
   return (
-    <nav className="fixed top-0 left-0 right-0 z-50 bg-white/75 backdrop-blur-xl border-b border-white/40" role="navigation" aria-label="Main navigation">
+    <nav className="fixed top-0 left-0 right-0 z-50 bg-white/75 backdrop-blur-xl border-b border-white/40" role="navigation" aria-label="Main navigation" style={{ paddingTop: "var(--safe-top)" }}>
       <div className="max-w-5xl mx-auto px-4 sm:px-6 py-2 md:py-2.5 flex gap-1 md:gap-1.5 overflow-x-auto no-scrollbar">
         {config.modes.map((mode) => (
           <div key={mode} className="flex flex-col items-center gap-1 shrink-0">
@@ -451,8 +451,8 @@ export default function Page() {
             </div>
           ) : (
             <div className="animate-fade-in py-6 md:py-8">
-              <div className="flex items-center justify-between mb-6 md:mb-8">
-                <div className="text-center flex-1">
+              <div className="relative mb-6 md:mb-8">
+                <div className="text-center">
                   <h1
                     className="text-2xl md:text-4xl font-bold mb-1.5 bg-gradient-to-r from-rose-600 via-pink-500 to-purple-600 bg-clip-text text-transparent"
                     style={{ fontFamily: "Charm, serif" }}
@@ -468,7 +468,7 @@ export default function Page() {
                 </div>
                 <button
                   onClick={shareMode}
-                  className="w-9 h-9 rounded-full flex items-center justify-center text-zinc-500 hover:text-rose-500 hover:bg-white/60 transition-all cursor-pointer shrink-0 ml-3"
+                  className="absolute top-0 right-0 w-9 h-9 rounded-full flex items-center justify-center text-zinc-500 hover:text-rose-500 hover:bg-white/60 transition-all cursor-pointer"
                   aria-label="Share this mode"
                   title="Share"
                 >
