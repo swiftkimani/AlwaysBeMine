@@ -1,43 +1,28 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 
-const MarqueeProposal = () => {
+export default function MarqueeProposal({ messages = [] }) {
   const [currentIndex, setCurrentIndex] = useState(0);
-
-  const sentences = [
-    "You light up my world like no one else.",
-    "Every moment with you feels like magic.",
-    "My world begins and ends with you in it.",
-    "You're the reason my heart beats faster.",
-    "Life feels complete when you're around.",
-    "I can't imagine my future without you.",
-    "You're my sunshine on the darkest days.",
-    "With you, every day is a blessing.",
-    "You’re the missing piece that completes my heart.",
-    "You make even ordinary moments feel extraordinary.",
-    "You make my world brighter and happier.",
-    "You're the dream I never want to wake up from.",
-    "Will you be the love of my life forever?",
-  ];
 
   useEffect(() => {
     const interval = setInterval(() => {
-      setCurrentIndex((prevIndex) => (prevIndex + 1) % sentences.length);
-    }, 9000); // Change sentence every 9 seconds
+      setCurrentIndex((prev) => (prev + 1) % messages.length);
+    }, 9000);
     return () => clearInterval(interval);
-  }, [sentences.length]);
+  }, [messages.length]);
 
   return (
     <div
       style={{
-        width: "50%",
+        width: "min(50%, 600px)",
         height: "75px",
-        margin: "50px auto",
+        margin: "40px auto",
         borderRadius: "25px",
         overflow: "hidden",
         position: "relative",
-        background: "transparent",
-        boxShadow: "0 10px 30px rgba(0, 0, 0, 0.3)",
-        border: "4px solid #ffffff",
+        background: "rgba(255,255,255,0.15)",
+        backdropFilter: "blur(10px)",
+        boxShadow: "0 8px 32px rgba(0, 0, 0, 0.2)",
+        border: "2px solid rgba(255,255,255,0.3)",
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
@@ -53,30 +38,22 @@ const MarqueeProposal = () => {
       >
         <span
           style={{
-            fontSize: "2rem",
-            fontFamily: "Charm, serif", 
-            // fontFamily: "Beau Rivage, serif", 
-            fontStyle: "normal",
-            fontWeight: "700",
+            fontSize: "clamp(1rem, 3vw, 2rem)",
+            fontFamily: "Charm, serif",
+            fontWeight: 700,
             color: "#191a19",
-            textShadow: "0 4px 8px rgba(0, 0, 0, 0.6)",
+            textShadow: "0 2px 8px rgba(0, 0, 0, 0.4)",
           }}
         >
-          {sentences[currentIndex]}
+          {messages[currentIndex]}
         </span>
       </div>
       <style>{`
         @keyframes marquee {
-          0% {
-            transform: translateX(100%); /* Start fully off-screen to the right */
-          }
-          100% {
-            transform: translateX(-100%); /* End fully off-screen to the left */
-          }
+          0% { transform: translateX(100%); }
+          100% { transform: translateX(-100%); }
         }
       `}</style>
     </div>
   );
-};
-
-export default MarqueeProposal;
+}
