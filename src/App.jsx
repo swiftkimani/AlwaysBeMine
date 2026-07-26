@@ -371,20 +371,20 @@ export default function Page() {
     switch (activeMode) {
       case "proposal":
         return (
-          <div className="flex flex-col items-center animate-fade-in">
+          <>
             {noCount > mouseStealMin && noCount < mouseStealMax && !yesPressed && <MouseStealing />}
             {yesPressed && noCount > 3 ? (
-              <>
-                <img ref={gifRef} className="h-[180px] md:h-[220px] rounded-2xl shadow-2xl" src={YesGifs[currentGifIndex]} alt="Yes Response" />
-                <div className="text-3xl md:text-5xl font-bold my-3 text-center bg-gradient-to-r from-rose-600 via-pink-500 to-rose-600 bg-clip-text text-transparent" style={{ fontFamily: "Charm, serif" }}>{config.yesTitle}</div>
-                <div className="text-xl md:text-3xl font-bold my-1 text-center" style={{ fontFamily: "Beau Rivage, serif", fontWeight: 500 }}>{config.yesSubtitle}</div>
+              <div className="animate-fade-in">
+                <img ref={gifRef} className="h-[180px] md:h-[220px] rounded-2xl shadow-2xl mx-auto" src={YesGifs[currentGifIndex]} alt="Yes Response" />
+                <div className="text-3xl md:text-5xl font-bold my-3 bg-gradient-to-r from-rose-600 via-pink-500 to-rose-600 bg-clip-text text-transparent" style={{ fontFamily: "Charm, serif" }}>{config.yesTitle}</div>
+                <div className="text-xl md:text-3xl font-bold my-1" style={{ fontFamily: "Beau Rivage, serif", fontWeight: 500 }}>{config.yesSubtitle}</div>
                 <WordMarquee messages={config.marqueeMessages} />
-              </>
+              </div>
             ) : (
-              <>
-                <img src={lovesvg} className="fixed animate-pulse top-16 md:left-15 left-6 md:w-40 w-24 drop-shadow-lg z-10" alt="Love SVG" />
-                <img ref={gifRef} className="h-[180px] md:h-[220px] rounded-2xl shadow-2xl" src={Lovegif} alt="Love Animation" />
-                <h1 className="text-2xl md:text-5xl my-4 md:my-5 text-center font-bold" style={{ fontFamily: "Charm, serif" }}>{config.heading}</h1>
+              <div className="animate-fade-in">
+                <img src={lovesvg} className="animate-pulse w-20 md:w-32 drop-shadow-lg mx-auto mb-4" alt="Love SVG" />
+                <img ref={gifRef} className="h-[180px] md:h-[220px] rounded-2xl shadow-2xl mx-auto" src={Lovegif} alt="Love Animation" />
+                <h1 className="text-2xl md:text-5xl my-4 md:my-5 font-bold" style={{ fontFamily: "Charm, serif" }}>{config.heading}</h1>
                 <div className="flex flex-wrap justify-center gap-3 md:gap-4 items-center">
                   <button onMouseEnter={handleMouseEnterYes} onMouseLeave={handleMouseLeave}
                     className={`btn-glow btn-primary ${config.acceptColor}`}
@@ -401,9 +401,9 @@ export default function Page() {
                 {floatingGifs.map((gif) => (
                   <img key={gif.id} src={gif.src} alt="" className="absolute w-10 h-10 md:w-12 md:h-12 animate-float" style={gif.style} />
                 ))}
-              </>
+              </div>
             )}
-          </div>
+          </>
         );
       case "timeline":
         return <Timeline data={config.timeline} onProgress={(p) => handleModeProgress("timeline", p)} />;
@@ -425,7 +425,7 @@ export default function Page() {
   };
 
   return (
-    <div className={`w-full h-dvh overflow-hidden transition-opacity duration-700 ${isTransitioning ? "opacity-0" : "opacity-100"}`}>
+    <div className="page-shell transition-opacity duration-700" style={{ opacity: isTransitioning ? 0 : 1 }}>
       {/* Spline Background with Fallback */}
       <div className="fixed inset-0 -z-10">
         <div className={`absolute inset-0 bg-gradient-to-br from-rose-100 via-pink-50 to-purple-100 ${splineLoaded && !splineError ? "opacity-0" : "opacity-100"} transition-opacity duration-1000`} />
@@ -443,16 +443,16 @@ export default function Page() {
 
       <Nav activeMode={activeMode} setActiveMode={setActiveMode} visitedModes={visitedModes} />
 
-      <main ref={mainRef} className="w-full h-full overflow-y-auto no-scrollbar text-zinc-900" style={{ paddingTop: "calc(var(--safe-top) + 3.5rem)" }}>
-        <div className={`w-full max-w-5xl mx-auto px-5 sm:px-8 md:px-10 lg:px-16 pb-28 md:pb-20 ${config.selectionColor}`}>
+      <main ref={mainRef} className="page-scroll" style={{ paddingTop: "calc(var(--safe-top) + 3.5rem)" }}>
+        <div className={`page-content ${config.selectionColor}`}>
           {activeMode === "proposal" ? (
-            <div className="min-h-[calc(100dvh-3.5rem)] flex flex-col items-center justify-center px-4">
+            <div className="proposal-stage">
               {renderMode()}
             </div>
           ) : (
-            <div className="animate-fade-in py-6 md:py-8">
-              <div className="relative mb-6 md:mb-8">
-                <div className="text-center">
+            <div className="mode-stage animate-fade-in">
+              <div className="mode-header relative">
+                <div>
                   <h1
                     className="text-2xl md:text-4xl font-bold mb-1.5 bg-gradient-to-r from-rose-600 via-pink-500 to-purple-600 bg-clip-text text-transparent"
                     style={{ fontFamily: "Charm, serif" }}
@@ -475,7 +475,9 @@ export default function Page() {
                   <BsShareFill size={14} />
                 </button>
               </div>
-              {renderMode()}
+              <div className="mode-body">
+                {renderMode()}
+              </div>
             </div>
           )}
         </div>
