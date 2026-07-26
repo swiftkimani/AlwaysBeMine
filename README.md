@@ -1,53 +1,141 @@
-# 🥰 Always Be Mine 🥰
+# Always Be Mine
 
-## Welcome to the **Valentine Proposal Website Template**! 💖
+A romantic, interactive love story website with 8 modes, liquid morphism UI, gamification, and draggable music control. Configurable for Valentine's Day, birthdays, anniversaries, or confessions.
 
-**AlwaysBeMine** is a delightful and romantic web template designed to ask someone special, "Will you be my Valentine?" With its cute design, charming animations, and heartfelt message, this website template offers a unique and memorable way to express your feelings. Whether you're celebrating Valentine's Day or just want to spread love, this project is sure to make the moment unforgettable.
+## Live Demo
 
-This template combines creativity and coding to create an experience that will leave a lasting impression. It's perfect for anyone looking to make their proposal or message stand out in a special & unique way. ❤️
+> **Inspired by Swift** — [github.com/swiftkimani/AlwaysBeMine](https://github.com/swiftkimani/AlwaysBeMine)
 
-## ✨ Features
+## Features
 
-- **Playful Animations**: Enjoy a fun, engaging user experience with cute and playful animations.
-- **Interactive Elements**: Add exciting touches such as animations, background music, or surprise pop-ups to personalize your message.
-- **Images**: Lovely images and heartwarming messages.
-- **Beautiful Tag Lines**: Attractive and Loving Tag Lines.
-- **Sharing Options**: Share your virtual card easily via:
-  - **Social Media**: Share directly on your favorite platforms.
+### 8 Interactive Modes
+| Mode | Description |
+|------|-------------|
+| **Proposal** | Will you be my Valentine? with animated Yes/No buttons, mouse-stealing easter egg, confetti burst on Yes |
+| **Timeline** | Scrollable love story timeline with scroll-reveal cards and XP badges |
+| **Letter** | Typewriter-effect love letter that reveals paragraph by paragraph |
+| **Quiz** | Love quiz with keyboard nav (1-4 / A-D / Enter), streak counter, score results |
+| **Jar** | Reasons I love you jar — tap to reveal with shake animation |
+| **Gallery** | Photo gallery with lightbox and caption overlays |
+| **Promises** | Flip-card promise builder — tap to reveal each promise |
+| **Playlist** | Embedded music playlist with now-playing display |
 
-## 🚀 Getting Started
+### Liquid Morphism Design
+- Tinted translucent cards with `blur(24px) saturate(200%)`
+- Animated shimmer sweep on hover
+- Inner light reflections with inset shadows
+- Applied to nav, cards, floating controls, modals, and toast notifications
 
-To get started with this project, follow these steps:
+### Gamification
+- XP badges per mode (+10 to +25 XP per interaction)
+- Achievement system with unlock toasts and history panel
+- Progress bars tracking completion across all modes
+- Streak counters for quiz combos
+- Visited mode tracking with nav completion dots
 
-1. **Star the [Main Repository](https://github.com/UjjwalSaini07/AlwaysBeMine)**
-2. **Fork The [Repository](https://github.com/UjjwalSaini07/AlwaysBeMine) (If u Want to Contribute Then use this Step)**
-3. **Clone the repository**
-4. **Install the Dependancies `npm/pnpm install`**
-5. **Start the development server with `npm/pnpm run dev`**
+### Romantic Features
+- **Ambient floating hearts** — 8 emoji hearts drifting across the background
+- **Heart cursor trail** — mouse leaves a trail of floating hearts (desktop)
+- **Double-tap hearts** — double-click anywhere spawns a floating heart
+- **Send Love bar** — tap Kiss, Hug, Heartbeat, Rose, or Magic to burst emojis with counters
+- **Confetti burst** — 30-particle celebration when she says Yes
+- **Live countdown** — ticking days:hours:min:sec since your date
+- **Days counter** — "X days of love" badge on proposal page
+- **Time-aware greeting** — "Good morning beautiful" / "Thinking of you tonight"
+- **Thinking of You toasts** — 14 romantic messages appear periodically
 
-## 📷 ScreenShots
+### Music Control
+- Draggable glass-morphism floating button (defaults to bottom-left)
+- Smart panel opens directly above/below the button with connector arrow
+- Play/pause, skip, mute, seek, like per track
+- Track list with now-playing indicator
 
-Here’s a sneak peek of what you can expect from the template:
-![image](https://github.com/user-attachments/assets/25282fce-12f0-4c0a-95ce-cda95a305e28)
-![image](https://github.com/user-attachments/assets/40beacf0-b509-47cd-be7e-a97f8e98156c)
-![image](https://github.com/user-attachments/assets/ef5827e6-8c1f-4351-80ed-2f2d940416d4)
+### Design & UX
+- Spline 3D background with gradient fallback
+- Hash-based routing for shareable deep links (`#timeline`, `#quiz`, etc.)
+- Scroll progress bar and back-to-top button
+- Onboarding overlay for first-time visitors
+- Safe area insets for iOS/notch devices
+- `prefers-reduced-motion` support
+- Focus-visible indicators and ARIA labels on all interactive elements
+- Minimum 44px touch targets for mobile comfort
+- Responsive across all breakpoints (mobile-first)
 
-## ❤️ Why You’ll Love It
-- **Thoughtful and Personal**: Perfect for creating a heartfelt Valentine’s Day message or just a spontaneous declaration of love.
-- **User-Friendly**: Simple to use, no coding skills required.
-- **Creative**: Bring your ideas to life with interactive web elements.
+## Getting Started
 
-## 💕 Made with Love
-This project made with love by [Ujjwal](https://github.com/UjjwalSaini07). </br>Feel free to use it to ask your own special someone to be your Valentine! & express your feeling in unique and memorable way..
+```bash
+# Clone
+git clone git@github.com:swiftkimani/AlwaysBeMine.git
+cd AlwaysBeMine
 
-## 📄 License
-License Credential [Check](https://github.com/UjjwalSaini07/AlwaysBeMine/blob/main/LICENSE). </br>You can use this project the way you want. Feel free to credit me if you want to!
+# Install
+npm install
 
-## 💌 Feedback and Contributions
-Feedback and contributions are always welcome! Feel free to open an [Issue](https://github.com/UjjwalSaini07/AlwaysBeMine/issues/new).
+# Dev server
+npm run dev
 
-<div align="center">
-    <a href="#top">
-        <img src="https://img.shields.io/badge/Back%20to%20Top-000000?style=for-the-badge&logo=github&logoColor=white" alt="Back to Top">
-    </a>
-</div>
+# Production build
+npm run build
+
+# Lint
+npm run lint
+```
+
+## Configuration
+
+All content is driven by `src/config.js`. Change the `theme` field to switch between:
+
+```js
+const theme = "valentine"; // "valentine" | "birthday" | "anniversary" | "confession"
+```
+
+### Key fields to personalize
+
+```js
+valentine: {
+  togetherSince: "2024-01-01",   // Your date — powers the live countdown + days counter
+  heading: "Will you be my Valentine?",
+  heroName: "My Love",
+  // ... timeline dates, letter paragraphs, quiz questions, reasons, promises
+}
+```
+
+Each theme defines data for all 8 modes — timeline entries, letter text, quiz questions, reasons in the jar, promises, and playlist tracks.
+
+## Tech Stack
+
+| Layer | Technology |
+|-------|-----------|
+| Framework | React 19 |
+| Build | Vite 6 |
+| Styling | Tailwind CSS v4 + custom CSS |
+| 3D Background | Spline |
+| Alerts | SweetAlert2 |
+| Icons | react-icons |
+| Audio | Native HTML5 Audio |
+| Routing | Hash-based (no router) |
+| Linting | ESLint 9 (flat config) |
+
+## Project Structure
+
+```
+src/
+├── App.jsx                 # Main app, routing, proposal mode, overlays
+├── config.js               # All themes + data for 8 modes
+├── index.css               # Liquid morphism, animations, layout system
+├── MarqueeProposal.jsx     # Scrolling text marquee for Yes screen
+├── MouseStealer.jsx        # Cursor-stealing easter egg
+└── components/
+    ├── FloatingMusicControl.jsx   # Draggable music player
+    ├── Timeline.jsx               # Love story timeline
+    ├── LoveLetter.jsx             # Typewriter letter
+    ├── QuizGame.jsx               # Love quiz with keyboard nav
+    ├── ReasonsJar.jsx             # Tap-to-reveal reasons jar
+    ├── PhotoGallery.jsx           # Photo gallery with lightbox
+    ├── PromiseBuilder.jsx         # Flip-card promises
+    └── Playlist.jsx               # Music playlist
+```
+
+## License
+
+Feel free to use this project to express your love. Inspired by Swift.
