@@ -98,24 +98,14 @@ function createFloatingGifs(gifSrc, idPrefix) {
 
 function Footer() {
   return (
-    <div className="fixed bottom-2 left-2 right-2 flex justify-between items-end pointer-events-none z-50">
-      <a
-        className="pointer-events-auto backdrop-blur-md opacity-70 hover:opacity-100 border px-2 py-1 rounded-lg border-white/20 bg-black/10 text-xs text-zinc-600 hover:text-zinc-900 transition-all duration-300"
-        href="https://github.com/swiftkimani/AlwaysBeMine"
-        target="_blank"
-        rel="noopener noreferrer"
-      >
-        Created by Swift
-      </a>
-      <a
-        className="pointer-events-auto backdrop-blur-md opacity-70 hover:opacity-100 border px-2 py-1 rounded-lg border-white/20 bg-black/10 text-xs text-zinc-600 hover:text-zinc-900 transition-all duration-300"
-        href="https://github.com/UjjwalSaini07/AlwaysBeMine"
-        target="_blank"
-        rel="noopener noreferrer"
-      >
-        Inspired by Ujjwal
-      </a>
-    </div>
+    <a
+      className="fixed bottom-2 right-2 backdrop-blur-md opacity-70 hover:opacity-100 border px-2 py-1 rounded-lg border-white/20 bg-black/10 text-xs text-zinc-600 hover:text-zinc-900 transition-all duration-300"
+      href="https://github.com/swiftkimani/AlwaysBeMine"
+      target="_blank"
+      rel="noopener noreferrer"
+    >
+      Inspired by Swift
+    </a>
   );
 }
 
@@ -353,8 +343,8 @@ export default function Page() {
               <button
                 onMouseEnter={handleMouseEnterYes}
                 onMouseLeave={handleMouseLeave}
-                className={`${config.acceptColor} text-white font-bold py-2.5 px-6 rounded-xl shadow-lg hover:shadow-xl hover:scale-105 active:scale-95 transition-all duration-200 cursor-pointer`}
-                style={{ fontSize: yesButtonSize }}
+                className={`${config.acceptColor} text-white font-bold rounded-xl shadow-lg hover:shadow-xl hover:scale-105 active:scale-95 transition-all duration-200 cursor-pointer`}
+                style={{ fontSize: yesButtonSize, padding: "12px 32px" }}
                 onClick={handleYesClick}
               >
                 {config.acceptBtn}
@@ -363,7 +353,8 @@ export default function Page() {
                 onMouseEnter={handleMouseEnterNo}
                 onMouseLeave={handleMouseLeave}
                 onClick={handleNoClick}
-                className={`${config.rejectColor} rounded-xl text-white font-bold py-2.5 px-6 shadow-lg hover:shadow-xl hover:scale-105 active:scale-95 transition-all duration-200 cursor-pointer`}
+                className={`${config.rejectColor} rounded-xl text-white font-bold shadow-lg hover:shadow-xl hover:scale-105 active:scale-95 transition-all duration-200 cursor-pointer`}
+                style={{ fontSize: "1rem", padding: "12px 32px" }}
               >
                 {noCount === 0 ? "No" : getNoButtonText()}
               </button>
