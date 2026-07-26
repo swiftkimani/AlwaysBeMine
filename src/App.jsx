@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect, useCallback } from "react";
 import Spline from "@splinetool/react-spline";
 import Swal from "sweetalert2";
-import { BsVolumeUpFill, BsVolumeMuteFill, BsMusicNoteBeamed } from "react-icons/bs";
+import { BsVolumeUpFill, BsVolumeMuteFill } from "react-icons/bs";
 
 import config from "./config.js";
 import MouseStealing from "./MouseStealer.jsx";
@@ -13,6 +13,7 @@ import ReasonsJar from "./components/ReasonsJar.jsx";
 import PhotoGallery from "./components/PhotoGallery.jsx";
 import PromiseBuilder from "./components/PromiseBuilder.jsx";
 import Playlist from "./components/Playlist.jsx";
+import AudioPlayer from "./components/AudioPlayer.jsx";
 import lovesvg from "./assets/All You Need Is Love SVG Cut File.svg";
 import Lovegif from "./assets/GifData/main_temp.gif";
 import heartGif from "./assets/GifData/happy.gif";
@@ -60,6 +61,13 @@ const NoGifs = [nogif0, nogif0_1, nogif1, nogif2, nogif3, nogif4, nogif5, nogif6
 const YesMusic = [yesmusic1, yesmusic3, yesmusic4, yesmusic2];
 const NoMusic = [nomusic1, nomusic2, nomusic3, nomusic4, nomusic5];
 
+const loveTracks = [
+  { title: "Love Me Like You Do", artist: "Ellie Goulding", src: yesmusic1 },
+  { title: "Perfect", artist: "Ed Sheeran", src: yesmusic2 },
+  { title: "Nadaaniyan", artist: "Armaan Malik", src: yesmusic3 },
+  { title: "Jo Tum Mere Ho", artist: "Anuv Jain", src: yesmusic4 },
+];
+
 const modeLabels = {
   proposal: "💌 Proposal",
   timeline: "📅 Timeline",
@@ -101,10 +109,29 @@ function createFloatingGifs(gifSrc, idPrefix) {
   return gifs;
 }
 
+function AchievementToast({ achievement, onDone }) {
+  useEffect(() => {
+    const t = setTimeout(onDone, 3000);
+    return () => clearTimeout(t);
+  }, [onDone]);
+
+  return (
+    <div className="fixed top-20 left-1/2 -translate-x-1/2 z-[100] achievement-toast">
+      <div className="glass-card px-5 py-3 flex items-center gap-3 shadow-2xl border border-amber-200/40">
+        <span className="text-2xl">{achievement.icon}</span>
+        <div>
+          <p className="text-[10px] font-bold text-amber-500 uppercase tracking-wider">Achievement Unlocked!</p>
+          <p className="text-sm font-bold text-zinc-800">{achievement.label}</p>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function Footer() {
   return (
     <a
-      className="fixed bottom-2 right-2 backdrop-blur-md opacity-70 hover:opacity-100 border px-3 py-1.5 rounded-xl border-white/20 bg-black/10 text-xs text-zinc-600 hover:text-zinc-900 transition-all duration-300 z-50"
+      className="fixed bottom-14 right-4 md:bottom-3 md:right-4 backdrop-blur-md opacity-70 hover:opacity-100 border px-3 py-1.5 rounded-xl border-white/20 bg-black/10 text-[10px] md:text-xs text-zinc-600 hover:text-zinc-900 transition-all duration-300 z-40"
       href="https://github.com/swiftkimani/AlwaysBeMine"
       target="_blank"
       rel="noopener noreferrer"
@@ -115,22 +142,20 @@ function Footer() {
 }
 
 function Nav({ activeMode, setActiveMode }) {
-  const handleNav = (mode) => {
-    setActiveMode(mode);
-    window.location.hash = mode;
-  };
-
   return (
-    <nav className="fixed top-0 left-0 right-0 z-50 bg-black/15 backdrop-blur-xl border-b border-white/15">
-      <div className="max-w-5xl mx-auto px-3 py-2.5 flex gap-1.5 overflow-x-auto no-scrollbar">
+    <nav className="fixed top-0 left-0 right-0 z-50 bg-black/15 backdrop-blur-xl border-b border-white/15" style={{ paddingTop: "var(--safe-top)" }}>
+      <div className="max-w-5xl mx-auto px-3 py-2 md:py-2.5 flex gap-1 md:gap-1.5 overflow-x-auto no-scrollbar">
         {config.modes.map((mode) => (
           <button
             key={mode}
-            onClick={() => handleNav(mode)}
-            className={`shrink-0 px-4 py-2 rounded-xl text-xs font-bold transition-all duration-300 cursor-pointer ${
+            onClick={() => {
+              setActiveMode(mode);
+              window.location.hash = mode;
+            }}
+            className={`shrink-0 px-3 md:px-4 py-1.5 md:py-2 rounded-xl text-[11px] md:text-xs font-bold transition-all duration-300 cursor-pointer ${
               activeMode === mode
                 ? "btn-glow bg-white/30 text-zinc-900 shadow-lg shadow-white/10"
-                : "text-zinc-600 hover:bg-white/10 hover:text-zinc-800 hover:shadow-md"
+                : "text-zinc-600 hover:bg-white/10 hover:text-zinc-800"
             }`}
           >
             {modeLabels[mode] || mode}
@@ -143,19 +168,19 @@ function Nav({ activeMode, setActiveMode }) {
 
 function ModeHeader({ title, subtitle }) {
   return (
-    <div className="text-center mb-8 pt-4">
+    <div className="text-center mb-5 md:mb-6">
       <h1
-        className="text-3xl md:text-5xl font-bold mb-2 bg-gradient-to-r from-rose-600 via-pink-500 to-purple-600 bg-clip-text text-transparent"
+        className="text-2xl md:text-4xl font-bold mb-1.5 bg-gradient-to-r from-rose-600 via-pink-500 to-purple-600 bg-clip-text text-transparent"
         style={{ fontFamily: "Charm, serif" }}
       >
         {title}
       </h1>
       {subtitle && (
-        <p className="text-sm text-zinc-500" style={{ fontFamily: "Charm, serif" }}>
+        <p className="text-xs md:text-sm text-zinc-500" style={{ fontFamily: "Charm, serif" }}>
           {subtitle}
         </p>
       )}
-      <div className="w-20 h-1 mx-auto mt-3 rounded-full bg-gradient-to-r from-rose-400 to-pink-500" />
+      <div className="w-16 h-1 mx-auto mt-2 rounded-full bg-gradient-to-r from-rose-400 to-pink-500" />
     </div>
   );
 }
@@ -171,10 +196,21 @@ export default function Page() {
   const [yesPopupShown, setYesPopupShown] = useState(false);
   const [floatingGifs, setFloatingGifs] = useState([]);
   const [isTransitioning, setIsTransitioning] = useState(false);
-  const [showPlaylist, setShowPlaylist] = useState(false);
+  const [totalXP, setTotalXP] = useState(0);
+  const [achievements, setAchievements] = useState([]);
+  const [pendingAchievement, setPendingAchievement] = useState(null);
 
   const gifRef = useRef(null);
-  const yesButtonSize = Math.min(noCount * 14 + 18, 72);
+  const yesButtonSize = Math.min(noCount * 12 + 18, 60);
+
+  const unlockedAchievements = useRef(new Set());
+
+  const unlockAchievement = useCallback((id, icon, label) => {
+    if (unlockedAchievements.current.has(id)) return;
+    unlockedAchievements.current.add(id);
+    setAchievements((prev) => [...prev, { id, icon, label }]);
+    setPendingAchievement({ icon, label });
+  }, []);
 
   useEffect(() => {
     const onHash = () => {
@@ -211,7 +247,10 @@ export default function Page() {
     setNoCount(next);
     if (next >= 4 && gifRef.current) gifRef.current.src = NoGifs[(next - 4) % NoGifs.length];
     if (next === 1 || (next - 1) % 7 === 0) playMusic(NoMusic[Math.floor(next / 7) % NoMusic.length], NoMusic);
-  }, [noCount, playMusic]);
+    if (next === 5) unlockAchievement("persistent", "😤", "Persistent - Clicked No 5 times!");
+    if (next === 10) unlockAchievement("stubborn", "💢", "Stubborn - 10 No clicks!");
+    if (next === 15) unlockAchievement("unbreakable", "🛡️", "Unbreakable - 15 No clicks!");
+  }, [noCount, playMusic, unlockAchievement]);
 
   const toggleMute = useCallback(() => {
     setIsMuted((prev) => { if (currentAudio) currentAudio.muted = !prev; return !prev; });
@@ -245,9 +284,10 @@ export default function Page() {
       setTimeout(() => {
         Swal.fire({ title: config.earlyPopup, showClass: { popup: "animate__animated animate__fadeInUp animate__faster" }, width: 700, padding: "2em", color: config.popupColor, background: `#fff url(${swalbg})`, backdrop: `rgba(0,0,123,0.2) url(${loveu}) right no-repeat` });
         setPopupShown(true); setYesPressed(false); setIsTransitioning(false);
+        unlockAchievement("first-yes", "💕", "First Yes! You said yes!");
       }, 400);
     }
-  }, [yesPressed, noCount, popupShown]);
+  }, [yesPressed, noCount, popupShown, unlockAchievement]);
 
   useEffect(() => {
     if (yesPressed && noCount > 3 && !yesPopupShown) {
@@ -255,9 +295,10 @@ export default function Page() {
       setTimeout(() => {
         Swal.fire({ title: config.latePopup, width: 800, padding: "2em", color: config.popupColor, background: `#fff url(${swalbg})`, backdrop: `rgba(0,0,123,0.7) url(${purposerose}) right no-repeat` });
         setYesPopupShown(true); setYesPressed(true); setIsTransitioning(false);
+        unlockAchievement("eventual-yes", "🎉", "Eventual Yes! Love conquers all!");
       }, 400);
     }
-  }, [yesPressed, noCount, yesPopupShown]);
+  }, [yesPressed, noCount, yesPopupShown, unlockAchievement]);
 
   useEffect(() => {
     if (noCount === config.stubbornCount) {
@@ -267,6 +308,13 @@ export default function Page() {
 
   const [mouseStealMin, mouseStealMax] = config.mouseStealerRange;
 
+  const handleModeProgress = useCallback((mode, progress) => {
+    setTotalXP((prev) => {
+      const expected = progress.completed * (mode === "quiz" ? 25 : mode === "timeline" ? 15 : 10);
+      return prev + Math.max(0, expected - prev);
+    });
+  }, []);
+
   const renderMode = () => {
     switch (activeMode) {
       case "proposal":
@@ -275,47 +323,48 @@ export default function Page() {
             {noCount > mouseStealMin && noCount < mouseStealMax && !yesPressed && <MouseStealing />}
             {yesPressed && noCount > 3 ? (
               <>
-                <img ref={gifRef} className="h-[200px] md:h-[230px] rounded-2xl shadow-2xl" src={YesGifs[currentGifIndex]} alt="Yes Response" />
-                <div className="text-4xl md:text-6xl font-bold my-4 text-center bg-gradient-to-r from-rose-600 via-pink-500 to-rose-600 bg-clip-text text-transparent" style={{ fontFamily: "Charm, serif" }}>{config.yesTitle}</div>
-                <div className="text-2xl md:text-4xl font-bold my-1 text-center" style={{ fontFamily: "Beau Rivage, serif", fontWeight: 500 }}>{config.yesSubtitle}</div>
+                <img ref={gifRef} className="h-[180px] md:h-[220px] rounded-2xl shadow-2xl" src={YesGifs[currentGifIndex]} alt="Yes Response" />
+                <div className="text-3xl md:text-5xl font-bold my-3 text-center bg-gradient-to-r from-rose-600 via-pink-500 to-rose-600 bg-clip-text text-transparent" style={{ fontFamily: "Charm, serif" }}>{config.yesTitle}</div>
+                <div className="text-xl md:text-3xl font-bold my-1 text-center" style={{ fontFamily: "Beau Rivage, serif", fontWeight: 500 }}>{config.yesSubtitle}</div>
                 <WordMarquee messages={config.marqueeMessages} />
               </>
             ) : (
               <>
-                <img src={lovesvg} className="fixed animate-pulse top-16 md:left-15 left-6 md:w-40 w-28 drop-shadow-lg z-10" alt="Love SVG" />
-                <img ref={gifRef} className="h-[200px] md:h-[230px] rounded-2xl shadow-2xl" src={Lovegif} alt="Love Animation" />
-                <h1 className="text-3xl md:text-6xl my-5 text-center font-bold" style={{ fontFamily: "Charm, serif" }}>{config.heading}</h1>
-                <div className="flex flex-wrap justify-center gap-4 items-center">
+                <img src={lovesvg} className="fixed animate-pulse top-16 md:left-15 left-6 md:w-40 w-24 drop-shadow-lg z-10" alt="Love SVG" />
+                <img ref={gifRef} className="h-[180px] md:h-[220px] rounded-2xl shadow-2xl" src={Lovegif} alt="Love Animation" />
+                <h1 className="text-2xl md:text-5xl my-4 md:my-5 text-center font-bold" style={{ fontFamily: "Charm, serif" }}>{config.heading}</h1>
+                <div className="flex flex-wrap justify-center gap-3 md:gap-4 items-center">
                   <button onMouseEnter={handleMouseEnterYes} onMouseLeave={handleMouseLeave}
-                    className={`btn-glow ${config.acceptColor} text-white font-bold rounded-2xl shadow-xl hover:shadow-2xl hover:scale-105 active:scale-95 transition-all duration-300 cursor-pointer`}
-                    style={{ fontSize: yesButtonSize, padding: "16px 40px" }} onClick={handleYesClick}>
+                    className={`btn-glow btn-primary ${config.acceptColor}`}
+                    style={{ fontSize: yesButtonSize }}
+                    onClick={handleYesClick}>
                     {config.acceptBtn}
                   </button>
                   <button onMouseEnter={handleMouseEnterNo} onMouseLeave={handleMouseLeave} onClick={handleNoClick}
-                    className={`${config.rejectColor} rounded-2xl text-white font-bold shadow-xl hover:shadow-2xl hover:scale-105 active:scale-95 transition-all duration-300 cursor-pointer`}
-                    style={{ fontSize: "1rem", padding: "16px 40px" }}>
+                    className={`btn-primary ${config.rejectColor}`}
+                    style={{ fontSize: "1rem" }}>
                     {noCount === 0 ? "No" : getNoButtonText()}
                   </button>
                 </div>
                 {floatingGifs.map((gif) => (
-                  <img key={gif.id} src={gif.src} alt="" className="absolute w-12 h-12 animate-bounce" style={gif.style} />
+                  <img key={gif.id} src={gif.src} alt="" className="absolute w-10 h-10 md:w-12 md:h-12 animate-float" style={gif.style} />
                 ))}
               </>
             )}
           </div>
         );
       case "timeline":
-        return <Timeline data={config.timeline} />;
+        return <Timeline data={config.timeline} onProgress={(p) => handleModeProgress("timeline", p)} />;
       case "letter":
-        return <LoveLetter data={config.letter} />;
+        return <LoveLetter data={config.letter} onProgress={(p) => handleModeProgress("letter", p)} />;
       case "quiz":
-        return <QuizGame data={config.quiz} results={config.quizResults} />;
+        return <QuizGame data={config.quiz} results={config.quizResults} onProgress={(p) => handleModeProgress("quiz", p)} />;
       case "jar":
-        return <ReasonsJar data={config.reasons} />;
+        return <ReasonsJar data={config.reasons} onProgress={(p) => handleModeProgress("jar", p)} />;
       case "gallery":
-        return <PhotoGallery data={config.gallery} />;
+        return <PhotoGallery data={config.gallery} onProgress={(p) => handleModeProgress("gallery", p)} />;
       case "promises":
-        return <PromiseBuilder data={config.promises} title={config.promiseTitle} subtitle={config.promiseSubtitle} />;
+        return <PromiseBuilder data={config.promises} title={config.promiseTitle} subtitle={config.promiseSubtitle} onProgress={(p) => handleModeProgress("promises", p)} />;
       case "playlist":
         return <Playlist data={config.playlist} />;
       default:
@@ -331,39 +380,36 @@ export default function Page() {
 
       <Nav activeMode={activeMode} setActiveMode={setActiveMode} />
 
-      <div className={`pt-16 pb-24 min-h-screen flex flex-col items-center justify-center text-zinc-900 ${config.selectionColor}`}>
-        {activeMode === "proposal" ? (
-          renderMode()
-        ) : (
-          <div className="w-full max-w-5xl mx-auto animate-fade-in px-4">
-            <ModeHeader title={config.navTitle} subtitle={config.title} />
-            {renderMode()}
-          </div>
-        )}
-      </div>
+      <main className="pt-14 md:pt-16 pb-28 md:pb-20 min-h-screen text-zinc-900 overflow-y-auto no-scrollbar" style={{ paddingTop: "calc(var(--safe-top) + 3.5rem)" }}>
+        <div className={`max-w-5xl mx-auto px-3 md:px-6 ${config.selectionColor}`}>
+          {activeMode === "proposal" ? (
+            <div className="min-h-[calc(100vh-8rem)] flex flex-col items-center justify-center">
+              {renderMode()}
+            </div>
+          ) : (
+            <div className="animate-fade-in py-4 md:py-6">
+              <ModeHeader title={config.navTitle} subtitle={config.title} />
+              {renderMode()}
+            </div>
+          )}
+        </div>
+      </main>
 
+      {/* Mute Button */}
       <button
-        className="fixed bottom-20 right-4 md:bottom-10 md:right-10 bg-black/15 backdrop-blur-sm p-3 rounded-full hover:bg-black/25 active:scale-90 transition-all duration-300 shadow-lg cursor-pointer z-50"
+        className="fixed bottom-14 right-4 md:bottom-4 md:right-4 bg-black/15 backdrop-blur-sm w-9 h-9 md:w-10 md:h-10 rounded-full flex items-center justify-center hover:bg-black/25 active:scale-90 transition-all duration-300 shadow-lg cursor-pointer z-50"
         onClick={toggleMute}
         aria-label={isMuted ? "Unmute" : "Mute"}
       >
-        {isMuted ? <BsVolumeMuteFill size={22} className="text-zinc-700" /> : <BsVolumeUpFill size={22} className="text-zinc-700" />}
+        {isMuted ? <BsVolumeMuteFill size={18} className="text-zinc-700" /> : <BsVolumeUpFill size={18} className="text-zinc-700" />}
       </button>
 
-      {config.playlist?.spotify && (
-        <button
-          className={`fixed bottom-20 right-4 md:bottom-10 md:right-20 bg-black/15 backdrop-blur-sm p-3 rounded-full hover:bg-black/25 active:scale-90 transition-all duration-300 shadow-lg cursor-pointer z-50 ${showPlaylist ? "ring-2 ring-rose-400" : ""}`}
-          onClick={() => setShowPlaylist((p) => !p)}
-          aria-label="Toggle playlist"
-        >
-          <BsMusicNoteBeamed size={22} className="text-zinc-700" />
-        </button>
-      )}
+      {/* Inline Audio Player */}
+      <AudioPlayer tracks={loveTracks} />
 
-      {showPlaylist && config.playlist?.spotify && (
-        <div className="fixed bottom-36 right-4 md:bottom-28 md:right-10 z-50 animate-fade-in-up">
-          <Playlist data={config.playlist} compact />
-        </div>
+      {/* Achievement Toast */}
+      {pendingAchievement && (
+        <AchievementToast achievement={pendingAchievement} onDone={() => setPendingAchievement(null)} />
       )}
 
       <Footer />

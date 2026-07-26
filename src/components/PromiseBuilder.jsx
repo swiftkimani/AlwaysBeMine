@@ -1,7 +1,13 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
-export default function PromiseBuilder({ data, title, subtitle }) {
+export default function PromiseBuilder({ data, title, subtitle, onProgress }) {
   const [flippedCards, setFlippedCards] = useState(new Set());
+
+  const pct = Math.round((flippedCards.size / data.length) * 100);
+
+  useEffect(() => {
+    onProgress?.({ completed: flippedCards.size, total: data.length });
+  }, [flippedCards.size, data.length, onProgress]);
 
   const toggleCard = (idx) => {
     setFlippedCards((prev) => {
@@ -12,65 +18,100 @@ export default function PromiseBuilder({ data, title, subtitle }) {
     });
   };
 
+  const allFlipped = flippedCards.size === data.length;
+
   return (
-    <div className="w-full max-w-4xl mx-auto px-4 py-6 md:py-8">
-      <div className="text-center mb-8">
-        <h2 className="text-2xl md:text-4xl font-bold text-zinc-900 mb-2" style={{ fontFamily: "Charm, serif" }}>
+    <div className="w-full max-w-4xl mx-auto">
+      {/* Title */}
+      <div className="text-center mb-5">
+        <h2 className="text-xl md:text-3xl font-bold text-zinc-900 mb-1" style={{ fontFamily: "Charm, serif" }}>
           {title}
         </h2>
-        <p className="text-sm text-zinc-500">{subtitle}</p>
+        <p className="text-xs text-zinc-500">{subtitle}</p>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 md:gap-5">
-        {data.map((promise, idx) => (
-          <div
-            key={idx}
-            onClick={() => toggleCard(idx)}
-            className="cursor-pointer group"
-            style={{ perspective: "1000px" }}
-          >
+      {/* Progress */}
+      <div className="glass-card p-3 mb-5 flex items-center gap-3">
+        <div className="w-8 h-8 rounded-lg bg-rose-500/15 flex items-center justify-center text-sm">🤝</div>
+        <div className="flex-1">
+          <p className="text-[10px] font-bold text-zinc-600">Promises Sealed</p>
+          <div className="progress-bar mt-1">
+            <div className="progress-bar-fill" style={{ width: `${pct}%` }} />
+          </div>
+        </div>
+        <span className="text-[10px] text-zinc-500">{flippedCards.size}/{data.length}</span>
+        <span className="xp-badge">+{flippedCards.size * 15} XP</span>
+      </div>
+
+      {/* Cards Grid */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 md:gap-4">
+        {data.map((promise, idx) => {
+          const isFlipped = flippedCards.has(idx);
+          return (
             <div
-              className={`relative w-full h-44 md:h-48 transition-transform duration-500 ${
-                flippedCards.has(idx) ? "[transform:rotateY(180deg)]" : ""
-              }`}
-              style={{ transformStyle: "preserve-3d" }}
+              key={idx}
+              onClick={() => toggleCard(idx)}
+              className="cursor-pointer group"
+              style={{ perspective: "1000px" }}
             >
               <div
-                className={`absolute inset-0 rounded-2xl flex items-center justify-center p-6 border border-white/25 shadow-xl ${
-                  flippedCards.has(idx) ? "[visibility:hidden]" : ""
-                }`}
+                className={`relative w-full h-40 md:h-44 transition-transform duration-500`}
                 style={{
-                  backfaceVisibility: "hidden",
-                  background: "linear-gradient(135deg, rgba(255,255,255,0.25), rgba(255,255,255,0.08))",
-                  backdropFilter: "blur(12px)",
+                  transformStyle: "preserve-3d",
+                  transform: isFlipped ? "rotateY(180deg)" : "rotateY(0deg)",
                 }}
               >
-                <div className="text-center">
-                  <span className="text-4xl mb-3 block group-hover:scale-110 transition-transform duration-300">💝</span>
-                  <p className="text-sm text-zinc-500 font-bold">Promise #{idx + 1}</p>
-                  <p className="text-xs text-zinc-400 mt-2 bg-white/10 px-3 py-1 rounded-full">Tap to reveal</p>
+                {/* Front */}
+                <div
+                  className="absolute inset-0 rounded-xl flex items-center justify-center p-5 border border-white/20 shadow-xl"
+                  style={{
+                    backfaceVisibility: "hidden",
+                    background: "linear-gradient(135deg, rgba(255,255,255,0.2), rgba(255,255,255,0.05))",
+                    backdropFilter: "blur(12px)",
+                  }}
+                >
+                  <div className="text-center">
+                    <span className="text-3xl mb-2 block group-hover:scale-110 transition-transform duration-300">
+                      {isFlipped ? "💝" : "💝"}
+                    </span>
+                    <p className="text-xs text-zinc-500 font-bold">Promise #{idx + 1}</p>
+                    <p className="text-[10px] text-zinc-400 mt-1.5 bg-white/10 px-2.5 py-0.5 rounded-full inline-block">
+                      {isFlipped ? "Tap to hide" : "Tap to reveal"}
+                    </p>
+                  </div>
+                </div>
+
+                {/* Back */}
+                <div
+                  className="absolute inset-0 rounded-xl flex items-center justify-center p-5 border border-rose-200/30 shadow-xl"
+                  style={{
+                    backfaceVisibility: "hidden",
+                    transform: "rotateY(180deg)",
+                    background: "linear-gradient(135deg, rgba(244,63,94,0.1), rgba(236,72,153,0.1))",
+                    backdropFilter: "blur(12px)",
+                  }}
+                >
+                  <div className="text-center">
+                    <p className="text-zinc-800 text-xs md:text-sm leading-relaxed mb-2" style={{ fontFamily: "Charm, serif" }}>
+                      {promise}
+                    </p>
+                    <span className="text-[10px] text-rose-400 font-bold">Sealed with love 💕</span>
+                  </div>
                 </div>
               </div>
-
-              <div
-                className={`absolute inset-0 rounded-2xl flex items-center justify-center p-6 border border-rose-200/30 shadow-xl ${
-                  !flippedCards.has(idx) ? "[visibility:hidden]" : ""
-                }`}
-                style={{
-                  backfaceVisibility: "hidden",
-                  background: "linear-gradient(135deg, rgba(244,63,94,0.12), rgba(236,72,153,0.12))",
-                  backdropFilter: "blur(12px)",
-                  transform: "rotateY(180deg)",
-                }}
-              >
-                <p className="text-zinc-800 text-sm md:text-base text-center leading-relaxed" style={{ fontFamily: "Charm, serif" }}>
-                  {promise}
-                </p>
-              </div>
             </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
+
+      {/* All done */}
+      {allFlipped && (
+        <div className="glass-card mt-4 p-4 text-center animate-bounce-in border-l-4 border-rose-400">
+          <p className="text-sm text-zinc-800 font-bold" style={{ fontFamily: "Charm, serif" }}>
+            All {data.length} promises revealed! Every single one is from the heart. 🥰
+          </p>
+        </div>
+      )}
     </div>
   );
 }

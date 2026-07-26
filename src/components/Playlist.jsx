@@ -1,72 +1,97 @@
+import { useState } from "react";
+
 export default function Playlist({ data, compact }) {
+  const [activeTrack, setActiveTrack] = useState(0);
+
+  if (!data?.tracks) return null;
+
   if (compact) {
     return (
-      <div className="bg-white/20 backdrop-blur-xl rounded-2xl p-4 border border-white/25 shadow-2xl w-72">
+      <div className="glass-card p-4 w-72">
         <p className="text-xs font-bold text-zinc-700 mb-3" style={{ fontFamily: "Charm, serif" }}>
-          🎵 Our Songs
+          🎵 {data.title || "Our Songs"}
         </p>
-        {data.spotify && (
-          <iframe
-            src={data.spotify}
-            width="100%"
-            height={data.compactHeight || 152}
-            frameBorder="0"
-            allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
-            loading="lazy"
-            className="rounded-xl"
-            title="Spotify Playlist"
-          />
-        )}
-        {data.youtube && !data.spotify && (
-          <iframe
-            width="100%"
-            height="160"
-            src={data.youtube}
-            title="YouTube playlist player"
-            frameBorder="0"
-            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-            allowFullScreen
-            loading="lazy"
-            className="rounded-xl"
-          />
-        )}
+        <div className="space-y-1.5 max-h-[200px] overflow-y-auto no-scrollbar">
+          {data.tracks.slice(0, 5).map((track, idx) => (
+            <button
+              key={idx}
+              onClick={() => setActiveTrack(idx)}
+              className={`w-full flex items-center gap-2 p-2 rounded-lg text-left transition-all cursor-pointer ${
+                idx === activeTrack ? "bg-rose-500/15" : "hover:bg-white/10"
+              }`}
+            >
+              <span className={`w-5 h-5 rounded flex items-center justify-center text-[10px] font-bold shrink-0 ${
+                idx === activeTrack ? "bg-rose-500 text-white" : "bg-white/10 text-zinc-500"
+              }`}>
+                {idx === activeTrack ? "▶" : idx + 1}
+              </span>
+              <div className="min-w-0 flex-1">
+                <p className={`text-[11px] font-bold truncate ${idx === activeTrack ? "text-rose-600" : "text-zinc-800"}`}>
+                  {track.title}
+                </p>
+                <p className="text-[9px] text-zinc-500 truncate">{track.artist}</p>
+              </div>
+            </button>
+          ))}
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="w-full max-w-2xl mx-auto px-4 py-6 md:py-8">
-      <div className="bg-white/15 backdrop-blur-xl rounded-3xl p-6 md:p-8 border border-white/25 shadow-2xl">
-        <div className="text-center mb-6">
-          <span className="text-4xl mb-3 block">🎵</span>
-          <h2 className="text-2xl md:text-3xl font-bold text-zinc-900 mb-2" style={{ fontFamily: "Charm, serif" }}>
+    <div className="w-full max-w-2xl mx-auto">
+      <div className="glass-card p-5 md:p-7">
+        {/* Header */}
+        <div className="text-center mb-5">
+          <span className="text-3xl mb-2 block">🎵</span>
+          <h2 className="text-xl md:text-2xl font-bold text-zinc-900 mb-1" style={{ fontFamily: "Charm, serif" }}>
             {data.title || "Our Love Songs"}
           </h2>
-          <p className="text-sm text-zinc-500">{data.subtitle || "Songs that remind me of us"}</p>
-          <div className="w-16 h-1 mx-auto mt-3 rounded-full bg-gradient-to-r from-rose-400 to-pink-500" />
+          <p className="text-xs text-zinc-500">{data.subtitle || "Songs that remind me of us"}</p>
+          <div className="w-16 h-1 mx-auto mt-2 rounded-full bg-gradient-to-r from-rose-400 to-pink-500" />
         </div>
 
-        {data.tracks && data.tracks.length > 0 && (
-          <div className="space-y-3 mb-6">
-            {data.tracks.map((track, idx) => (
-              <div
-                key={idx}
-                className="flex items-center gap-3 bg-white/10 hover:bg-white/20 rounded-xl p-3 transition-all duration-200 cursor-pointer"
-                onClick={() => track.url && window.open(track.url, "_blank")}
-              >
-                <span className="text-lg w-8 text-center text-rose-400 font-bold">{idx + 1}</span>
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm font-bold text-zinc-800 truncate">{track.title}</p>
-                  <p className="text-xs text-zinc-500 truncate">{track.artist}</p>
-                </div>
-                {track.url && <span className="text-xs text-rose-400 shrink-0">▶ Listen</span>}
+        {/* Track List */}
+        <div className="space-y-1.5 mb-5">
+          {data.tracks.map((track, idx) => (
+            <div
+              key={idx}
+              onClick={() => setActiveTrack(idx)}
+              className={`flex items-center gap-3 rounded-xl p-3 transition-all duration-200 cursor-pointer ${
+                idx === activeTrack
+                  ? "bg-gradient-to-r from-rose-500/15 to-pink-500/15 border border-rose-200/30"
+                  : "hover:bg-white/10 border border-transparent"
+              }`}
+            >
+              <span className={`w-8 h-8 rounded-lg flex items-center justify-center text-xs font-bold shrink-0 ${
+                idx === activeTrack ? "bg-rose-500 text-white" : "bg-white/10 text-zinc-500"
+              }`}>
+                {idx === activeTrack ? (
+                  <div className="flex gap-px items-end h-3">
+                    <span className="w-px bg-white" style={{ height: "60%", animation: "float 0.6s ease-in-out infinite" }} />
+                    <span className="w-px bg-white" style={{ height: "100%", animation: "float 0.6s ease-in-out 0.15s infinite" }} />
+                    <span className="w-px bg-white" style={{ height: "40%", animation: "float 0.6s ease-in-out 0.3s infinite" }} />
+                  </div>
+                ) : (
+                  idx + 1
+                )}
+              </span>
+              <div className="flex-1 min-w-0">
+                <p className={`text-sm font-bold truncate ${idx === activeTrack ? "text-rose-600" : "text-zinc-800"}`}>
+                  {track.title}
+                </p>
+                <p className="text-xs text-zinc-500 truncate">{track.artist}</p>
               </div>
-            ))}
-          </div>
-        )}
+              {track.url && (
+                <span className="text-[10px] text-rose-400 shrink-0 bg-rose-500/10 px-2 py-0.5 rounded-full">▶ Open</span>
+              )}
+            </div>
+          ))}
+        </div>
 
+        {/* Spotify Embed */}
         {data.spotify && (
-          <div className="rounded-2xl overflow-hidden shadow-lg">
+          <div className="rounded-xl overflow-hidden shadow-lg">
             <iframe
               src={data.spotify}
               width="100%"
@@ -79,8 +104,9 @@ export default function Playlist({ data, compact }) {
           </div>
         )}
 
-        {data.youtube && (
-          <div className="rounded-2xl overflow-hidden shadow-lg mt-4">
+        {/* YouTube Embed */}
+        {data.youtube && !data.spotify && (
+          <div className="rounded-xl overflow-hidden shadow-lg">
             <iframe
               width="100%"
               height="315"
@@ -94,6 +120,7 @@ export default function Playlist({ data, compact }) {
           </div>
         )}
 
+        {/* Note */}
         {data.note && (
           <p className="text-center text-xs text-zinc-500 mt-4 italic" style={{ fontFamily: "Charm, serif" }}>
             {data.note}
