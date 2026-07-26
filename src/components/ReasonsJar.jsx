@@ -20,21 +20,27 @@ export default function ReasonsJar({ data }) {
   };
 
   return (
-    <div className="w-full max-w-lg mx-auto px-4 py-8 text-center">
+    <div className="w-full max-w-lg mx-auto px-4 py-6 md:py-8 text-center">
       <div className="relative mb-8">
-        {/* Jar SVG */}
         <div
-          className={`mx-auto w-48 h-56 relative cursor-pointer transition-transform duration-300 ${
+          className={`mx-auto w-48 h-56 md:w-56 md:h-64 relative cursor-pointer transition-transform duration-300 ${
             isShaking ? "animate-shake" : "hover:scale-105"
           }`}
           onClick={pullReason}
         >
-          <svg viewBox="0 0 200 260" className="w-full h-full">
-            {/* Jar body */}
-            <rect x="30" y="60" width="140" height="180" rx="15" fill="rgba(255,255,255,0.3)" stroke="rgba(255,255,255,0.5)" strokeWidth="2" />
-            {/* Jar lid */}
-            <rect x="40" y="40" width="120" height="30" rx="8" fill="rgba(180,140,100,0.8)" stroke="rgba(150,110,70,0.8)" strokeWidth="2" />
-            {/* Hearts inside */}
+          <svg viewBox="0 0 200 260" className="w-full h-full drop-shadow-xl">
+            <defs>
+              <linearGradient id="jarGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stopColor="rgba(255,255,255,0.35)" />
+                <stop offset="100%" stopColor="rgba(255,255,255,0.15)" />
+              </linearGradient>
+              <linearGradient id="lidGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stopColor="#c4956a" />
+                <stop offset="100%" stopColor="#a07050" />
+              </linearGradient>
+            </defs>
+            <rect x="30" y="60" width="140" height="180" rx="15" fill="url(#jarGrad)" stroke="rgba(255,255,255,0.4)" strokeWidth="2" />
+            <rect x="40" y="40" width="120" height="30" rx="8" fill="url(#lidGrad)" stroke="#8b6340" strokeWidth="1.5" />
             {data.map((_, i) => {
               const x = 50 + (i % 4) * 28 + Math.random() * 10;
               const y = 80 + Math.floor(i / 4) * 35 + Math.random() * 10;
@@ -58,13 +64,13 @@ export default function ReasonsJar({ data }) {
           <button
             onClick={pullReason}
             disabled={isShaking}
-            className="bg-rose-500 hover:bg-rose-600 disabled:bg-rose-300 text-white font-bold py-2.5 px-6 rounded-xl shadow-lg hover:shadow-xl hover:scale-105 active:scale-95 transition-all duration-200 cursor-pointer"
+            className="btn-glow bg-gradient-to-r from-rose-500 to-pink-500 hover:from-rose-600 hover:to-pink-600 disabled:from-rose-300 disabled:to-pink-300 text-white font-bold py-3 px-8 rounded-2xl shadow-xl hover:shadow-2xl hover:scale-105 active:scale-95 transition-all duration-300 cursor-pointer"
           >
             {isShaking ? "Shaking... 🫙" : `Pull a Reason 💝 (${unrevealedCount} left)`}
           </button>
         ) : (
           <p className="text-lg text-zinc-600 font-bold" style={{ fontFamily: "Charm, serif" }}>
-            You've seen all the reasons! 🥰
+            You&apos;ve seen all the reasons! 🥰
           </p>
         )}
       </div>
@@ -74,10 +80,10 @@ export default function ReasonsJar({ data }) {
           {revealedReasons.map((idx, i) => (
             <div
               key={idx}
-              className="bg-white/10 backdrop-blur-md rounded-xl p-4 border border-white/20 shadow-lg animate-fade-in"
+              className="bg-white/15 backdrop-blur-xl rounded-2xl p-4 md:p-5 border border-white/25 shadow-lg animate-fade-in"
               style={{ animationDelay: `${i * 100}ms` }}
             >
-              <p className="text-zinc-800 font-medium" style={{ fontFamily: "Charm, serif" }}>
+              <p className="text-zinc-800 font-medium text-sm md:text-base" style={{ fontFamily: "Charm, serif" }}>
                 {i + 1}. {data[idx]} 💝
               </p>
             </div>

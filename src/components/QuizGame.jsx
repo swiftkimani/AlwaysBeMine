@@ -40,18 +40,18 @@ export default function QuizGame({ data, results }) {
   if (finished) {
     return (
       <div className="w-full max-w-xl mx-auto px-4 py-8 text-center">
-        <div className="bg-white/10 backdrop-blur-md rounded-2xl p-8 border border-white/20 shadow-2xl animate-fade-in">
-          <div className="text-6xl mb-4">{percentage === 100 ? "🏆" : percentage >= 75 ? "🌟" : percentage >= 50 ? "💖" : "💕"}</div>
-          <h2 className="text-3xl font-bold text-zinc-900 mb-2" style={{ fontFamily: "Charm, serif" }}>
+        <div className="bg-white/15 backdrop-blur-xl rounded-3xl p-8 md:p-10 border border-white/25 shadow-2xl animate-fade-in">
+          <div className="text-7xl mb-4">{percentage === 100 ? "🏆" : percentage >= 75 ? "🌟" : percentage >= 50 ? "💖" : "💕"}</div>
+          <h2 className="text-4xl font-bold text-zinc-900 mb-3" style={{ fontFamily: "Charm, serif" }}>
             {score}/{total}
           </h2>
-          <div className="w-full bg-white/20 rounded-full h-4 mb-4 overflow-hidden">
+          <div className="w-full bg-white/20 rounded-full h-4 mb-5 overflow-hidden">
             <div
               className="h-full bg-gradient-to-r from-rose-400 to-pink-500 rounded-full transition-all duration-1000 ease-out"
               style={{ width: `${percentage}%` }}
             />
           </div>
-          <p className="text-zinc-700 text-lg mb-6" style={{ fontFamily: "Charm, serif" }}>
+          <p className="text-zinc-700 text-lg mb-8 leading-relaxed" style={{ fontFamily: "Charm, serif" }}>
             {getResultMessage()}
           </p>
           <button
@@ -62,7 +62,7 @@ export default function QuizGame({ data, results }) {
               setShowResult(false);
               setFinished(false);
             }}
-            className="bg-rose-500 hover:bg-rose-600 text-white font-bold py-2 px-6 rounded-xl shadow-lg hover:scale-105 active:scale-95 transition-all duration-200 cursor-pointer"
+            className="btn-glow bg-gradient-to-r from-rose-500 to-pink-500 hover:from-rose-600 hover:to-pink-600 text-white font-bold py-3 px-8 rounded-2xl shadow-xl hover:shadow-2xl hover:scale-105 active:scale-95 transition-all duration-300 cursor-pointer"
           >
             Play Again 💕
           </button>
@@ -72,52 +72,53 @@ export default function QuizGame({ data, results }) {
   }
 
   return (
-    <div className="w-full max-w-xl mx-auto px-4 py-8">
-      <div className="bg-white/10 backdrop-blur-md rounded-2xl p-8 border border-white/20 shadow-2xl">
-        <div className="flex justify-between items-center mb-6">
-          <span className="text-sm font-bold text-rose-400">Question {currentQ + 1}/{total}</span>
-          <span className="text-sm font-bold text-zinc-500">Score: {score}</span>
+    <div className="w-full max-w-xl mx-auto px-4 py-6 md:py-8">
+      <div className="bg-white/15 backdrop-blur-xl rounded-3xl p-6 md:p-8 border border-white/25 shadow-2xl">
+        <div className="flex justify-between items-center mb-5">
+          <span className="text-sm font-bold text-rose-400 bg-white/10 px-3 py-1 rounded-full">Question {currentQ + 1}/{total}</span>
+          <span className="text-sm font-bold text-zinc-500 bg-white/10 px-3 py-1 rounded-full">Score: {score}</span>
         </div>
 
-        <div className="w-full bg-white/20 rounded-full h-2 mb-6 overflow-hidden">
+        <div className="w-full bg-white/20 rounded-full h-2.5 mb-6 overflow-hidden">
           <div
             className="h-full bg-gradient-to-r from-rose-400 to-pink-500 rounded-full transition-all duration-500"
             style={{ width: `${((currentQ + 1) / total) * 100}%` }}
           />
         </div>
 
-        <h3 className="text-xl font-bold text-zinc-900 mb-6" style={{ fontFamily: "Charm, serif" }}>
+        <h3 className="text-xl md:text-2xl font-bold text-zinc-900 mb-6 leading-relaxed" style={{ fontFamily: "Charm, serif" }}>
           {question.q}
         </h3>
 
         <div className="space-y-3">
           {question.options.map((opt, idx) => {
-            let styles = "bg-white/20 hover:bg-white/30 text-zinc-800";
+            let styles = "bg-white/20 hover:bg-white/35 text-zinc-800 border-white/15";
             if (showResult) {
-              if (idx === question.answer) styles = "bg-green-500/80 text-white";
-              else if (idx === selected) styles = "bg-red-500/80 text-white";
-              else styles = "bg-white/10 text-zinc-400";
+              if (idx === question.answer) styles = "bg-green-500/80 text-white border-green-400/50";
+              else if (idx === selected) styles = "bg-red-500/80 text-white border-red-400/50";
+              else styles = "bg-white/10 text-zinc-400 border-white/5";
             }
 
             return (
               <button
                 key={idx}
                 onClick={() => handleAnswer(idx)}
-                className={`w-full text-left p-4 rounded-xl font-medium transition-all duration-200 border border-white/10 cursor-pointer ${styles} ${
+                className={`w-full text-left p-4 md:p-5 rounded-2xl font-medium transition-all duration-300 border cursor-pointer ${styles} ${
                   !showResult ? "hover:scale-[1.02] active:scale-[0.98]" : ""
                 }`}
               >
-                {String.fromCharCode(65 + idx)}. {opt}
+                <span className="font-bold mr-2">{String.fromCharCode(65 + idx)}.</span>
+                {opt}
               </button>
             );
           })}
         </div>
 
         {showResult && (
-          <div className="text-center mt-6 animate-fade-in">
+          <div className="text-center mt-8 animate-fade-in">
             <button
               onClick={handleNext}
-              className="bg-rose-500 hover:bg-rose-600 text-white font-bold py-2 px-6 rounded-xl shadow-lg hover:scale-105 active:scale-95 transition-all duration-200 cursor-pointer"
+              className="btn-glow bg-gradient-to-r from-rose-500 to-pink-500 hover:from-rose-600 hover:to-pink-600 text-white font-bold py-3 px-8 rounded-2xl shadow-xl hover:shadow-2xl hover:scale-105 active:scale-95 transition-all duration-300 cursor-pointer"
             >
               {currentQ + 1 >= total ? "See Results 🏆" : "Next Question 💕"}
             </button>

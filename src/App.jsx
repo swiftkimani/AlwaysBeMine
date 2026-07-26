@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect, useCallback } from "react";
 import Spline from "@splinetool/react-spline";
 import Swal from "sweetalert2";
-import { BsVolumeUpFill, BsVolumeMuteFill } from "react-icons/bs";
+import { BsVolumeUpFill, BsVolumeMuteFill, BsMusicNoteBeamed } from "react-icons/bs";
 
 import config from "./config.js";
 import MouseStealing from "./MouseStealer.jsx";
@@ -12,6 +12,7 @@ import QuizGame from "./components/QuizGame.jsx";
 import ReasonsJar from "./components/ReasonsJar.jsx";
 import PhotoGallery from "./components/PhotoGallery.jsx";
 import PromiseBuilder from "./components/PromiseBuilder.jsx";
+import Playlist from "./components/Playlist.jsx";
 import lovesvg from "./assets/All You Need Is Love SVG Cut File.svg";
 import Lovegif from "./assets/GifData/main_temp.gif";
 import heartGif from "./assets/GifData/happy.gif";
@@ -67,7 +68,14 @@ const modeLabels = {
   jar: "💝 Reasons",
   gallery: "📸 Gallery",
   promises: "🤝 Promises",
+  playlist: "🎵 Music",
 };
+
+function getInitialMode() {
+  const hash = window.location.hash.replace("#", "");
+  if (hash && config.modes.includes(hash)) return hash;
+  return config.modes[0];
+}
 
 function generateRandomPositionWithSpacing(existingPositions) {
   const minDistance = 15;
@@ -96,7 +104,7 @@ function createFloatingGifs(gifSrc, idPrefix) {
 function Footer() {
   return (
     <a
-      className="fixed bottom-2 right-2 backdrop-blur-md opacity-70 hover:opacity-100 border px-2 py-1 rounded-lg border-white/20 bg-black/10 text-xs text-zinc-600 hover:text-zinc-900 transition-all duration-300 z-50"
+      className="fixed bottom-2 right-2 backdrop-blur-md opacity-70 hover:opacity-100 border px-3 py-1.5 rounded-xl border-white/20 bg-black/10 text-xs text-zinc-600 hover:text-zinc-900 transition-all duration-300 z-50"
       href="https://github.com/swiftkimani/AlwaysBeMine"
       target="_blank"
       rel="noopener noreferrer"
@@ -107,17 +115,22 @@ function Footer() {
 }
 
 function Nav({ activeMode, setActiveMode }) {
+  const handleNav = (mode) => {
+    setActiveMode(mode);
+    window.location.hash = mode;
+  };
+
   return (
-    <nav className="fixed top-0 left-0 right-0 z-50 bg-black/10 backdrop-blur-md border-b border-white/10">
-      <div className="max-w-5xl mx-auto px-2 py-2 flex gap-1 overflow-x-auto no-scrollbar">
+    <nav className="fixed top-0 left-0 right-0 z-50 bg-black/15 backdrop-blur-xl border-b border-white/15">
+      <div className="max-w-5xl mx-auto px-3 py-2.5 flex gap-1.5 overflow-x-auto no-scrollbar">
         {config.modes.map((mode) => (
           <button
             key={mode}
-            onClick={() => setActiveMode(mode)}
-            className={`shrink-0 px-3 py-1.5 rounded-lg text-xs font-bold transition-all duration-200 cursor-pointer ${
+            onClick={() => handleNav(mode)}
+            className={`shrink-0 px-4 py-2 rounded-xl text-xs font-bold transition-all duration-300 cursor-pointer ${
               activeMode === mode
-                ? "bg-white/30 text-zinc-900 shadow-md"
-                : "text-zinc-600 hover:bg-white/10 hover:text-zinc-800"
+                ? "btn-glow bg-white/30 text-zinc-900 shadow-lg shadow-white/10"
+                : "text-zinc-600 hover:bg-white/10 hover:text-zinc-800 hover:shadow-md"
             }`}
           >
             {modeLabels[mode] || mode}
@@ -128,8 +141,27 @@ function Nav({ activeMode, setActiveMode }) {
   );
 }
 
+function ModeHeader({ title, subtitle }) {
+  return (
+    <div className="text-center mb-8 pt-4">
+      <h1
+        className="text-3xl md:text-5xl font-bold mb-2 bg-gradient-to-r from-rose-600 via-pink-500 to-purple-600 bg-clip-text text-transparent"
+        style={{ fontFamily: "Charm, serif" }}
+      >
+        {title}
+      </h1>
+      {subtitle && (
+        <p className="text-sm text-zinc-500" style={{ fontFamily: "Charm, serif" }}>
+          {subtitle}
+        </p>
+      )}
+      <div className="w-20 h-1 mx-auto mt-3 rounded-full bg-gradient-to-r from-rose-400 to-pink-500" />
+    </div>
+  );
+}
+
 export default function Page() {
-  const [activeMode, setActiveMode] = useState(config.modes[0]);
+  const [activeMode, setActiveMode] = useState(getInitialMode);
   const [noCount, setNoCount] = useState(0);
   const [yesPressed, setYesPressed] = useState(false);
   const [currentAudio, setCurrentAudio] = useState(null);
@@ -139,9 +171,19 @@ export default function Page() {
   const [yesPopupShown, setYesPopupShown] = useState(false);
   const [floatingGifs, setFloatingGifs] = useState([]);
   const [isTransitioning, setIsTransitioning] = useState(false);
+  const [showPlaylist, setShowPlaylist] = useState(false);
 
   const gifRef = useRef(null);
   const yesButtonSize = Math.min(noCount * 14 + 18, 72);
+
+  useEffect(() => {
+    const onHash = () => {
+      const hash = window.location.hash.replace("#", "");
+      if (hash && config.modes.includes(hash)) setActiveMode(hash);
+    };
+    window.addEventListener("hashchange", onHash);
+    return () => window.removeEventListener("hashchange", onHash);
+  }, []);
 
   const handleMouseEnterYes = useCallback(() => setFloatingGifs(createFloatingGifs(heartGif, "heart")), []);
   const handleMouseEnterNo = useCallback(() => setFloatingGifs(createFloatingGifs(sadGif, "sad")), []);
@@ -177,7 +219,6 @@ export default function Page() {
 
   const getNoButtonText = () => config.noPhrases[Math.min(noCount, config.noPhrases.length - 1)];
 
-  // Keyboard support
   useEffect(() => {
     if (activeMode !== "proposal") return;
     const h = (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); handleYesClick(); } else if (e.key === "Escape") handleNoClick(); };
@@ -185,7 +226,6 @@ export default function Page() {
     return () => window.removeEventListener("keydown", h);
   }, [activeMode, handleYesClick, handleNoClick]);
 
-  // Cycle yes gifs
   useEffect(() => {
     if (gifRef.current && yesPressed && noCount > 3) gifRef.current.src = YesGifs[currentGifIndex];
   }, [yesPressed, currentGifIndex, noCount]);
@@ -199,7 +239,6 @@ export default function Page() {
 
   useEffect(() => { if (gifRef.current) gifRef.current.src = gifRef.current.src; }, [noCount]);
 
-  // Popups
   useEffect(() => {
     if (yesPressed && noCount < 4 && !popupShown) {
       setIsTransitioning(true);
@@ -232,29 +271,29 @@ export default function Page() {
     switch (activeMode) {
       case "proposal":
         return (
-          <div className="flex flex-col items-center animate-fade-in">
+          <div className="flex flex-col items-center animate-fade-in px-4">
             {noCount > mouseStealMin && noCount < mouseStealMax && !yesPressed && <MouseStealing />}
             {yesPressed && noCount > 3 ? (
               <>
-                <img ref={gifRef} className="h-[230px] rounded-lg shadow-2xl" src={YesGifs[currentGifIndex]} alt="Yes Response" />
-                <div className="text-4xl md:text-6xl font-bold my-3 text-center bg-gradient-to-r from-rose-600 via-pink-500 to-rose-600 bg-clip-text text-transparent" style={{ fontFamily: "Charm, serif" }}>{config.yesTitle}</div>
+                <img ref={gifRef} className="h-[200px] md:h-[230px] rounded-2xl shadow-2xl" src={YesGifs[currentGifIndex]} alt="Yes Response" />
+                <div className="text-4xl md:text-6xl font-bold my-4 text-center bg-gradient-to-r from-rose-600 via-pink-500 to-rose-600 bg-clip-text text-transparent" style={{ fontFamily: "Charm, serif" }}>{config.yesTitle}</div>
                 <div className="text-2xl md:text-4xl font-bold my-1 text-center" style={{ fontFamily: "Beau Rivage, serif", fontWeight: 500 }}>{config.yesSubtitle}</div>
                 <WordMarquee messages={config.marqueeMessages} />
               </>
             ) : (
               <>
-                <img src={lovesvg} className="fixed animate-pulse top-14 md:left-15 left-6 md:w-40 w-28 drop-shadow-lg z-10" alt="Love SVG" />
-                <img ref={gifRef} className="h-[230px] rounded-lg shadow-2xl" src={Lovegif} alt="Love Animation" />
-                <h1 className="text-3xl md:text-6xl my-4 text-center font-bold" style={{ fontFamily: "Charm, serif" }}>{config.heading}</h1>
-                <div className="flex flex-wrap justify-center gap-3 items-center">
+                <img src={lovesvg} className="fixed animate-pulse top-16 md:left-15 left-6 md:w-40 w-28 drop-shadow-lg z-10" alt="Love SVG" />
+                <img ref={gifRef} className="h-[200px] md:h-[230px] rounded-2xl shadow-2xl" src={Lovegif} alt="Love Animation" />
+                <h1 className="text-3xl md:text-6xl my-5 text-center font-bold" style={{ fontFamily: "Charm, serif" }}>{config.heading}</h1>
+                <div className="flex flex-wrap justify-center gap-4 items-center">
                   <button onMouseEnter={handleMouseEnterYes} onMouseLeave={handleMouseLeave}
-                    className={`${config.acceptColor} text-white font-bold rounded-xl shadow-lg hover:shadow-xl hover:scale-105 active:scale-95 transition-all duration-200 cursor-pointer`}
-                    style={{ fontSize: yesButtonSize, padding: "12px 32px" }} onClick={handleYesClick}>
+                    className={`btn-glow ${config.acceptColor} text-white font-bold rounded-2xl shadow-xl hover:shadow-2xl hover:scale-105 active:scale-95 transition-all duration-300 cursor-pointer`}
+                    style={{ fontSize: yesButtonSize, padding: "16px 40px" }} onClick={handleYesClick}>
                     {config.acceptBtn}
                   </button>
                   <button onMouseEnter={handleMouseEnterNo} onMouseLeave={handleMouseLeave} onClick={handleNoClick}
-                    className={`${config.rejectColor} rounded-xl text-white font-bold shadow-lg hover:shadow-xl hover:scale-105 active:scale-95 transition-all duration-200 cursor-pointer`}
-                    style={{ fontSize: "1rem", padding: "12px 32px" }}>
+                    className={`${config.rejectColor} rounded-2xl text-white font-bold shadow-xl hover:shadow-2xl hover:scale-105 active:scale-95 transition-all duration-300 cursor-pointer`}
+                    style={{ fontSize: "1rem", padding: "16px 40px" }}>
                     {noCount === 0 ? "No" : getNoButtonText()}
                   </button>
                 </div>
@@ -277,6 +316,8 @@ export default function Page() {
         return <PhotoGallery data={config.gallery} />;
       case "promises":
         return <PromiseBuilder data={config.promises} title={config.promiseTitle} subtitle={config.promiseSubtitle} />;
+      case "playlist":
+        return <Playlist data={config.playlist} />;
       default:
         return null;
     }
@@ -290,28 +331,40 @@ export default function Page() {
 
       <Nav activeMode={activeMode} setActiveMode={setActiveMode} />
 
-      <div className={`pt-14 pb-20 min-h-screen flex flex-col items-center justify-center text-zinc-900 ${config.selectionColor}`}>
+      <div className={`pt-16 pb-24 min-h-screen flex flex-col items-center justify-center text-zinc-900 ${config.selectionColor}`}>
         {activeMode === "proposal" ? (
           renderMode()
         ) : (
-          <div className="w-full animate-fade-in">
-            <div className="text-center mb-6 pt-4">
-              <h1 className="text-2xl md:text-4xl font-bold" style={{ fontFamily: "Charm, serif" }}>
-                {config.navTitle}
-              </h1>
-            </div>
+          <div className="w-full max-w-5xl mx-auto animate-fade-in px-4">
+            <ModeHeader title={config.navTitle} subtitle={config.title} />
             {renderMode()}
           </div>
         )}
       </div>
 
       <button
-        className="fixed bottom-10 right-10 bg-black/10 backdrop-blur-sm p-2.5 mb-2 rounded-full hover:bg-black/20 active:scale-90 transition-all duration-200 shadow-lg cursor-pointer z-50"
+        className="fixed bottom-20 right-4 md:bottom-10 md:right-10 bg-black/15 backdrop-blur-sm p-3 rounded-full hover:bg-black/25 active:scale-90 transition-all duration-300 shadow-lg cursor-pointer z-50"
         onClick={toggleMute}
         aria-label={isMuted ? "Unmute" : "Mute"}
       >
-        {isMuted ? <BsVolumeMuteFill size={24} className="text-zinc-700" /> : <BsVolumeUpFill size={24} className="text-zinc-700" />}
+        {isMuted ? <BsVolumeMuteFill size={22} className="text-zinc-700" /> : <BsVolumeUpFill size={22} className="text-zinc-700" />}
       </button>
+
+      {config.playlist?.spotify && (
+        <button
+          className={`fixed bottom-20 right-4 md:bottom-10 md:right-20 bg-black/15 backdrop-blur-sm p-3 rounded-full hover:bg-black/25 active:scale-90 transition-all duration-300 shadow-lg cursor-pointer z-50 ${showPlaylist ? "ring-2 ring-rose-400" : ""}`}
+          onClick={() => setShowPlaylist((p) => !p)}
+          aria-label="Toggle playlist"
+        >
+          <BsMusicNoteBeamed size={22} className="text-zinc-700" />
+        </button>
+      )}
+
+      {showPlaylist && config.playlist?.spotify && (
+        <div className="fixed bottom-36 right-4 md:bottom-28 md:right-10 z-50 animate-fade-in-up">
+          <Playlist data={config.playlist} compact />
+        </div>
+      )}
 
       <Footer />
     </div>

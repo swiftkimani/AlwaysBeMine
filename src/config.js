@@ -12,6 +12,7 @@
  *             "jar"       - Reasons I love you jar
  *             "gallery"   - Photo memory lane
  *             "promises"  - Interactive promise builder
+ *             "playlist"  - Embedded love songs playlist
  * ============================================================
  */
 
@@ -24,7 +25,7 @@ const themes = {
     heroName: "My Love",
 
     // Which modes to show (order = nav order)
-    modes: ["proposal", "timeline", "letter", "quiz", "jar", "gallery", "promises"],
+    modes: ["proposal", "timeline", "letter", "quiz", "jar", "gallery", "promises", "playlist"],
 
     // --- Proposal Mode ---
     heading: "Will you be my Valentine?",
@@ -165,13 +166,36 @@ const themes = {
     ],
     promiseTitle: "My Promises to You",
     promiseSubtitle: "Click a card to flip and read each promise",
+
+    // --- Playlist Mode ---
+    playlist: {
+      title: "Our Love Songs",
+      subtitle: "Songs that remind me of us",
+      spotify: "https://open.spotify.com/embed/playlist/37i9dQZF1DX5xJoc6fOBqA?utm_source=generator&theme=0",
+      youtube: "https://www.youtube.com/embed/videoseries?list=PLrAXtmErZgOeiKm4sgNOknGvNjby9efdf",
+      height: 352,
+      compactHeight: 152,
+      note: "Press play and let these songs set the mood for our story",
+      tracks: [
+        { title: "Perfect", artist: "Ed Sheeran", url: "https://open.spotify.com/track/0tgVpDi06FyKnA3Qy7zw4" },
+        { title: "All of Me", artist: "John Legend", url: "https://open.spotify.com/track/3U4isOIWM3VvDubwSI3y7a" },
+        { title: "At Last", artist: "Etta James", url: "https://open.spotify.com/track/4Hhv2vrOTy89HFRcjU3QOx" },
+        { title: "A Thousand Years", artist: "Christina Perri", url: "https://open.spotify.com/track/5GhZPrCEmPNJmqrJ3bDPf" },
+        { title: "Thinking Out Loud", artist: "Ed Sheeran", url: "https://open.spotify.com/track/34gQhxBsOexLxXPXvXQxLP" },
+        { title: "Can't Help Falling in Love", artist: "Elvis Presley", url: "https://open.spotify.com/track/48aAJqMh6xjKX5BJT6NwX" },
+        { title: "Say You Won't Let Go", artist: "James Arthur", url: "https://open.spotify.com/track/5CQ3hWbIkA0ZoQb0JmUHJW" },
+        { title: "You Are The Reason", artist: "Calum Scott", url: "https://open.spotify.com/track/0DLzGGpZy3sFEPjCjMRcJ" },
+        { title: "Beautiful In White", artist: "Shane Filan", url: "https://open.spotify.com/track/49u5TKpNd5H6F6q1Uw2BzW" },
+        { title: "Photograph", artist: "Ed Sheeran", url: "https://open.spotify.com/track/6PQ88X9TkUIAUIZJHW2upE" },
+      ],
+    },
   },
 
   birthday: {
     title: "Happy Birthday! 🎂🎉",
     navTitle: "Birthday Celebration",
     heroName: "Birthday Star",
-    modes: ["proposal", "timeline", "letter", "quiz", "jar", "gallery"],
+    modes: ["proposal", "timeline", "letter", "quiz", "jar", "gallery", "playlist"],
     heading: "Make a Wish! 🎂",
     acceptBtn: "Let's Party! 🎉",
     acceptColor: "bg-purple-500 hover:bg-purple-600 active:bg-purple-700",
@@ -266,6 +290,27 @@ const themes = {
     ],
     promiseTitle: "Birthday Promises to You",
     promiseSubtitle: "Click to flip and read each promise",
+
+    // --- Playlist Mode ---
+    playlist: {
+      title: "Birthday Vibes",
+      subtitle: "Songs to celebrate your special day",
+      spotify: "https://open.spotify.com/embed/playlist/37i9dQZF1DWUVpAXiEPK8P?utm_source=generator&theme=0",
+      youtube: "https://www.youtube.com/embed/videoseries?list=PLrAXtmErZgOeiKm4sgNOknGvNjby9efdf",
+      height: 352,
+      compactHeight: 152,
+      note: "Turn up the volume and let's celebrate!",
+      tracks: [
+        { title: "Happy", artist: "Pharrell Williams", url: "https://open.spotify.com/track/60bWsV3kCwqh3g6b611aFh" },
+        { title: "Birthday", artist: "Katy Perry", url: "https://open.spotify.com/track/60bWsV3kCwqh3g6b611aFh" },
+        { title: "Celebrate", artist: "Mika", url: "https://open.spotify.com/track/0E7KjCF4f0IzMq2NMc0hHd" },
+        { title: "Best Day of My Life", artist: "American Authors", url: "https://open.spotify.com/track/2yQ9m3EF5t5dTe6mRbP6lA" },
+        { title: "Good As Hell", artist: "Lizzo", url: "https://open.spotify.com/track/5GhZPrCEmPNJmqrJ3bDPf" },
+        { title: "Levitating", artist: "Dua Lipa", url: "https://open.spotify.com/track/39LLxExYz6ewLAo9BKLRX8" },
+        { title: "Dynamite", artist: "BTS", url: "https://open.spotify.com/track/0VjIjW4GlUZAMYd2vXMi3b" },
+        { title: "Uptown Funk", artist: "Bruno Mars", url: "https://open.spotify.com/track/32OlwWuMpZ6b0aN2RZOeMS" },
+      ],
+    },
   },
 
   anniversary: {
@@ -370,6 +415,27 @@ const themes = {
     ],
     promiseTitle: "My Renewed Promises",
     promiseSubtitle: "Click a card to flip and read each promise",
+
+    // --- Playlist Mode ---
+    playlist: {
+      title: "Our Anniversary Playlist",
+      subtitle: "Songs from every chapter of us",
+      spotify: "https://open.spotify.com/embed/playlist/37i9dQZF1DX08SipB0W7aE?utm_source=generator&theme=0",
+      youtube: "https://www.youtube.com/embed/videoseries?list=PLrAXtmErZgOeiKm4sgNOknGvNjby9efdf",
+      height: 352,
+      compactHeight: 152,
+      note: "Every song here reminds me of a moment we shared",
+      tracks: [
+        { title: "Perfect", artist: "Ed Sheeran", url: "https://open.spotify.com/track/0tgVpDi06FyKnA3Qy7zw4" },
+        { title: "All of Me", artist: "John Legend", url: "https://open.spotify.com/track/3U4isOIWM3VvDubwSI3y7a" },
+        { title: "At Last", artist: "Etta James", url: "https://open.spotify.com/track/4Hhv2vrOTy89HFRcjU3QOx" },
+        { title: "Love Someone", artist: "Lukas Graham", url: "https://open.spotify.com/track/1F5Y1L1XvV6QeYk7x4a1cF" },
+        { title: "Stay With Me", artist: "Sam Smith", url: "https://open.spotify.com/track/6lS8q48T1OaJrRH8U8gWw" },
+        { title: "I'm Yours", artist: "Jason Mraz", url: "https://open.spotify.com/track/3COkNtTg26CM2Poj7WcYwc" },
+        { title: "Make You Feel My Love", artist: "Adele", url: "https://open.spotify.com/track/3E8gQ0v0VFPkHYRQa49y3c" },
+        { title: "I Don't Want to Miss a Thing", artist: "Aerosmith", url: "https://open.spotify.com/track/5EdeyY4wz0a7t5yVx2QnVl" },
+      ],
+    },
   },
 
   confession: {
@@ -463,6 +529,27 @@ const themes = {
     ],
     promiseTitle: "My Promises If You Give Us a Chance",
     promiseSubtitle: "Click to flip and read each promise",
+
+    // --- Playlist Mode ---
+    playlist: {
+      title: "Songs That Make Me Think of You",
+      subtitle: "Every beat reminds me of your smile",
+      spotify: "https://open.spotify.com/embed/playlist/37i9dQZF1DX5xJoc6fOBqA?utm_source=generator&theme=0",
+      youtube: "https://www.youtube.com/embed/videoseries?list=PLrAXtmErZgOeiKm4sgNOknGvNjby9efdf",
+      height: 352,
+      compactHeight: 152,
+      note: "Every song here was played on repeat while thinking about you",
+      tracks: [
+        { title: "Adore You", artist: "Harry Styles", url: "https://open.spotify.com/track/6UelhqQWMukV91IHlMPWkZ" },
+        { title: "Crush", artist: "Tessa Violet", url: "https://open.spotify.com/track/5CQ3hWbIkA0ZoQb0JmUHJW" },
+        { title: "Mine", artist: "Taylor Swift", url: "https://open.spotify.com/track/1JbJkBTk4p0sMN2f9YmM0P" },
+        { title: "Just the Way You Are", artist: "Bruno Mars", url: "https://open.spotify.com/track/0bYg9bo5kfgSfHsLBS9Rvf" },
+        { title: "What Makes You Beautiful", artist: "One Direction", url: "https://open.spotify.com/track/55iguSn8hQq8DMo6F09Bz" },
+        { title: "Beautiful Things", artist: "Benson Boone", url: "https://open.spotify.com/track/01bQw8Bs10RHVcLhSM1j5N" },
+        { title: "Birds of a Feather", artist: "Billie Eilish", url: "https://open.spotify.com/track/62LkHUWYQXoZP3q2aJn9mP" },
+        { title: "Roses", artist: "The Chainsmokers", url: "https://open.spotify.com/track/4TUGhCrHV85sH66bVb1l3b" },
+      ],
+    },
   },
 };
 
