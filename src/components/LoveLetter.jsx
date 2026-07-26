@@ -69,7 +69,7 @@ export default function LoveLetter({ data, onProgress }) {
         {/* Top accent */}
         <div className="absolute top-0 left-0 w-full h-1.5 bg-gradient-to-r from-amber-400 via-rose-400 to-purple-400" />
 
-        <div className="relative p-5 md:p-10">
+        <div className="relative p-6 md:p-10">
           {/* Greeting */}
           <p className="text-xl md:text-2xl font-bold text-amber-900 mb-6" style={{ fontFamily: "Great Vibes, cursive" }}>
             {data.greeting}
@@ -117,7 +117,7 @@ export default function LoveLetter({ data, onProgress }) {
       </div>
 
       {/* Gamification footer */}
-      <div className="glass-card mt-3 p-3 flex items-center gap-3">
+      <div className="glass-card mt-3 p-3 md:p-4 flex items-center gap-3">
         <div className="w-8 h-8 rounded-lg bg-amber-500/15 flex items-center justify-center text-sm">✉️</div>
         <div className="flex-1">
           <p className="text-[10px] font-bold text-zinc-600">Letter Progress</p>

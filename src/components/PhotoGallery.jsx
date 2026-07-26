@@ -19,7 +19,7 @@ export default function PhotoGallery({ data, onProgress }) {
   return (
     <div className="w-full max-w-4xl mx-auto">
       {/* Gallery Header */}
-      <div className="glass-card p-3 md:p-4 mb-4 md:mb-6 flex items-center gap-3">
+      <div className="glass-card p-4 md:p-5 mb-4 md:mb-6 flex items-center gap-3">
         <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-purple-400 to-indigo-500 flex items-center justify-center text-white text-sm shrink-0">
           📸
         </div>
@@ -34,7 +34,7 @@ export default function PhotoGallery({ data, onProgress }) {
       </div>
 
       {/* Grid */}
-      <div className="grid grid-cols-2 md:grid-cols-3 gap-2.5 md:gap-4">
+      <div className="grid grid-cols-2 md:grid-cols-3 gap-3 md:gap-5">
         {data.map((item, idx) => (
           <div
             key={idx}

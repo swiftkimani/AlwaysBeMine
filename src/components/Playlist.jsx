@@ -40,7 +40,7 @@ export default function Playlist({ data, compact }) {
 
   return (
     <div className="w-full max-w-2xl mx-auto">
-      <div className="glass-card p-5 md:p-7">
+      <div className="glass-card p-6 md:p-8">
         {/* Header */}
         <div className="text-center mb-5">
           <span className="text-3xl mb-2 block">🎵</span>
@@ -52,7 +52,7 @@ export default function Playlist({ data, compact }) {
         </div>
 
         {/* Track List */}
-        <div className="space-y-1.5 mb-5">
+        <div className="space-y-2 mb-5">
           {data.tracks.map((track, idx) => (
             <div
               key={idx}

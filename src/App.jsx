@@ -142,7 +142,7 @@ function Footer() {
 function Nav({ activeMode, setActiveMode }) {
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 bg-white/75 backdrop-blur-xl border-b border-white/40" style={{ paddingTop: "var(--safe-top)" }}>
-      <div className="max-w-5xl mx-auto px-3 py-2 md:py-2.5 flex gap-1 md:gap-1.5 overflow-x-auto no-scrollbar">
+      <div className="max-w-5xl mx-auto px-4 sm:px-6 py-2 md:py-2.5 flex gap-1 md:gap-1.5 overflow-x-auto no-scrollbar">
         {config.modes.map((mode) => (
           <button
             key={mode}
@@ -166,7 +166,7 @@ function Nav({ activeMode, setActiveMode }) {
 
 function ModeHeader({ title, subtitle }) {
   return (
-    <div className="text-center mb-5 md:mb-6">
+    <div className="text-center mb-6 md:mb-8">
       <h1
         className="text-2xl md:text-4xl font-bold mb-1.5 bg-gradient-to-r from-rose-600 via-pink-500 to-purple-600 bg-clip-text text-transparent"
         style={{ fontFamily: "Charm, serif" }}
@@ -313,7 +313,7 @@ export default function Page() {
     switch (activeMode) {
       case "proposal":
         return (
-          <div className="flex flex-col items-center animate-fade-in px-4">
+          <div className="flex flex-col items-center animate-fade-in">
             {noCount > mouseStealMin && noCount < mouseStealMax && !yesPressed && <MouseStealing />}
             {yesPressed && noCount > 3 ? (
               <>
@@ -375,13 +375,13 @@ export default function Page() {
       <Nav activeMode={activeMode} setActiveMode={setActiveMode} />
 
       <main className="pb-28 md:pb-20 min-h-screen text-zinc-900 overflow-y-auto no-scrollbar" style={{ paddingTop: "calc(var(--safe-top) + 3.5rem)" }}>
-        <div className={`max-w-5xl mx-auto px-3 md:px-6 ${config.selectionColor}`}>
+        <div className={`max-w-5xl mx-auto px-4 sm:px-6 md:px-8 lg:px-12 ${config.selectionColor}`}>
           {activeMode === "proposal" ? (
             <div className="min-h-[calc(100vh-8rem)] flex flex-col items-center justify-center">
               {renderMode()}
             </div>
           ) : (
-            <div className="animate-fade-in py-4 md:py-6">
+            <div className="animate-fade-in py-6 md:py-8">
               <ModeHeader title={config.navTitle} subtitle={config.title} />
               {renderMode()}
             </div>

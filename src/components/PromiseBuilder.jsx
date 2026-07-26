@@ -31,7 +31,7 @@ export default function PromiseBuilder({ data, title, subtitle, onProgress }) {
       </div>
 
       {/* Progress */}
-      <div className="glass-card p-3 mb-5 flex items-center gap-3">
+      <div className="glass-card p-3 md:p-4 mb-5 flex items-center gap-3">
         <div className="w-8 h-8 rounded-lg bg-rose-500/15 flex items-center justify-center text-sm">🤝</div>
         <div className="flex-1">
           <p className="text-[10px] font-bold text-zinc-600">Promises Sealed</p>
@@ -44,7 +44,7 @@ export default function PromiseBuilder({ data, title, subtitle, onProgress }) {
       </div>
 
       {/* Cards Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 md:gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 md:gap-5">
         {data.map((promise, idx) => {
           const isFlipped = flippedCards.has(idx);
           return (
@@ -106,7 +106,7 @@ export default function PromiseBuilder({ data, title, subtitle, onProgress }) {
 
       {/* All done */}
       {allFlipped && (
-        <div className="glass-card mt-4 p-4 text-center animate-bounce-in border-l-4 border-rose-400">
+        <div className="glass-card mt-4 p-4 md:p-5 text-center animate-bounce-in border-l-4 border-rose-400">
           <p className="text-sm text-zinc-800 font-bold" style={{ fontFamily: "Charm, serif" }}>
             All {data.length} promises revealed! Every single one is from the heart. 🥰
           </p>

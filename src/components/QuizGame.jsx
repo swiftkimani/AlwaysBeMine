@@ -65,7 +65,7 @@ export default function QuizGame({ data, results, onProgress }) {
   if (finished) {
     return (
       <div className="w-full max-w-xl mx-auto text-center">
-        <div className="glass-card p-6 md:p-8 animate-fade-in">
+        <div className="glass-card p-6 md:p-10 animate-fade-in">
           <div className="text-6xl mb-3">{percentage === 100 ? "🏆" : percentage >= 75 ? "🌟" : percentage >= 50 ? "💖" : "💕"}</div>
           <h2 className="text-3xl md:text-4xl font-bold text-zinc-900 mb-2" style={{ fontFamily: "Charm, serif" }}>
             {score}/{total}
@@ -73,7 +73,7 @@ export default function QuizGame({ data, results, onProgress }) {
           <p className="text-xs text-zinc-500 mb-3">{percentage}% correct</p>
 
           {/* Stats Grid */}
-          <div className="grid grid-cols-3 gap-3 mb-4">
+          <div className="grid grid-cols-3 gap-3 md:gap-4 mb-4">
             <div className="bg-rose-50 rounded-xl p-3 border border-rose-100">
               <p className="text-lg font-bold text-rose-500">{score}</p>
               <p className="text-[10px] text-zinc-500">Correct</p>
@@ -107,7 +107,7 @@ export default function QuizGame({ data, results, onProgress }) {
 
   return (
     <div className="w-full max-w-xl mx-auto">
-      <div className="glass-card p-5 md:p-7">
+      <div className="glass-card p-6 md:p-8">
         {/* Header */}
         <div className="flex justify-between items-center mb-3">
           <span className="text-xs font-bold text-rose-500 bg-rose-50 px-2.5 py-1 rounded-full border border-rose-200">
@@ -134,7 +134,7 @@ export default function QuizGame({ data, results, onProgress }) {
         </h3>
 
         {/* Options */}
-        <div className="space-y-2.5">
+        <div className="space-y-3">
           {question.options.map((opt, idx) => {
             let styles = "bg-zinc-50 hover:bg-zinc-100 text-zinc-800 border-zinc-200";
             if (showResult) {
