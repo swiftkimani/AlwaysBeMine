@@ -11,6 +11,9 @@ import {
   BsMusicNoteBeamed,
 } from "react-icons/bs";
 
+const PANEL_W = 300;
+const BTN_SIZE = 56;
+
 export default function FloatingMusicControl({ tracks }) {
   const [currentIdx, setCurrentIdx] = useState(0);
   const [isPlaying, setIsPlaying] = useState(false);
@@ -21,17 +24,21 @@ export default function FloatingMusicControl({ tracks }) {
   const [isExpanded, setIsExpanded] = useState(false);
   const [liked, setLiked] = useState(new Set());
 
-  const [pos, setPos] = useState({ x: 0, y: 0 });
+  const [pos, setPos] = useState({ x: 44, y: 0 });
   const [isDragging, setIsDragging] = useState(false);
   const dragRef = useRef({ startX: 0, startY: 0, startPosX: 0, startPosY: 0 });
   const hasMoved = useRef(false);
   const audioRef = useRef(null);
   const animRef = useRef(null);
+  const panelRef = useRef(null);
 
   const track = tracks?.[currentIdx];
 
   useEffect(() => {
-    const update = () => setPos({ x: window.innerWidth / 2, y: window.innerHeight - 100 });
+    const update = () => {
+      const safeBottom = parseInt(getComputedStyle(document.documentElement).getPropertyValue("--safe-bottom")) || 0;
+      setPos({ x: 44, y: window.innerHeight - 68 - safeBottom });
+    };
     update();
     window.addEventListener("resize", update);
     return () => window.removeEventListener("resize", update);
@@ -85,8 +92,8 @@ export default function FloatingMusicControl({ tracks }) {
       const dy = e.clientY - dragRef.current.startY;
       if (Math.abs(dx) > 3 || Math.abs(dy) > 3) hasMoved.current = true;
       setPos({
-        x: Math.max(32, Math.min(window.innerWidth - 32, dragRef.current.startPosX + dx)),
-        y: Math.max(70, Math.min(window.innerHeight - 70, dragRef.current.startPosY + dy)),
+        x: Math.max(BTN_SIZE / 2 + 8, Math.min(window.innerWidth - BTN_SIZE / 2 - 8, dragRef.current.startPosX + dx)),
+        y: Math.max(80, Math.min(window.innerHeight - BTN_SIZE / 2 - 8, dragRef.current.startPosY + dy)),
       });
     };
     const onUp = () => setIsDragging(false);
@@ -96,6 +103,18 @@ export default function FloatingMusicControl({ tracks }) {
   }, [isDragging]);
 
   const handleClick = () => { if (!hasMoved.current) setIsExpanded((p) => !p); };
+
+  useEffect(() => {
+    if (!isExpanded) return;
+    const onDown = (e) => {
+      if (panelRef.current && !panelRef.current.contains(e.target)) {
+        const btn = e.target.closest("[data-music-btn]");
+        if (!btn) setIsExpanded(false);
+      }
+    };
+    window.addEventListener("pointerdown", onDown);
+    return () => window.removeEventListener("pointerdown", onDown);
+  }, [isExpanded]);
 
   const togglePlay = () => {
     if (!audioRef.current) return;
@@ -131,36 +150,48 @@ export default function FloatingMusicControl({ tracks }) {
 
   if (!track) return null;
 
-  const panelTop = pos.y - 340 > 60 ? pos.y - 340 : pos.y + 55;
+  const safeBottom = parseInt(getComputedStyle(document.documentElement).getPropertyValue("--safe-bottom")) || 0;
+  const btnLeft = Math.max(PANEL_W / 2 + 8, Math.min(pos.x, window.innerWidth - PANEL_W / 2 - 8));
+
+  const panelAbove = pos.y > 320;
+  const panelBottom = panelAbove ? undefined : BTN_SIZE / 2 + 10;
+  const panelTop = panelAbove ? undefined : -(PANEL_W > 280 ? 340 : 300);
 
   return (
     <>
       {isExpanded && (
         <div
-          className="fixed z-[60] w-[calc(100vw-1.5rem)] max-w-80 animate-fade-in-up"
-          style={{ left: Math.max(160, Math.min(window.innerWidth - 160, pos.x)), top: panelTop, transform: "translateX(-50%)" }}
+          ref={panelRef}
+          className="fixed z-[60] animate-fade-in-up"
+          style={{
+            left: btnLeft,
+            bottom: panelAbove ? window.innerHeight - pos.y + BTN_SIZE / 2 + 10 : undefined,
+            top: panelAbove ? undefined : window.innerHeight - pos.y + BTN_SIZE / 2 + 10,
+            transform: "translateX(-50%)",
+            width: PANEL_W,
+          }}
         >
-          <div className="liquid rounded-2xl p-4 shadow-2xl">
-            <div className="flex items-center gap-3 mb-3">
-              <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 transition-all duration-300 ${isPlaying ? "bg-gradient-to-br from-rose-500 to-pink-500 animate-pulse-glow" : "bg-white/30"}`}>
+          <div className="liquid rounded-2xl p-3.5 shadow-2xl">
+            <div className="flex items-center gap-2.5 mb-2.5">
+              <div className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 transition-all duration-300 ${isPlaying ? "bg-gradient-to-br from-rose-500 to-pink-500 animate-pulse-glow" : "bg-white/30"}`}>
                 {isPlaying ? (
-                  <div className="flex gap-0.5 items-end h-4">
+                  <div className="flex gap-0.5 items-end h-3.5">
                     <span className="w-0.5 bg-white animate-bounce" style={{ height: "60%", animationDelay: "0ms" }} />
                     <span className="w-0.5 bg-white animate-bounce" style={{ height: "100%", animationDelay: "150ms" }} />
                     <span className="w-0.5 bg-white animate-bounce" style={{ height: "40%", animationDelay: "300ms" }} />
                   </div>
-                ) : <BsMusicNoteBeamed size={16} className="text-rose-500" />}
+                ) : <BsMusicNoteBeamed size={14} className="text-rose-500" />}
               </div>
               <div className="min-w-0 flex-1">
-                <p className="text-xs font-bold text-zinc-800 truncate">{track.title}</p>
-                <p className="text-[10px] text-zinc-500 truncate">{track.artist}</p>
+                <p className="text-[11px] font-bold text-zinc-800 truncate">{track.title}</p>
+                <p className="text-[9px] text-zinc-500 truncate">{track.artist}</p>
               </div>
-              <button onClick={() => setIsExpanded(false)} className="w-7 h-7 rounded-full flex items-center justify-center text-zinc-400 hover:text-zinc-700 hover:bg-white/50 transition-all cursor-pointer" aria-label="Close">
-                <BsX size={16} />
+              <button onClick={() => setIsExpanded(false)} className="w-6 h-6 rounded-full flex items-center justify-center text-zinc-400 hover:text-zinc-700 hover:bg-white/50 transition-all cursor-pointer" aria-label="Close">
+                <BsX size={14} />
               </button>
             </div>
 
-            <div className="mb-3">
+            <div className="mb-2.5">
               <input type="range" min="0" max="100" value={progress} onChange={seek} className="audio-progress w-full" />
               <div className="flex justify-between text-[9px] text-zinc-400 mt-0.5">
                 <span>{fmt(currentTime)}</span>
@@ -168,52 +199,64 @@ export default function FloatingMusicControl({ tracks }) {
               </div>
             </div>
 
-            <div className="flex items-center justify-center gap-3 mb-3">
-              <button onClick={toggleLike} className={`w-9 h-9 rounded-full flex items-center justify-center transition-all cursor-pointer ${liked.has(currentIdx) ? "text-rose-500" : "text-zinc-400 hover:text-rose-400 hover:bg-white/30"}`} aria-label="Like">
-                <BsHeartFill size={14} fill={liked.has(currentIdx) ? "currentColor" : "none"} />
+            <div className="flex items-center justify-center gap-2.5 mb-2.5">
+              <button onClick={toggleLike} className={`w-8 h-8 rounded-full flex items-center justify-center transition-all cursor-pointer ${liked.has(currentIdx) ? "text-rose-500" : "text-zinc-400 hover:text-rose-400 hover:bg-white/30"}`} aria-label="Like">
+                <BsHeartFill size={13} fill={liked.has(currentIdx) ? "currentColor" : "none"} />
               </button>
-              <button onClick={skipPrev} className="w-10 h-10 rounded-full flex items-center justify-center text-zinc-600 hover:text-zinc-900 hover:bg-white/40 transition-all cursor-pointer" aria-label="Previous">
-                <BsSkipBackwardFill size={16} />
+              <button onClick={skipPrev} className="w-9 h-9 rounded-full flex items-center justify-center text-zinc-600 hover:text-zinc-900 hover:bg-white/40 transition-all cursor-pointer" aria-label="Previous">
+                <BsSkipBackwardFill size={14} />
               </button>
-              <button onClick={togglePlay} className="w-12 h-12 rounded-full flex items-center justify-center bg-gradient-to-br from-rose-500 to-pink-500 text-white shadow-lg hover:shadow-xl hover:scale-105 active:scale-95 transition-all cursor-pointer" aria-label={isPlaying ? "Pause" : "Play"}>
-                {isPlaying ? <BsPauseFill size={20} /> : <BsPlayFill size={20} className="ml-0.5" />}
+              <button onClick={togglePlay} className="w-11 h-11 rounded-full flex items-center justify-center bg-gradient-to-br from-rose-500 to-pink-500 text-white shadow-lg hover:shadow-xl hover:scale-105 active:scale-95 transition-all cursor-pointer" aria-label={isPlaying ? "Pause" : "Play"}>
+                {isPlaying ? <BsPauseFill size={18} /> : <BsPlayFill size={18} className="ml-0.5" />}
               </button>
-              <button onClick={skipNext} className="w-10 h-10 rounded-full flex items-center justify-center text-zinc-600 hover:text-zinc-900 hover:bg-white/40 transition-all cursor-pointer" aria-label="Next">
-                <BsSkipForwardFill size={16} />
+              <button onClick={skipNext} className="w-9 h-9 rounded-full flex items-center justify-center text-zinc-600 hover:text-zinc-900 hover:bg-white/40 transition-all cursor-pointer" aria-label="Next">
+                <BsSkipForwardFill size={14} />
               </button>
-              <button onClick={toggleMute} className="w-9 h-9 rounded-full flex items-center justify-center text-zinc-400 hover:text-zinc-700 hover:bg-white/30 transition-all cursor-pointer" aria-label={isMuted ? "Unmute" : "Mute"}>
-                {isMuted ? <BsVolumeMuteFill size={14} /> : <BsVolumeUpFill size={14} />}
+              <button onClick={toggleMute} className="w-8 h-8 rounded-full flex items-center justify-center text-zinc-400 hover:text-zinc-700 hover:bg-white/30 transition-all cursor-pointer" aria-label={isMuted ? "Unmute" : "Mute"}>
+                {isMuted ? <BsVolumeMuteFill size={12} /> : <BsVolumeUpFill size={12} />}
               </button>
             </div>
 
-            <div className="space-y-1 max-h-[140px] overflow-y-auto no-scrollbar border-t border-white/30 pt-3">
+            <div className="space-y-0.5 max-h-[130px] overflow-y-auto no-scrollbar border-t border-white/30 pt-2">
               {tracks.map((t, idx) => (
                 <button
                   key={idx}
                   onClick={() => { setCurrentIdx(idx); setProgress(0); setIsPlaying(true); }}
-                  className={`w-full flex items-center gap-2 p-2 rounded-lg transition-all cursor-pointer text-left ${idx === currentIdx ? "bg-rose-50/80 border border-rose-200/60" : "hover:bg-white/30 border border-transparent"}`}
+                  className={`w-full flex items-center gap-2 p-1.5 rounded-lg transition-all cursor-pointer text-left ${idx === currentIdx ? "bg-rose-50/80 border border-rose-200/60" : "hover:bg-white/30 border border-transparent"}`}
                 >
-                  <span className={`w-5 h-5 rounded flex items-center justify-center text-[10px] font-bold shrink-0 ${idx === currentIdx ? "bg-rose-500 text-white" : "bg-white/40 text-zinc-500"}`}>
+                  <span className={`w-4 h-4 rounded flex items-center justify-center text-[9px] font-bold shrink-0 ${idx === currentIdx ? "bg-rose-500 text-white" : "bg-white/40 text-zinc-500"}`}>
                     {idx === currentIdx && isPlaying ? "▶" : idx + 1}
                   </span>
                   <div className="min-w-0 flex-1">
-                    <p className={`text-[11px] font-bold truncate ${idx === currentIdx ? "text-rose-600" : "text-zinc-800"}`}>{t.title}</p>
-                    <p className="text-[9px] text-zinc-500 truncate">{t.artist}</p>
+                    <p className={`text-[10px] font-bold truncate ${idx === currentIdx ? "text-rose-600" : "text-zinc-800"}`}>{t.title}</p>
+                    <p className="text-[8px] text-zinc-500 truncate">{t.artist}</p>
                   </div>
                 </button>
               ))}
             </div>
           </div>
+
+          {/* Connector arrow pointing down to button */}
+          <div
+            className="absolute left-1/2 -translate-x-1/2"
+            style={{ [panelAbove ? "bottom" : "top"]: "-8px" }}
+          >
+            <div
+              className="w-4 h-4 rotate-45 liquid"
+              style={{ borderRadius: "3px" }}
+            />
+          </div>
         </div>
       )}
 
       <div
+        data-music-btn
         className="fixed z-50 select-none"
         style={{ left: pos.x, top: pos.y, transform: "translate(-50%, -50%)", touchAction: "none" }}
         onPointerDown={handlePointerDown}
         onClick={handleClick}
       >
-        <div className={`liquid rounded-full w-14 h-14 md:w-16 md:h-16 flex items-center justify-center cursor-pointer shadow-xl transition-all duration-300 ${isDragging ? "scale-110 shadow-2xl" : "hover:scale-105"} ${isPlaying ? "ring-2 ring-rose-400/60 animate-pulse-glow" : ""}`}>
+        <div className={`liquid rounded-full w-14 h-14 flex items-center justify-center cursor-pointer shadow-xl transition-all duration-300 ${isDragging ? "scale-110 shadow-2xl" : "hover:scale-105"} ${isPlaying ? "ring-2 ring-rose-400/60 animate-pulse-glow" : ""}`}>
           {isPlaying ? (
             <div className="flex gap-0.5 items-end h-5">
               <span className="w-[3px] rounded-full bg-rose-500 animate-bounce" style={{ height: "60%", animationDelay: "0ms" }} />

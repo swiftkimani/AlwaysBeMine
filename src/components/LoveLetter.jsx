@@ -53,7 +53,7 @@ export default function LoveLetter({ data, onProgress }) {
   const pct = Math.round((revealedParagraphs / data.paragraphs.length) * 100);
 
   return (
-    <div className="w-full max-w-3xl mx-auto">
+    <div className="w-full max-w-4xl mx-auto">
       {/* Letter Card */}
       <div
         ref={containerRef}

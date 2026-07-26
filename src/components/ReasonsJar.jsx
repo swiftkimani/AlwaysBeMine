@@ -27,7 +27,7 @@ export default function ReasonsJar({ data, onProgress }) {
   };
 
   return (
-    <div className="w-full max-w-xl mx-auto">
+    <div className="w-full max-w-2xl mx-auto">
       {/* Jar Section */}
       <div className="liquid p-6 md:p-8 text-center">
         <div className="relative mb-5">

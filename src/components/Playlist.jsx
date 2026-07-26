@@ -39,8 +39,8 @@ export default function Playlist({ data, compact }) {
   }
 
   return (
-    <div className="w-full max-w-3xl mx-auto">
-      <div className="liquid p-6 md:p-8">
+  <div className="w-full max-w-4xl mx-auto">
+    <div className="liquid p-6 md:p-8">
         {/* Header */}
         <div className="text-center mb-5">
           <span className="text-3xl mb-2 block">🎵</span>

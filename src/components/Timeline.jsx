@@ -44,9 +44,9 @@ export default function Timeline({ data, onProgress }) {
   const pct = Math.round((visibleItems.size / data.length) * 100);
 
   return (
-    <div className="w-full max-w-4xl mx-auto">
+    <div className="w-full max-w-5xl mx-auto">
       {/* Progress Header */}
-      <div className="liquid p-5 md:p-6 mb-6 md:mb-8 flex items-center gap-4">
+      <div className="liquid p-6 md:p-8 mb-6 md:mb-8 flex items-center gap-4">
         <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-rose-400 to-pink-500 flex items-center justify-center text-white font-bold text-sm shrink-0">
           {visibleItems.size}/{data.length}
         </div>

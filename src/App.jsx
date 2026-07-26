@@ -110,6 +110,121 @@ function daysBetween(dateStr) {
   return Math.floor((now - d) / (1000 * 60 * 60 * 24));
 }
 
+function getTimeGreeting() {
+  const h = new Date().getHours();
+  if (h < 6) return { text: "Still up, my love?", emoji: "🌙" };
+  if (h < 12) return { text: "Good morning, beautiful", emoji: "☀️" };
+  if (h < 17) return { text: "Good afternoon, my love", emoji: "🌤️" };
+  if (h < 21) return { text: "Good evening, gorgeous", emoji: "🌅" };
+  return { text: "Thinking of you tonight", emoji: "🌙" };
+}
+
+function TimeGreeting() {
+  const g = getTimeGreeting();
+  return (
+    <div className="time-greeting">
+      <span>{g.emoji}</span>
+      <span>{g.text}</span>
+    </div>
+  );
+}
+
+function LiveCountdown({ since }) {
+  const [tick, setTick] = useState(0);
+
+  useEffect(() => {
+    const id = setInterval(() => setTick((t) => t + 1), 1000);
+    return () => clearInterval(id);
+  }, []);
+
+  if (!since) return null;
+  const start = new Date(since).getTime();
+  if (isNaN(start)) return null;
+
+  const diff = Math.max(0, Date.now() - start);
+  const days = Math.floor(diff / 86400000);
+  const hours = Math.floor((diff % 86400000) / 3600000);
+  const mins = Math.floor((diff % 3600000) / 60000);
+  const secs = Math.floor((diff % 60000) / 1000);
+
+  void tick;
+
+  return (
+    <div className="live-countdown">
+      <div className="countdown-unit">
+        <span className="countdown-num">{days}</span>
+        <span className="countdown-label">Days</span>
+      </div>
+      <span className="countdown-sep">:</span>
+      <div className="countdown-unit">
+        <span className="countdown-num">{String(hours).padStart(2, "0")}</span>
+        <span className="countdown-label">Hrs</span>
+      </div>
+      <span className="countdown-sep">:</span>
+      <div className="countdown-unit">
+        <span className="countdown-num">{String(mins).padStart(2, "0")}</span>
+        <span className="countdown-label">Min</span>
+      </div>
+      <span className="countdown-sep">:</span>
+      <div className="countdown-unit">
+        <span className="countdown-num">{String(secs).padStart(2, "0")}</span>
+        <span className="countdown-label">Sec</span>
+      </div>
+    </div>
+  );
+}
+
+const loveMessages = [
+  "I love you more than words can say 💕",
+  "You make my heart skip a beat 💓",
+  "Can't stop thinking about you 🥰",
+  "You're the best thing that ever happened to me 💝",
+  "Every moment with you is a treasure ✨",
+  "You're my sunshine on a cloudy day 🌞",
+  "I fall in love with you more every day 💗",
+  "You're my person, always 💖",
+  "Just wanted you to know... I love you 💌",
+  "My heart belongs to you 💞",
+  "You make everything better just by being you 🌸",
+  "I'm so lucky to have you in my life 🍀",
+  "You're my favorite notification 📱💕",
+  "Thinking about our future makes me smile 🥹",
+];
+
+function ThinkingToast() {
+  const [visible, setVisible] = useState(false);
+  const [exiting, setExiting] = useState(false);
+  const [msg, setMsg] = useState("");
+
+  useEffect(() => {
+    const show = () => {
+      setMsg(loveMessages[Math.floor(Math.random() * loveMessages.length)]);
+      setVisible(true);
+      setExiting(false);
+      setTimeout(() => {
+        setExiting(true);
+        setTimeout(() => setVisible(false), 400);
+      }, 4000);
+    };
+    const first = setTimeout(show, 15000);
+    const interval = setInterval(show, 45000);
+    return () => { clearTimeout(first); clearInterval(interval); };
+  }, []);
+
+  if (!visible) return null;
+
+  return (
+    <div
+      className={`fixed top-24 left-1/2 -translate-x-1/2 z-[80] ${exiting ? "thinking-toast-exit" : "thinking-toast"}`}
+    >
+      <div className="liquid px-5 py-3 flex items-center gap-3 shadow-xl border border-rose-200/40 rounded-2xl">
+        <span className="text-xl">💌</span>
+        <p className="text-xs font-semibold text-zinc-700" style={{ fontFamily: "Charm, serif" }}>{msg}</p>
+      </div>
+    </div>
+  );
+}
+
 function AmbientHearts() {
   const hearts = useMemo(() => {
     return Array.from({ length: 8 }, (_, i) => ({
@@ -177,6 +292,96 @@ function ConfettiBurst({ onDone }) {
           }}
         />
       ))}
+    </div>
+  );
+}
+
+function HeartTrail() {
+  const [hearts, setHearts] = useState([]);
+
+  useEffect(() => {
+    let last = 0;
+    const isMobile = "ontouchstart" in window;
+    if (isMobile) return;
+    const onMove = (e) => {
+      const now = Date.now();
+      if (now - last < 140) return;
+      last = now;
+      const id = `${now}-${Math.random()}`;
+      const emojis = ["💕", "💗", "💖", "✨", "🤍", "💜"];
+      setHearts((prev) => [...prev.slice(-10), {
+        id,
+        x: e.clientX,
+        y: e.clientY,
+        emoji: emojis[Math.floor(Math.random() * emojis.length)],
+      }]);
+      setTimeout(() => setHearts((prev) => prev.filter((h) => h.id !== id)), 1300);
+    };
+    window.addEventListener("mousemove", onMove);
+    return () => window.removeEventListener("mousemove", onMove);
+  }, []);
+
+  return (
+    <div className="fixed inset-0 pointer-events-none z-[150]" aria-hidden="true">
+      {hearts.map((h) => (
+        <span
+          key={h.id}
+          className="heart-trail"
+          style={{ left: h.x - 7, top: h.y - 7 }}
+        >
+          {h.emoji}
+        </span>
+      ))}
+    </div>
+  );
+}
+
+function SendLoveBar({ onLovePopup }) {
+  const [counts, setCounts] = useState({ kiss: 0, hug: 0, heartbeat: 0, rose: 0, magic: 0 });
+
+  const items = [
+    { emoji: "💋", label: "Kiss", id: "kiss", burst: ["💋", "😘", "💕", "💗"] },
+    { emoji: "🤗", label: "Hug", id: "hug", burst: ["🤗", "🫂", "💞", "💖"] },
+    { emoji: "💓", label: "Heartbeat", id: "heartbeat", burst: ["💓", "💗", "❤️‍🔥", "💝"] },
+    { emoji: "🌹", label: "Rose", id: "rose", burst: ["🌹", "🌷", "🌸", "🌺"] },
+    { emoji: "✨", label: "Magic", id: "magic", burst: ["✨", "💫", "⭐", "🌟"] },
+  ];
+
+  const handleClick = (item) => {
+    setCounts((prev) => ({ ...prev, [item.id]: prev[item.id] + 1 }));
+    const burstEmojis = item.burst;
+    for (let i = 0; i < 3; i++) {
+      setTimeout(() => onLovePopup(burstEmojis[i % burstEmojis.length]), i * 120);
+    }
+  };
+
+  const total = Object.values(counts).reduce((a, b) => a + b, 0);
+
+  return (
+    <div className="mt-3">
+      {total > 0 && (
+        <div className="text-center mb-2">
+          <span className="text-[10px] font-bold text-rose-400 bg-rose-50/80 px-3 py-1 rounded-full border border-rose-200/50 backdrop-blur-sm">
+            💕 {total} love{total !== 1 ? "s" : ""} sent
+          </span>
+        </div>
+      )}
+      <div className="send-love-bar">
+        {items.map((item) => (
+          <button
+            key={item.id}
+            className="send-love-btn"
+            onClick={() => handleClick(item)}
+            aria-label={`Send ${item.label}`}
+          >
+            <span className="emoji">{item.emoji}</span>
+            <span className="label">{item.label}</span>
+            {counts[item.id] > 0 && (
+              <span className="text-[9px] font-bold text-rose-400">{counts[item.id]}</span>
+            )}
+          </button>
+        ))}
+      </div>
     </div>
   );
 }
@@ -284,6 +489,7 @@ export default function Page() {
   const [showAchievementHistory, setShowAchievementHistory] = useState(false);
   const [showConfetti, setShowConfetti] = useState(false);
   const [tapHearts, setTapHearts] = useState([]);
+  const [lovePopups, setLovePopups] = useState([]);
   const tapTimerRef = useRef(null);
 
   const gifRef = useRef(null);
@@ -438,6 +644,16 @@ export default function Page() {
     return () => window.removeEventListener("dblclick", handleTap);
   }, []);
 
+  const triggerLovePopup = useCallback((emoji) => {
+    const id = `${Date.now()}-${Math.random()}`;
+    const angle = Math.random() * Math.PI * 2;
+    const dist = 40 + Math.random() * 100;
+    const x = window.innerWidth / 2 + Math.cos(angle) * dist;
+    const y = window.innerHeight / 2 + Math.sin(angle) * dist;
+    setLovePopups((prev) => [...prev.slice(-8), { id, emoji, x, y }]);
+    setTimeout(() => setLovePopups((prev) => prev.filter((p) => p.id !== id)), 2200);
+  }, []);
+
   const handleModeProgress = useCallback((mode, progress) => {
     setTotalXP((prev) => {
       const expected = progress.completed * (mode === "quiz" ? 25 : mode === "timeline" ? 15 : 10);
@@ -460,6 +676,8 @@ export default function Page() {
               </div>
             ) : (
               <div className="animate-fade-in">
+                <TimeGreeting />
+                <LiveCountdown since={config.togetherSince} />
                 {config.togetherSince && (() => {
                   const days = daysBetween(config.togetherSince);
                   return days !== null ? (
@@ -471,10 +689,10 @@ export default function Page() {
                 })()}
                 <img src={lovesvg} className="animate-pulse w-20 md:w-32 drop-shadow-lg mx-auto mb-4" alt="Love SVG" />
                 <img ref={gifRef} className="h-[180px] md:h-[220px] rounded-2xl shadow-2xl mx-auto" src={Lovegif} alt="Love Animation" />
-                <h1 className="text-2xl md:text-5xl my-4 md:my-5 font-bold" style={{ fontFamily: "Charm, serif" }}>{config.heading}</h1>
+                <h1 className="text-2xl md:text-5xl my-4 md:my-5 font-bold proposal-heading bg-gradient-to-r from-rose-600 via-pink-500 to-rose-600 bg-clip-text text-transparent" style={{ fontFamily: "Charm, serif" }}>{config.heading}</h1>
                 <div className="flex flex-wrap justify-center gap-3 md:gap-4 items-center">
                   <button onMouseEnter={handleMouseEnterYes} onMouseLeave={handleMouseLeave}
-                    className={`btn-glow btn-primary ${config.acceptColor}`}
+                    className={`btn-glow btn-primary btn-yes-pulse ${config.acceptColor}`}
                     style={{ fontSize: yesButtonSize }}
                     onClick={handleYesClick}>
                     {config.acceptBtn}
@@ -485,6 +703,7 @@ export default function Page() {
                     {noCount === 0 ? "No" : getNoButtonText()}
                   </button>
                 </div>
+                <SendLoveBar onLovePopup={triggerLovePopup} />
                 {floatingGifs.map((gif) => (
                   <img key={gif.id} src={gif.src} alt="" className="absolute w-10 h-10 md:w-12 md:h-12 animate-float" style={gif.style} />
                 ))}
@@ -515,6 +734,17 @@ export default function Page() {
     <div className="page-shell transition-opacity duration-700" style={{ opacity: isTransitioning ? 0 : 1 }}>
       {/* Ambient Floating Hearts */}
       <AmbientHearts />
+
+      {/* Heart Cursor Trail — only on proposal */}
+      {activeMode === "proposal" && <HeartTrail />}
+
+      {/* Thinking of You Toasts — only on proposal */}
+      {activeMode === "proposal" && <ThinkingToast />}
+
+      {/* Love Popups from Send Love buttons */}
+      {lovePopups.map((p) => (
+        <span key={p.id} className="love-popup" style={{ left: p.x - 32, top: p.y - 32 }} aria-hidden="true">{p.emoji}</span>
+      ))}
 
       {/* Spline Background with Fallback */}
       <div className="fixed inset-0 -z-10">
@@ -550,6 +780,7 @@ export default function Page() {
           ) : (
             <div className="mode-stage mode-enter" key={activeMode}>
               <div className="mode-header relative">
+                <TimeGreeting />
                 <div>
                   <h1
                     className="text-2xl md:text-4xl font-bold mb-1.5 bg-gradient-to-r from-rose-600 via-pink-500 to-purple-600 bg-clip-text text-transparent"
