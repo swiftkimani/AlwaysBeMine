@@ -1,8 +1,6 @@
 import { useState, useRef, useEffect, useCallback } from "react";
 import Spline from "@splinetool/react-spline";
 import Swal from "sweetalert2";
-import { BsVolumeUpFill, BsVolumeMuteFill } from "react-icons/bs";
-
 import config from "./config.js";
 import MouseStealing from "./MouseStealer.jsx";
 import WordMarquee from "./MarqueeProposal.jsx";
@@ -13,7 +11,7 @@ import ReasonsJar from "./components/ReasonsJar.jsx";
 import PhotoGallery from "./components/PhotoGallery.jsx";
 import PromiseBuilder from "./components/PromiseBuilder.jsx";
 import Playlist from "./components/Playlist.jsx";
-import AudioPlayer from "./components/AudioPlayer.jsx";
+import FloatingMusicControl from "./components/FloatingMusicControl.jsx";
 import lovesvg from "./assets/All You Need Is Love SVG Cut File.svg";
 import Lovegif from "./assets/GifData/main_temp.gif";
 import heartGif from "./assets/GifData/happy.gif";
@@ -252,10 +250,6 @@ export default function Page() {
     if (next === 15) unlockAchievement("unbreakable", "🛡️", "Unbreakable - 15 No clicks!");
   }, [noCount, playMusic, unlockAchievement]);
 
-  const toggleMute = useCallback(() => {
-    setIsMuted((prev) => { if (currentAudio) currentAudio.muted = !prev; return !prev; });
-  }, [currentAudio]);
-
   const getNoButtonText = () => config.noPhrases[Math.min(noCount, config.noPhrases.length - 1)];
 
   useEffect(() => {
@@ -395,17 +389,14 @@ export default function Page() {
         </div>
       </main>
 
-      {/* Mute Button */}
-      <button
-        className="fixed bottom-20 left-4 md:bottom-4 md:left-4 bg-white/60 backdrop-blur-sm w-9 h-9 md:w-10 md:h-10 rounded-full flex items-center justify-center hover:bg-white/80 active:scale-90 transition-all duration-300 shadow-lg cursor-pointer z-50 border border-white/40"
-        onClick={toggleMute}
-        aria-label={isMuted ? "Unmute" : "Mute"}
-      >
-        {isMuted ? <BsVolumeMuteFill size={18} className="text-zinc-800" /> : <BsVolumeUpFill size={18} className="text-zinc-800" />}
-      </button>
-
-      {/* Inline Audio Player */}
-      <AudioPlayer tracks={loveTracks} />
+      {/* Draggable Music Control */}
+      <FloatingMusicControl
+        tracks={loveTracks}
+        onMuteChange={(muted) => {
+          setIsMuted(muted);
+          if (currentAudio) currentAudio.muted = muted;
+        }}
+      />
 
       {/* Achievement Toast */}
       {pendingAchievement && (
