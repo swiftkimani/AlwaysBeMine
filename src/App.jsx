@@ -161,8 +161,8 @@ function Footer() {
 
 function Nav({ activeMode, setActiveMode, visitedModes }) {
   return (
-    <nav className="fixed top-0 left-0 right-0 z-50 bg-white/75 backdrop-blur-xl border-b border-white/40" role="navigation" aria-label="Main navigation" style={{ paddingTop: "var(--safe-top)" }}>
-      <div className="max-w-5xl mx-auto px-4 sm:px-6 py-2 md:py-2.5 flex gap-1 md:gap-1.5 overflow-x-auto no-scrollbar">
+    <nav className="fixed inset-x-0 top-0 z-50 bg-white/75 backdrop-blur-xl border-b border-white/40" role="navigation" aria-label="Main navigation" style={{ paddingTop: "var(--safe-top)" }}>
+      <div className="w-full max-w-5xl mx-auto px-5 sm:px-8 py-2 md:py-2.5 flex gap-1.5 md:gap-2 overflow-x-auto no-scrollbar">
         {config.modes.map((mode) => (
           <div key={mode} className="flex flex-col items-center gap-1 shrink-0">
             <button
@@ -425,9 +425,9 @@ export default function Page() {
   };
 
   return (
-    <div className={`min-h-screen transition-opacity duration-700 ${isTransitioning ? "opacity-0" : "opacity-100"}`}>
+    <div className={`w-full h-dvh overflow-hidden transition-opacity duration-700 ${isTransitioning ? "opacity-0" : "opacity-100"}`}>
       {/* Spline Background with Fallback */}
-      <div className="fixed top-0 left-0 w-screen h-screen -z-10">
+      <div className="fixed inset-0 -z-10">
         <div className={`absolute inset-0 bg-gradient-to-br from-rose-100 via-pink-50 to-purple-100 ${splineLoaded && !splineError ? "opacity-0" : "opacity-100"} transition-opacity duration-1000`} />
         <Spline
           scene="https://prod.spline.design/oSxVDduGPlsuUIvT/scene.splinecode"
@@ -443,10 +443,10 @@ export default function Page() {
 
       <Nav activeMode={activeMode} setActiveMode={setActiveMode} visitedModes={visitedModes} />
 
-      <main ref={mainRef} className="pb-28 md:pb-20 min-h-screen text-zinc-900 overflow-y-auto no-scrollbar" style={{ paddingTop: "calc(var(--safe-top) + 3.5rem)" }}>
-        <div className={`max-w-5xl mx-auto px-4 sm:px-6 md:px-8 lg:px-12 ${config.selectionColor}`}>
+      <main ref={mainRef} className="w-full h-full overflow-y-auto no-scrollbar text-zinc-900" style={{ paddingTop: "calc(var(--safe-top) + 3.5rem)" }}>
+        <div className={`w-full max-w-5xl mx-auto px-5 sm:px-8 md:px-10 lg:px-16 pb-28 md:pb-20 ${config.selectionColor}`}>
           {activeMode === "proposal" ? (
-            <div className="min-h-[calc(100vh-8rem)] flex flex-col items-center justify-center">
+            <div className="min-h-[calc(100dvh-3.5rem)] flex flex-col items-center justify-center px-4">
               {renderMode()}
             </div>
           ) : (

@@ -21,10 +21,16 @@
 }
 
 body {
+  width: 100%;
   background-position: center;
   background-size: cover;
   background-attachment: fixed;
   overflow: hidden;
+}
+
+html, body, #root {
+  width: 100%;
+  height: 100%;
 }
 
 /* --- Glass Card Base --- */
@@ -357,7 +363,7 @@ a:focus-visible {
 .back-to-top {
   position: fixed;
   bottom: 5rem;
-  left: 1rem;
+  right: 1rem;
   z-index: 40;
   width: 2.5rem;
   height: 2.5rem;
