@@ -50,16 +50,9 @@ import yesmusic1 from "./assets/AudioTracks/Love_LoveMeLikeYouDo.mp3";
 import yesmusic2 from "./assets/AudioTracks/Love_EDPerfect.mp3";
 import yesmusic3 from "./assets/AudioTracks/Love_Nadaaniyan.mp3";
 import yesmusic4 from "./assets/AudioTracks/Love_JoTumMereHo.mp3";
-import nomusic1 from "./assets/AudioTracks/Rejection_WeDontTalkAnyMore.mp3";
-import nomusic2 from "./assets/AudioTracks/Rejection_LoseYouToLoveMe.mp3";
-import nomusic3 from "./assets/AudioTracks/Reject_withoutMe.mp3";
-import nomusic4 from "./assets/AudioTracks/Neutral_Base_IHateU.mp3";
-import nomusic5 from "./assets/AudioTracks/Reject1_TooGood.mp3";
 
 const YesGifs = [yesgif0, yesgif1, yesgif2, yesgif3, yesgif4, yesgif5, yesgif6, yesgif7, yesgif8, yesgif9, yesgif10, yesgif11];
 const NoGifs = [nogif0, nogif0_1, nogif1, nogif2, nogif3, nogif4, nogif5, nogif6, nogif7, nogif8];
-const YesMusic = [yesmusic1, yesmusic3, yesmusic4, yesmusic2];
-const NoMusic = [nomusic1, nomusic2, nomusic3, nomusic4, nomusic5];
 
 const loveTracks = [
   { title: "Love Me Like You Do", artist: "Ellie Goulding", src: yesmusic1 },
@@ -192,9 +185,7 @@ export default function Page() {
   const [activeMode, setActiveMode] = useState(getInitialMode);
   const [noCount, setNoCount] = useState(0);
   const [yesPressed, setYesPressed] = useState(false);
-  const [currentAudio, setCurrentAudio] = useState(null);
   const [currentGifIndex, setCurrentGifIndex] = useState(0);
-  const [isMuted, setIsMuted] = useState(false);
   const [popupShown, setPopupShown] = useState(false);
   const [yesPopupShown, setYesPopupShown] = useState(false);
   const [floatingGifs, setFloatingGifs] = useState([]);
@@ -281,32 +272,18 @@ export default function Page() {
   const handleMouseEnterNo = useCallback(() => setFloatingGifs(createFloatingGifs(sadGif, "sad")), []);
   const handleMouseLeave = useCallback(() => setFloatingGifs([]), []);
 
-  const playMusic = useCallback((url, musicArray) => {
-    if (currentAudio) { currentAudio.pause(); currentAudio.currentTime = 0; }
-    const audio = new Audio(url);
-    audio.muted = isMuted;
-    setCurrentAudio(audio);
-    audio.addEventListener("ended", () => {
-      const idx = musicArray.indexOf(url);
-      playMusic(musicArray[(idx + 1) % musicArray.length], musicArray);
-    });
-    audio.play().catch(() => {});
-  }, [currentAudio, isMuted]);
-
   const handleYesClick = useCallback(() => {
     if (!popupShown) setYesPressed(true);
-    if (noCount > 3) { setYesPressed(true); playMusic(YesMusic[0], YesMusic); }
-  }, [noCount, popupShown, playMusic]);
+  }, [popupShown]);
 
   const handleNoClick = useCallback(() => {
     const next = noCount + 1;
     setNoCount(next);
     if (next >= 4 && gifRef.current) gifRef.current.src = NoGifs[(next - 4) % NoGifs.length];
-    if (next === 1 || (next - 1) % 7 === 0) playMusic(NoMusic[Math.floor(next / 7) % NoMusic.length], NoMusic);
     if (next === 5) unlockAchievement("persistent", "😤", "Persistent - Clicked No 5 times!");
     if (next === 10) unlockAchievement("stubborn", "💢", "Stubborn - 10 No clicks!");
     if (next === 15) unlockAchievement("unbreakable", "🛡️", "Unbreakable - 15 No clicks!");
-  }, [noCount, playMusic, unlockAchievement]);
+  }, [noCount, unlockAchievement]);
 
   const getNoButtonText = () => config.noPhrases[Math.min(noCount, config.noPhrases.length - 1)];
 
@@ -497,10 +474,6 @@ export default function Page() {
       {/* Draggable Music Control */}
       <FloatingMusicControl
         tracks={loveTracks}
-        onMuteChange={(muted) => {
-          setIsMuted(muted);
-          if (currentAudio) currentAudio.muted = muted;
-        }}
       />
 
       {/* Achievement Toast */}

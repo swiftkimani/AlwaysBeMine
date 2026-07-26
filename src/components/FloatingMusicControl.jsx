@@ -11,7 +11,7 @@ import {
   BsMusicNoteBeamed,
 } from "react-icons/bs";
 
-export default function FloatingMusicControl({ tracks, onMuteChange }) {
+export default function FloatingMusicControl({ tracks }) {
   const [currentIdx, setCurrentIdx] = useState(0);
   const [isPlaying, setIsPlaying] = useState(false);
   const [progress, setProgress] = useState(0);
@@ -114,7 +114,6 @@ export default function FloatingMusicControl({ tracks, onMuteChange }) {
     const next = !isMuted;
     if (audioRef.current) audioRef.current.muted = next;
     setIsMuted(next);
-    onMuteChange?.(next);
   };
 
   const seek = (e) => {
