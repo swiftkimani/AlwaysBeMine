@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 
 export default function QuizGame({ data, results, onProgress }) {
   const [currentQ, setCurrentQ] = useState(0);
@@ -18,7 +18,7 @@ export default function QuizGame({ data, results, onProgress }) {
     onProgress?.({ completed: currentQ, total, score, streak, finished });
   }, [currentQ, total, score, streak, finished, onProgress]);
 
-  const handleAnswer = (idx) => {
+  const handleAnswer = useCallback((idx) => {
     if (showResult) return;
     setSelected(idx);
     setShowResult(true);
@@ -33,9 +33,9 @@ export default function QuizGame({ data, results, onProgress }) {
     } else {
       setStreak(0);
     }
-  };
+  }, [showResult, question.answer, bestStreak, streak]);
 
-  const handleNext = () => {
+  const handleNext = useCallback(() => {
     if (currentQ + 1 >= total) {
       setFinished(true);
     } else {
@@ -43,7 +43,34 @@ export default function QuizGame({ data, results, onProgress }) {
       setSelected(null);
       setShowResult(false);
     }
-  };
+  }, [currentQ, total]);
+
+  // Keyboard navigation: 1-4 or A-D to select, Enter/Space for next
+  useEffect(() => {
+    const handleKey = (e) => {
+      if (finished) {
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          resetQuiz();
+        }
+        return;
+      }
+
+      if (!showResult) {
+        const keyMap = { "1": 0, "2": 1, "3": 2, "4": 3, "a": 0, "b": 1, "c": 2, "d": 3 };
+        const idx = keyMap[e.key.toLowerCase()];
+        if (idx !== undefined && idx < question.options.length) {
+          e.preventDefault();
+          handleAnswer(idx);
+        }
+      } else if (e.key === "Enter" || e.key === " ") {
+        e.preventDefault();
+        handleNext();
+      }
+    };
+    window.addEventListener("keydown", handleKey);
+    return () => window.removeEventListener("keydown", handleKey);
+  }, [showResult, finished, handleAnswer, handleNext, question.options.length]);
 
   const getResultMessage = () => {
     if (percentage === 100) return results.perfect;
@@ -134,7 +161,7 @@ export default function QuizGame({ data, results, onProgress }) {
         </h3>
 
         {/* Options */}
-        <div className="space-y-3">
+        <div className="space-y-3" role="radiogroup" aria-label={question.q}>
           {question.options.map((opt, idx) => {
             let styles = "bg-zinc-50 hover:bg-zinc-100 text-zinc-800 border-zinc-200";
             if (showResult) {
@@ -146,6 +173,10 @@ export default function QuizGame({ data, results, onProgress }) {
               <button
                 key={idx}
                 onClick={() => handleAnswer(idx)}
+                role="radio"
+                aria-checked={selected === idx}
+                aria-label={`Option ${String.fromCharCode(65 + idx)}: ${opt}`}
+                tabIndex={showResult ? -1 : 0}
                 className={`w-full text-left p-3 md:p-4 rounded-xl font-medium transition-all duration-300 border text-sm md:text-base cursor-pointer ${styles} ${
                   !showResult ? "hover:scale-[1.01] active:scale-[0.99]" : ""
                 }`}

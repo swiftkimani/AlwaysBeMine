@@ -20,6 +20,8 @@ import purposerose from "./assets/GifData/RoseCute.gif";
 import swalbg from "./assets/Lovingbg2_main.jpg";
 import loveu from "./assets/GifData/cutieSwal4.gif";
 
+import { BsArrowUp, BsShareFill, BsX } from "react-icons/bs";
+
 import yesgif0 from "./assets/GifData/Yes/lovecutie0.gif";
 import yesgif1 from "./assets/GifData/Yes/love2.gif";
 import yesgif2 from "./assets/GifData/Yes/love3.gif";
@@ -108,19 +110,37 @@ function createFloatingGifs(gifSrc, idPrefix) {
 }
 
 function AchievementToast({ achievement, onDone }) {
+  const [exiting, setExiting] = useState(false);
+
+  const handleDismiss = () => {
+    setExiting(true);
+    setTimeout(onDone, 400);
+  };
+
   useEffect(() => {
-    const t = setTimeout(onDone, 3000);
+    const t = setTimeout(onDone, 5000);
     return () => clearTimeout(t);
   }, [onDone]);
 
   return (
-    <div className="fixed top-20 left-1/2 -translate-x-1/2 z-[100] achievement-toast">
+    <div
+      className={`fixed top-20 left-1/2 -translate-x-1/2 z-[100] ${exiting ? "achievement-toast-exit" : "achievement-toast"}`}
+      role="alert"
+      aria-live="polite"
+    >
       <div className="glass-card px-5 py-3 flex items-center gap-3 shadow-2xl border border-amber-200/40">
-        <span className="text-2xl">{achievement.icon}</span>
-        <div>
+        <span className="text-2xl" aria-hidden="true">{achievement.icon}</span>
+        <div className="flex-1">
           <p className="text-[10px] font-bold text-amber-500 uppercase tracking-wider">Achievement Unlocked!</p>
           <p className="text-sm font-bold text-zinc-800">{achievement.label}</p>
         </div>
+        <button
+          onClick={handleDismiss}
+          className="w-6 h-6 rounded-full flex items-center justify-center text-zinc-400 hover:text-zinc-700 hover:bg-zinc-100 transition-all cursor-pointer shrink-0"
+          aria-label="Dismiss achievement"
+        >
+          <BsX size={14} />
+        </button>
       </div>
     </div>
   );
@@ -139,47 +159,32 @@ function Footer() {
   );
 }
 
-function Nav({ activeMode, setActiveMode }) {
+function Nav({ activeMode, setActiveMode, visitedModes }) {
   return (
-    <nav className="fixed top-0 left-0 right-0 z-50 bg-white/75 backdrop-blur-xl border-b border-white/40" style={{ paddingTop: "var(--safe-top)" }}>
+    <nav className="fixed top-0 left-0 right-0 z-50 bg-white/75 backdrop-blur-xl border-b border-white/40" role="navigation" aria-label="Main navigation">
       <div className="max-w-5xl mx-auto px-4 sm:px-6 py-2 md:py-2.5 flex gap-1 md:gap-1.5 overflow-x-auto no-scrollbar">
         {config.modes.map((mode) => (
-          <button
-            key={mode}
-            onClick={() => {
-              setActiveMode(mode);
-              window.location.hash = mode;
-            }}
-            className={`shrink-0 px-3 md:px-4 py-1.5 md:py-2 rounded-xl text-[11px] md:text-xs font-bold transition-all duration-300 cursor-pointer ${
-              activeMode === mode
-                ? "btn-glow bg-white/80 text-zinc-900 shadow-lg shadow-rose-200/30"
-                : "text-zinc-700 hover:bg-white/50 hover:text-zinc-900"
-            }`}
-          >
-            {modeLabels[mode] || mode}
-          </button>
+          <div key={mode} className="flex flex-col items-center gap-1 shrink-0">
+            <button
+              onClick={() => {
+                setActiveMode(mode);
+                window.location.hash = mode;
+              }}
+              aria-label={modeLabels[mode] || mode}
+              aria-current={activeMode === mode ? "page" : undefined}
+              className={`px-3 md:px-4 py-1.5 md:py-2 rounded-xl text-[11px] md:text-xs font-bold transition-all duration-300 cursor-pointer ${
+                activeMode === mode
+                  ? "btn-glow bg-white/80 text-zinc-900 shadow-lg shadow-rose-200/30"
+                  : "text-zinc-700 hover:bg-white/50 hover:text-zinc-900"
+              }`}
+            >
+              {modeLabels[mode] || mode}
+            </button>
+            <div className={`mode-dot ${visitedModes.has(mode) ? "visited" : ""}`} aria-hidden="true" />
+          </div>
         ))}
       </div>
     </nav>
-  );
-}
-
-function ModeHeader({ title, subtitle }) {
-  return (
-    <div className="text-center mb-6 md:mb-8">
-      <h1
-        className="text-2xl md:text-4xl font-bold mb-1.5 bg-gradient-to-r from-rose-600 via-pink-500 to-purple-600 bg-clip-text text-transparent"
-        style={{ fontFamily: "Charm, serif" }}
-      >
-        {title}
-      </h1>
-      {subtitle && (
-        <p className="text-xs md:text-sm text-zinc-500" style={{ fontFamily: "Charm, serif" }}>
-          {subtitle}
-        </p>
-      )}
-      <div className="w-16 h-1 mx-auto mt-2 rounded-full bg-gradient-to-r from-rose-400 to-pink-500" />
-    </div>
   );
 }
 
@@ -197,8 +202,19 @@ export default function Page() {
   const [totalXP, setTotalXP] = useState(0);
   const [achievements, setAchievements] = useState([]);
   const [pendingAchievement, setPendingAchievement] = useState(null);
+  const [splineLoaded, setSplineLoaded] = useState(false);
+  const [splineError, setSplineError] = useState(false);
+  const [showOnboarding, setShowOnboarding] = useState(() => !localStorage.getItem("abm_onboarded"));
+  const [visitedModes, setVisitedModes] = useState(() => {
+    const saved = localStorage.getItem("abm_visited");
+    return new Set(saved ? JSON.parse(saved) : [getInitialMode()]);
+  });
+  const [scrollProgress, setScrollProgress] = useState(0);
+  const [showBackToTop, setShowBackToTop] = useState(false);
+  const [showAchievementHistory, setShowAchievementHistory] = useState(false);
 
   const gifRef = useRef(null);
+  const mainRef = useRef(null);
   const yesButtonSize = Math.min(noCount * 12 + 18, 60);
 
   const unlockedAchievements = useRef(new Set());
@@ -209,6 +225,48 @@ export default function Page() {
     setAchievements((prev) => [...prev, { id, icon, label }]);
     setPendingAchievement({ icon, label });
   }, []);
+
+  // Track visited modes
+  useEffect(() => {
+    setVisitedModes((prev) => {
+      const next = new Set(prev);
+      next.add(activeMode);
+      localStorage.setItem("abm_visited", JSON.stringify([...next]));
+      return next;
+    });
+  }, [activeMode]);
+
+  // Scroll progress + back-to-top
+  useEffect(() => {
+    const main = mainRef.current;
+    if (!main) return;
+    const handleScroll = () => {
+      const { scrollTop, scrollHeight, clientHeight } = main;
+      const pct = scrollHeight > clientHeight ? (scrollTop / (scrollHeight - clientHeight)) * 100 : 0;
+      setScrollProgress(Math.min(100, pct));
+      setShowBackToTop(scrollTop > 300);
+    };
+    main.addEventListener("scroll", handleScroll, { passive: true });
+    return () => main.removeEventListener("scroll", handleScroll);
+  }, [activeMode]);
+
+  // Dismiss onboarding
+  const dismissOnboarding = () => {
+    setShowOnboarding(false);
+    localStorage.setItem("abm_onboarded", "1");
+  };
+
+  // Share current mode
+  const shareMode = useCallback(() => {
+    const url = `${window.location.origin}${window.location.pathname}#${activeMode}`;
+    if (navigator.share) {
+      navigator.share({ title: config.title, url }).catch(() => {});
+    } else if (navigator.clipboard) {
+      navigator.clipboard.writeText(url).then(() => {
+        Swal.fire({ title: "Link copied!", icon: "success", timer: 1500, showConfirmButton: false, toast: true, position: "top-end" });
+      });
+    }
+  }, [activeMode]);
 
   useEffect(() => {
     const onHash = () => {
@@ -368,13 +426,24 @@ export default function Page() {
 
   return (
     <div className={`min-h-screen transition-opacity duration-700 ${isTransitioning ? "opacity-0" : "opacity-100"}`}>
+      {/* Spline Background with Fallback */}
       <div className="fixed top-0 left-0 w-screen h-screen -z-10">
-        <Spline scene="https://prod.spline.design/oSxVDduGPlsuUIvT/scene.splinecode" />
+        <div className={`absolute inset-0 bg-gradient-to-br from-rose-100 via-pink-50 to-purple-100 ${splineLoaded && !splineError ? "opacity-0" : "opacity-100"} transition-opacity duration-1000`} />
+        <Spline
+          scene="https://prod.spline.design/oSxVDduGPlsuUIvT/scene.splinecode"
+          onLoad={() => setSplineLoaded(true)}
+          onError={() => setSplineError(true)}
+        />
       </div>
 
-      <Nav activeMode={activeMode} setActiveMode={setActiveMode} />
+      {/* Scroll Progress Bar */}
+      {activeMode !== "proposal" && (
+        <div className="scroll-progress-bar" style={{ width: `${scrollProgress}%` }} role="progressbar" aria-valuenow={Math.round(scrollProgress)} aria-valuemin={0} aria-valuemax={100} aria-label="Scroll progress" />
+      )}
 
-      <main className="pb-28 md:pb-20 min-h-screen text-zinc-900 overflow-y-auto no-scrollbar" style={{ paddingTop: "calc(var(--safe-top) + 3.5rem)" }}>
+      <Nav activeMode={activeMode} setActiveMode={setActiveMode} visitedModes={visitedModes} />
+
+      <main ref={mainRef} className="pb-28 md:pb-20 min-h-screen text-zinc-900 overflow-y-auto no-scrollbar" style={{ paddingTop: "calc(var(--safe-top) + 3.5rem)" }}>
         <div className={`max-w-5xl mx-auto px-4 sm:px-6 md:px-8 lg:px-12 ${config.selectionColor}`}>
           {activeMode === "proposal" ? (
             <div className="min-h-[calc(100vh-8rem)] flex flex-col items-center justify-center">
@@ -382,12 +451,46 @@ export default function Page() {
             </div>
           ) : (
             <div className="animate-fade-in py-6 md:py-8">
-              <ModeHeader title={config.navTitle} subtitle={config.title} />
+              <div className="flex items-center justify-between mb-6 md:mb-8">
+                <div className="text-center flex-1">
+                  <h1
+                    className="text-2xl md:text-4xl font-bold mb-1.5 bg-gradient-to-r from-rose-600 via-pink-500 to-purple-600 bg-clip-text text-transparent"
+                    style={{ fontFamily: "Charm, serif" }}
+                  >
+                    {config.navTitle}
+                  </h1>
+                  {config.title && (
+                    <p className="text-xs md:text-sm text-zinc-500" style={{ fontFamily: "Charm, serif" }}>
+                      {config.title}
+                    </p>
+                  )}
+                  <div className="w-16 h-1 mx-auto mt-2 rounded-full bg-gradient-to-r from-rose-400 to-pink-500" />
+                </div>
+                <button
+                  onClick={shareMode}
+                  className="w-9 h-9 rounded-full flex items-center justify-center text-zinc-500 hover:text-rose-500 hover:bg-white/60 transition-all cursor-pointer shrink-0 ml-3"
+                  aria-label="Share this mode"
+                  title="Share"
+                >
+                  <BsShareFill size={14} />
+                </button>
+              </div>
               {renderMode()}
             </div>
           )}
         </div>
       </main>
+
+      {/* Back to Top */}
+      {showBackToTop && (
+        <button
+          onClick={() => mainRef.current?.scrollTo({ top: 0, behavior: "smooth" })}
+          className="back-to-top"
+          aria-label="Back to top"
+        >
+          <BsArrowUp size={16} />
+        </button>
+      )}
 
       {/* Draggable Music Control */}
       <FloatingMusicControl
@@ -401,6 +504,77 @@ export default function Page() {
       {/* Achievement Toast */}
       {pendingAchievement && (
         <AchievementToast achievement={pendingAchievement} onDone={() => setPendingAchievement(null)} />
+      )}
+
+      {/* Achievement History Button */}
+      {achievements.length > 0 && (
+        <button
+          onClick={() => setShowAchievementHistory(!showAchievementHistory)}
+          className="fixed bottom-20 left-4 md:bottom-4 md:left-4 z-40 w-9 h-9 rounded-full flex items-center justify-center backdrop-blur-md bg-white/60 border border-white/40 text-zinc-600 hover:text-amber-500 hover:bg-white/80 transition-all cursor-pointer shadow-lg"
+          aria-label={`View ${achievements.length} achievements`}
+          title={`${achievements.length} achievements`}
+        >
+          <span className="text-sm">🏆</span>
+        </button>
+      )}
+
+      {/* Achievement History Panel */}
+      {showAchievementHistory && (
+        <div className="fixed inset-0 z-[90] flex items-end md:items-center justify-center p-4" onClick={() => setShowAchievementHistory(false)}>
+          <div className="absolute inset-0 bg-black/20 backdrop-blur-sm" />
+          <div
+            className="relative glass-card p-5 w-full max-w-sm max-h-[60vh] overflow-y-auto no-scrollbar animate-fade-in-up"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-sm font-bold text-zinc-800">Achievements ({achievements.length})</h3>
+              <button
+                onClick={() => setShowAchievementHistory(false)}
+                className="w-7 h-7 rounded-full flex items-center justify-center text-zinc-400 hover:text-zinc-700 hover:bg-zinc-100 transition-all cursor-pointer"
+                aria-label="Close achievements"
+              >
+                <BsX size={16} />
+              </button>
+            </div>
+            <div className="space-y-2">
+              {achievements.map((a) => (
+                <div key={a.id} className="flex items-center gap-3 p-2.5 rounded-xl bg-amber-50/80 border border-amber-100">
+                  <span className="text-xl">{a.icon}</span>
+                  <p className="text-xs font-bold text-zinc-700">{a.label}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Onboarding Overlay */}
+      {showOnboarding && (
+        <div className="onboarding-overlay" onClick={dismissOnboarding} role="dialog" aria-label="Welcome tour">
+          <div className="onboarding-card" onClick={(e) => e.stopPropagation()}>
+            <div className="text-center mb-4">
+              <span className="text-4xl mb-2 block">💌</span>
+              <h2 className="text-xl font-bold text-zinc-900 mb-1" style={{ fontFamily: "Charm, serif" }}>
+                Welcome to {config.title?.replace(/[❤️🎂💑💝🎉]/g, "").trim() || "Always Be Mine"}
+              </h2>
+              <p className="text-xs text-zinc-500">Explore our story through different modes</p>
+            </div>
+            <div className="grid grid-cols-2 gap-2 mb-4">
+              {config.modes.map((mode) => (
+                <div key={mode} className="flex items-center gap-2 p-2 rounded-lg bg-zinc-50 border border-zinc-100">
+                  <span className="text-base">{modeLabels[mode]?.split(" ")[0]}</span>
+                  <span className="text-[11px] font-bold text-zinc-600">{modeLabels[mode]?.split(" ").slice(1).join(" ")}</span>
+                </div>
+              ))}
+            </div>
+            <button
+              onClick={dismissOnboarding}
+              className="w-full btn-primary bg-gradient-to-r from-rose-500 to-pink-500 hover:from-rose-600 hover:to-pink-600 text-sm"
+            >
+              Start Exploring 💕
+            </button>
+          </div>
+        </div>
       )}
 
       <Footer />

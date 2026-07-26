@@ -51,8 +51,13 @@ export default function PromiseBuilder({ data, title, subtitle, onProgress }) {
             <div
               key={idx}
               onClick={() => toggleCard(idx)}
+              onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); toggleCard(idx); } }}
               className="cursor-pointer group"
               style={{ perspective: "1000px" }}
+              role="button"
+              tabIndex={0}
+              aria-label={`Promise #${idx + 1}. ${isFlipped ? "Currently showing promise. Tap to hide." : "Tap to reveal promise."}`}
+              aria-expanded={isFlipped}
             >
               <div
                 className={`relative w-full h-40 md:h-44 transition-transform duration-500`}

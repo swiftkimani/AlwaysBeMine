@@ -34,6 +34,10 @@ export default function ReasonsJar({ data, onProgress }) {
           <div
             className={`mx-auto w-40 h-48 md:w-48 md:h-56 relative cursor-pointer transition-transform duration-300 ${isShaking ? "animate-shake" : "hover:scale-105"}`}
             onClick={pullReason}
+            role="button"
+            tabIndex={0}
+            aria-label={allRevealed ? "All reasons revealed" : `Pull a reason from the jar. ${unrevealedCount} remaining`}
+            onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); pullReason(); } }}
           >
             <svg viewBox="0 0 200 260" className="w-full h-full drop-shadow-xl">
               <defs>
