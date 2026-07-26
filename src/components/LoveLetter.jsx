@@ -107,7 +107,7 @@ export default function LoveLetter({ data, onProgress }) {
                 </button>
               )}
               {isTyping && (
-                <button onClick={handleSkip} className="btn-primary bg-white/20 text-amber-800 hover:bg-white/30 text-xs border border-amber-200/50">
+                <button onClick={handleSkip} className="btn-primary bg-white/50 text-amber-800 hover:bg-white/70 text-xs border border-amber-200">
                   Skip typing →
                 </button>
               )}

@@ -63,7 +63,7 @@ export default function PhotoGallery({ data, onProgress }) {
 
             {/* Viewed badge */}
             {viewed.has(idx) && (
-              <div className="absolute top-2 right-2 w-5 h-5 rounded-full bg-green-500 flex items-center justify-center text-white text-[10px] z-10">
+              <div className="absolute top-2 right-2 w-5 h-5 rounded-full bg-green-500 flex items-center justify-center text-white text-[10px] z-10 shadow-sm">
                 ✓
               </div>
             )}

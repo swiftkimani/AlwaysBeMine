@@ -120,7 +120,7 @@ export default function AudioPlayer({ tracks, onTrackChange }) {
           onClick={() => setIsExpanded(!isExpanded)}
           className="flex items-center gap-3 min-w-0 flex-1 text-left cursor-pointer bg-transparent border-0"
         >
-          <div className={`w-10 h-10 md:w-12 md:h-12 rounded-xl flex items-center justify-center shrink-0 transition-all duration-300 ${isPlaying ? "bg-gradient-to-br from-rose-500 to-pink-500 animate-pulse-glow" : "bg-white/15"}`}>
+          <div className={`w-10 h-10 md:w-12 md:h-12 rounded-xl flex items-center justify-center shrink-0 transition-all duration-300 ${isPlaying ? "bg-gradient-to-br from-rose-500 to-pink-500 animate-pulse-glow" : "bg-zinc-100"}`}>
             {isPlaying ? (
               <div className="flex gap-0.5 items-end h-5">
                 <span className="w-0.5 bg-white animate-bounce" style={{ height: "60%", animationDelay: "0ms" }} />
@@ -140,23 +140,23 @@ export default function AudioPlayer({ tracks, onTrackChange }) {
 
         {/* Controls */}
         <div className="flex items-center gap-1 md:gap-2 shrink-0">
-          <button onClick={skipPrev} className="w-8 h-8 md:w-9 md:h-9 rounded-full flex items-center justify-center text-zinc-600 hover:text-zinc-900 hover:bg-white/15 transition-all cursor-pointer" aria-label="Previous">
+          <button onClick={skipPrev} className="w-8 h-8 md:w-9 md:h-9 rounded-full flex items-center justify-center text-zinc-500 hover:text-zinc-900 hover:bg-zinc-100 transition-all cursor-pointer" aria-label="Previous">
             <BsSkipBackwardFill size={14} />
           </button>
           <button onClick={togglePlay} className="w-10 h-10 md:w-11 md:h-11 rounded-full flex items-center justify-center bg-gradient-to-br from-rose-500 to-pink-500 text-white shadow-lg hover:shadow-xl hover:scale-105 active:scale-95 transition-all cursor-pointer" aria-label={isPlaying ? "Pause" : "Play"}>
             {isPlaying ? <BsPauseFill size={18} /> : <BsPlayFill size={18} className="ml-0.5" />}
           </button>
-          <button onClick={skipNext} className="w-8 h-8 md:w-9 md:h-9 rounded-full flex items-center justify-center text-zinc-600 hover:text-zinc-900 hover:bg-white/15 transition-all cursor-pointer" aria-label="Next">
+          <button onClick={skipNext} className="w-8 h-8 md:w-9 md:h-9 rounded-full flex items-center justify-center text-zinc-500 hover:text-zinc-900 hover:bg-zinc-100 transition-all cursor-pointer" aria-label="Next">
             <BsSkipForwardFill size={14} />
           </button>
         </div>
 
         {/* Like + Mute */}
         <div className="flex items-center gap-1 shrink-0">
-          <button onClick={toggleLike} className={`w-8 h-8 rounded-full flex items-center justify-center transition-all cursor-pointer ${liked.has(currentIdx) ? "text-rose-500" : "text-zinc-400 hover:text-rose-400"}`} aria-label="Like">
+          <button onClick={toggleLike} className={`w-8 h-8 rounded-full flex items-center justify-center transition-all cursor-pointer ${liked.has(currentIdx) ? "text-rose-500" : "text-zinc-400 hover:text-rose-400 hover:bg-rose-50"}`} aria-label="Like">
             <BsHeartFill size={14} fill={liked.has(currentIdx) ? "currentColor" : "none"} />
           </button>
-          <button onClick={toggleMute} className="w-8 h-8 rounded-full flex items-center justify-center text-zinc-400 hover:text-zinc-700 transition-all cursor-pointer" aria-label="Mute">
+          <button onClick={toggleMute} className="w-8 h-8 rounded-full flex items-center justify-center text-zinc-400 hover:text-zinc-700 hover:bg-zinc-100 transition-all cursor-pointer" aria-label="Mute">
             {isMuted ? <BsVolumeMuteFill size={14} /> : <BsVolumeUpFill size={14} />}
           </button>
         </div>
@@ -182,11 +182,11 @@ export default function AudioPlayer({ tracks, onTrackChange }) {
                 onClick={() => { setCurrentIdx(idx); setProgress(0); setIsPlaying(true); }}
                 className={`w-full flex items-center gap-3 p-2.5 rounded-xl transition-all cursor-pointer text-left ${
                   idx === currentIdx
-                    ? "bg-gradient-to-r from-rose-500/15 to-pink-500/15 border border-rose-200/30"
-                    : "hover:bg-white/10 border border-transparent"
+                    ? "bg-gradient-to-r from-rose-50 to-pink-50 border border-rose-200"
+                    : "hover:bg-zinc-50 border border-transparent"
                 }`}
               >
-                <span className={`w-7 h-7 rounded-lg flex items-center justify-center text-xs font-bold shrink-0 ${idx === currentIdx ? "bg-rose-500 text-white" : "bg-white/10 text-zinc-500"}`}>
+                <span className={`w-7 h-7 rounded-lg flex items-center justify-center text-xs font-bold shrink-0 ${idx === currentIdx ? "bg-rose-500 text-white" : "bg-zinc-100 text-zinc-500"}`}>
                   {idx === currentIdx && isPlaying ? (
                     <div className="flex gap-px items-end h-3">
                       <span className="w-px bg-white" style={{ height: "60%", animation: "float 0.6s ease-in-out infinite" }} />

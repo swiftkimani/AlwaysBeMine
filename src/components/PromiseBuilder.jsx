@@ -63,10 +63,10 @@ export default function PromiseBuilder({ data, title, subtitle, onProgress }) {
               >
                 {/* Front */}
                 <div
-                  className="absolute inset-0 rounded-xl flex items-center justify-center p-5 border border-white/20 shadow-xl"
+                  className="absolute inset-0 rounded-xl flex items-center justify-center p-5 border border-zinc-200 shadow-xl"
                   style={{
                     backfaceVisibility: "hidden",
-                    background: "linear-gradient(135deg, rgba(255,255,255,0.2), rgba(255,255,255,0.05))",
+                    background: "linear-gradient(135deg, rgba(255,255,255,0.95), rgba(255,250,245,0.95))",
                     backdropFilter: "blur(12px)",
                   }}
                 >
@@ -75,7 +75,7 @@ export default function PromiseBuilder({ data, title, subtitle, onProgress }) {
                       {isFlipped ? "💝" : "💝"}
                     </span>
                     <p className="text-xs text-zinc-500 font-bold">Promise #{idx + 1}</p>
-                    <p className="text-[10px] text-zinc-400 mt-1.5 bg-white/10 px-2.5 py-0.5 rounded-full inline-block">
+                    <p className="text-[10px] text-zinc-400 mt-1.5 bg-zinc-50 px-2.5 py-0.5 rounded-full inline-block border border-zinc-200">
                       {isFlipped ? "Tap to hide" : "Tap to reveal"}
                     </p>
                   </div>
@@ -83,11 +83,11 @@ export default function PromiseBuilder({ data, title, subtitle, onProgress }) {
 
                 {/* Back */}
                 <div
-                  className="absolute inset-0 rounded-xl flex items-center justify-center p-5 border border-rose-200/30 shadow-xl"
+                  className="absolute inset-0 rounded-xl flex items-center justify-center p-5 border border-rose-200/50 shadow-xl"
                   style={{
                     backfaceVisibility: "hidden",
                     transform: "rotateY(180deg)",
-                    background: "linear-gradient(135deg, rgba(244,63,94,0.1), rgba(236,72,153,0.1))",
+                    background: "linear-gradient(135deg, rgba(255,250,250,0.95), rgba(255,240,245,0.95))",
                     backdropFilter: "blur(12px)",
                   }}
                 >

@@ -17,11 +17,11 @@ export default function Playlist({ data, compact }) {
               key={idx}
               onClick={() => setActiveTrack(idx)}
               className={`w-full flex items-center gap-2 p-2 rounded-lg text-left transition-all cursor-pointer ${
-                idx === activeTrack ? "bg-rose-500/15" : "hover:bg-white/10"
+                idx === activeTrack ? "bg-rose-50 border border-rose-200" : "hover:bg-zinc-50 border border-transparent"
               }`}
             >
               <span className={`w-5 h-5 rounded flex items-center justify-center text-[10px] font-bold shrink-0 ${
-                idx === activeTrack ? "bg-rose-500 text-white" : "bg-white/10 text-zinc-500"
+                idx === activeTrack ? "bg-rose-500 text-white" : "bg-zinc-100 text-zinc-500"
               }`}>
                 {idx === activeTrack ? "▶" : idx + 1}
               </span>
@@ -59,12 +59,12 @@ export default function Playlist({ data, compact }) {
               onClick={() => setActiveTrack(idx)}
               className={`flex items-center gap-3 rounded-xl p-3 transition-all duration-200 cursor-pointer ${
                 idx === activeTrack
-                  ? "bg-gradient-to-r from-rose-500/15 to-pink-500/15 border border-rose-200/30"
-                  : "hover:bg-white/10 border border-transparent"
+                  ? "bg-gradient-to-r from-rose-50 to-pink-50 border border-rose-200"
+                  : "hover:bg-zinc-50 border border-transparent"
               }`}
             >
               <span className={`w-8 h-8 rounded-lg flex items-center justify-center text-xs font-bold shrink-0 ${
-                idx === activeTrack ? "bg-rose-500 text-white" : "bg-white/10 text-zinc-500"
+                idx === activeTrack ? "bg-rose-500 text-white" : "bg-zinc-100 text-zinc-500"
               }`}>
                 {idx === activeTrack ? (
                   <div className="flex gap-px items-end h-3">
@@ -83,7 +83,7 @@ export default function Playlist({ data, compact }) {
                 <p className="text-xs text-zinc-500 truncate">{track.artist}</p>
               </div>
               {track.url && (
-                <span className="text-[10px] text-rose-400 shrink-0 bg-rose-500/10 px-2 py-0.5 rounded-full">▶ Open</span>
+                <span className="text-[10px] text-rose-500 shrink-0 bg-rose-50 px-2 py-0.5 rounded-full border border-rose-200">▶ Open</span>
               )}
             </div>
           ))}

@@ -74,15 +74,15 @@ export default function QuizGame({ data, results, onProgress }) {
 
           {/* Stats Grid */}
           <div className="grid grid-cols-3 gap-3 mb-4">
-            <div className="bg-white/10 rounded-xl p-3">
+            <div className="bg-rose-50 rounded-xl p-3 border border-rose-100">
               <p className="text-lg font-bold text-rose-500">{score}</p>
               <p className="text-[10px] text-zinc-500">Correct</p>
             </div>
-            <div className="bg-white/10 rounded-xl p-3">
+            <div className="bg-amber-50 rounded-xl p-3 border border-amber-100">
               <p className="text-lg font-bold text-amber-500">{bestStreak}</p>
               <p className="text-[10px] text-zinc-500">Best Streak</p>
             </div>
-            <div className="bg-white/10 rounded-xl p-3">
+            <div className="bg-purple-50 rounded-xl p-3 border border-purple-100">
               <p className="text-lg font-bold text-purple-500">{totalXP}</p>
               <p className="text-[10px] text-zinc-500">XP Earned</p>
             </div>
@@ -110,7 +110,7 @@ export default function QuizGame({ data, results, onProgress }) {
       <div className="glass-card p-5 md:p-7">
         {/* Header */}
         <div className="flex justify-between items-center mb-3">
-          <span className="text-xs font-bold text-rose-400 bg-white/10 px-2.5 py-1 rounded-full">
+          <span className="text-xs font-bold text-rose-500 bg-rose-50 px-2.5 py-1 rounded-full border border-rose-200">
             Question {currentQ + 1}/{total}
           </span>
           <div className="flex items-center gap-2">
@@ -136,11 +136,11 @@ export default function QuizGame({ data, results, onProgress }) {
         {/* Options */}
         <div className="space-y-2.5">
           {question.options.map((opt, idx) => {
-            let styles = "bg-white/15 hover:bg-white/25 text-zinc-800 border-white/15";
+            let styles = "bg-zinc-50 hover:bg-zinc-100 text-zinc-800 border-zinc-200";
             if (showResult) {
-              if (idx === question.answer) styles = "bg-green-500/80 text-white border-green-400/50";
-              else if (idx === selected) styles = "bg-red-500/80 text-white border-red-400/50";
-              else styles = "bg-white/10 text-zinc-400 border-white/5";
+              if (idx === question.answer) styles = "bg-green-50 text-green-800 border-green-300";
+              else if (idx === selected) styles = "bg-red-50 text-red-800 border-red-300";
+              else styles = "bg-zinc-50/50 text-zinc-400 border-zinc-100";
             }
             return (
               <button

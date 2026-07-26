@@ -130,8 +130,8 @@ function AchievementToast({ achievement, onDone }) {
 
 function Footer() {
   return (
-    <a
-      className="fixed bottom-14 right-4 md:bottom-3 md:right-4 backdrop-blur-md opacity-70 hover:opacity-100 border px-3 py-1.5 rounded-xl border-white/20 bg-black/10 text-[10px] md:text-xs text-zinc-600 hover:text-zinc-900 transition-all duration-300 z-40"
+      <a
+        className="fixed bottom-20 right-4 md:bottom-4 md:right-4 backdrop-blur-md opacity-80 hover:opacity-100 border px-3 py-1.5 rounded-xl border-white/20 bg-white/60 text-[10px] md:text-xs text-zinc-700 hover:text-zinc-900 transition-all duration-300 z-40"
       href="https://github.com/swiftkimani/AlwaysBeMine"
       target="_blank"
       rel="noopener noreferrer"
@@ -143,7 +143,7 @@ function Footer() {
 
 function Nav({ activeMode, setActiveMode }) {
   return (
-    <nav className="fixed top-0 left-0 right-0 z-50 bg-black/15 backdrop-blur-xl border-b border-white/15" style={{ paddingTop: "var(--safe-top)" }}>
+    <nav className="fixed top-0 left-0 right-0 z-50 bg-white/75 backdrop-blur-xl border-b border-white/40" style={{ paddingTop: "var(--safe-top)" }}>
       <div className="max-w-5xl mx-auto px-3 py-2 md:py-2.5 flex gap-1 md:gap-1.5 overflow-x-auto no-scrollbar">
         {config.modes.map((mode) => (
           <button
@@ -154,8 +154,8 @@ function Nav({ activeMode, setActiveMode }) {
             }}
             className={`shrink-0 px-3 md:px-4 py-1.5 md:py-2 rounded-xl text-[11px] md:text-xs font-bold transition-all duration-300 cursor-pointer ${
               activeMode === mode
-                ? "btn-glow bg-white/30 text-zinc-900 shadow-lg shadow-white/10"
-                : "text-zinc-600 hover:bg-white/10 hover:text-zinc-800"
+                ? "btn-glow bg-white/80 text-zinc-900 shadow-lg shadow-rose-200/30"
+                : "text-zinc-700 hover:bg-white/50 hover:text-zinc-900"
             }`}
           >
             {modeLabels[mode] || mode}
@@ -380,7 +380,7 @@ export default function Page() {
 
       <Nav activeMode={activeMode} setActiveMode={setActiveMode} />
 
-      <main className="pt-14 md:pt-16 pb-28 md:pb-20 min-h-screen text-zinc-900 overflow-y-auto no-scrollbar" style={{ paddingTop: "calc(var(--safe-top) + 3.5rem)" }}>
+      <main className="pb-28 md:pb-20 min-h-screen text-zinc-900 overflow-y-auto no-scrollbar" style={{ paddingTop: "calc(var(--safe-top) + 3.5rem)" }}>
         <div className={`max-w-5xl mx-auto px-3 md:px-6 ${config.selectionColor}`}>
           {activeMode === "proposal" ? (
             <div className="min-h-[calc(100vh-8rem)] flex flex-col items-center justify-center">
@@ -397,11 +397,11 @@ export default function Page() {
 
       {/* Mute Button */}
       <button
-        className="fixed bottom-14 right-4 md:bottom-4 md:right-4 bg-black/15 backdrop-blur-sm w-9 h-9 md:w-10 md:h-10 rounded-full flex items-center justify-center hover:bg-black/25 active:scale-90 transition-all duration-300 shadow-lg cursor-pointer z-50"
+        className="fixed bottom-20 left-4 md:bottom-4 md:left-4 bg-white/60 backdrop-blur-sm w-9 h-9 md:w-10 md:h-10 rounded-full flex items-center justify-center hover:bg-white/80 active:scale-90 transition-all duration-300 shadow-lg cursor-pointer z-50 border border-white/40"
         onClick={toggleMute}
         aria-label={isMuted ? "Unmute" : "Mute"}
       >
-        {isMuted ? <BsVolumeMuteFill size={18} className="text-zinc-700" /> : <BsVolumeUpFill size={18} className="text-zinc-700" />}
+        {isMuted ? <BsVolumeMuteFill size={18} className="text-zinc-800" /> : <BsVolumeUpFill size={18} className="text-zinc-800" />}
       </button>
 
       {/* Inline Audio Player */}

@@ -38,8 +38,8 @@ export default function ReasonsJar({ data, onProgress }) {
             <svg viewBox="0 0 200 260" className="w-full h-full drop-shadow-xl">
               <defs>
                 <linearGradient id="jarGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-                  <stop offset="0%" stopColor="rgba(255,255,255,0.35)" />
-                  <stop offset="100%" stopColor="rgba(255,255,255,0.15)" />
+                  <stop offset="0%" stopColor="rgba(255,255,255,0.7)" />
+                  <stop offset="100%" stopColor="rgba(255,255,255,0.4)" />
                 </linearGradient>
                 <linearGradient id="lidGrad" x1="0%" y1="0%" x2="100%" y2="100%">
                   <stop offset="0%" stopColor="#c4956a" />
@@ -68,7 +68,7 @@ export default function ReasonsJar({ data, onProgress }) {
 
           {/* Pull Button */}
           {!allRevealed ? (
-            <button onClick={pullReason} disabled={isShaking} className="btn-primary bg-gradient-to-r from-rose-500 to-pink-500 hover:from-rose-600 hover:to-pink-600 disabled:from-rose-300 disabled:to-pink-300 text-sm mt-4">
+              <button onClick={pullReason} disabled={isShaking} className="btn-primary bg-gradient-to-r from-rose-500 to-pink-500 hover:from-rose-600 hover:to-pink-600 disabled:from-rose-300 disabled:to-pink-300 text-white text-sm mt-4">
               {isShaking ? "Shaking... 🫙" : `Pull a Reason 💝 (${unrevealedCount} left)`}
             </button>
           ) : (

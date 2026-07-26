@@ -29,11 +29,12 @@ body {
 
 /* --- Glass Card Base --- */
 .glass-card {
-  background: rgba(255, 255, 255, 0.12);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.82);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.45);
   border-radius: 1.25rem;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
 }
 
 /* --- Button Base --- */
@@ -177,7 +178,7 @@ body {
 .progress-bar {
   height: 8px;
   border-radius: 9999px;
-  background: rgba(255, 255, 255, 0.15);
+  background: rgba(0, 0, 0, 0.08);
   overflow: hidden;
 }
 
@@ -239,9 +240,9 @@ body {
   border-radius: 9999px;
   font-size: 0.7rem;
   font-weight: 700;
-  background: linear-gradient(135deg, rgba(251, 191, 36, 0.2), rgba(245, 158, 11, 0.1));
-  border: 1px solid rgba(251, 191, 36, 0.3);
-  color: #f59e0b;
+  background: linear-gradient(135deg, rgba(251, 191, 36, 0.25), rgba(245, 158, 11, 0.15));
+  border: 1px solid rgba(251, 191, 36, 0.4);
+  color: #d97706;
 }
 
 /* --- Streak Counter --- */
@@ -253,9 +254,9 @@ body {
   border-radius: 9999px;
   font-size: 0.75rem;
   font-weight: 700;
-  background: linear-gradient(135deg, rgba(234, 88, 12, 0.15), rgba(239, 68, 68, 0.1));
-  border: 1px solid rgba(234, 88, 12, 0.25);
-  color: #f97316;
+  background: linear-gradient(135deg, rgba(234, 88, 12, 0.2), rgba(239, 68, 68, 0.15));
+  border: 1px solid rgba(234, 88, 12, 0.35);
+  color: #c2410c;
 }
 
 /* --- Achievement Toast --- */
