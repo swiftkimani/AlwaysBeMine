@@ -143,26 +143,24 @@ export default function PhotoGallery({ data, onProgress }) {
       {/* Premium Lightbox Modal */}
       {activeIdx !== null && createPortal(
         <div
-          className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/90 backdrop-blur-xl animate-fade-in"
+          className="fixed inset-0 z-[9999] flex flex-col md:flex-row items-center justify-center bg-black/95 backdrop-blur-2xl animate-fade-in p-4 sm:p-10 gap-6 md:gap-12 overflow-hidden"
           onClick={() => setActiveIdx(null)}
         >
-          {/* Main Container - slides from right */}
+          {/* Top Bar / Close */}
+          <button
+            onClick={() => setActiveIdx(null)}
+            className="absolute top-4 right-4 sm:top-8 sm:right-8 w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-white/10 hover:bg-white/20 text-white flex items-center justify-center transition-all cursor-pointer z-50 backdrop-blur-md border border-white/20 hover:scale-110"
+            aria-label="Close photo preview"
+          >
+            <BsX size={28} className="sm:w-8 sm:h-8" />
+          </button>
+
+          {/* Image Container */}
           <div
-            className="w-full h-full relative bg-zinc-950 flex flex-col md:flex-row items-center justify-center p-4 sm:p-10 gap-6 md:gap-12 overflow-hidden"
-            style={{ animation: "modal-slide-left 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards" }}
+            className="relative w-full md:w-[65%] h-[50vh] md:h-[85vh] flex items-center justify-center group gallery-item"
+            style={{ animation: "modal-slide-left 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards" }}
             onClick={(e) => e.stopPropagation()}
           >
-            {/* Top Bar / Close */}
-            <button
-              onClick={() => setActiveIdx(null)}
-              className="absolute top-6 right-6 sm:top-8 sm:right-8 w-12 h-12 rounded-full bg-white/10 hover:bg-white/20 text-white flex items-center justify-center transition-all cursor-pointer z-50 backdrop-blur-md border border-white/20 hover:scale-110"
-              aria-label="Close photo preview"
-            >
-              <BsX size={32} />
-            </button>
-
-            {/* Image Container */}
-            <div className="relative w-full md:w-[65%] h-[50vh] md:h-[85vh] flex items-center justify-center group gallery-item">
               {/* Prev/Next arrows */}
               <button
                 onClick={handlePrev}
@@ -200,27 +198,31 @@ export default function PhotoGallery({ data, onProgress }) {
             </div>
 
             {/* Sidebar / Info panel */}
-            <div className="w-full md:w-[35%] max-w-md flex flex-col items-center md:items-start justify-center gap-6 bg-white/5 backdrop-blur-xl p-8 rounded-[2rem] border border-white/10 shadow-2xl">
+            <div
+              className="w-full md:w-[35%] max-w-md flex flex-col items-center md:items-start justify-center gap-4 sm:gap-6 bg-white/5 backdrop-blur-xl p-6 sm:p-8 rounded-3xl sm:rounded-[2rem] border border-white/10 shadow-2xl"
+              style={{ animation: "modal-slide-left 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards" }}
+              onClick={(e) => e.stopPropagation()}
+            >
               <span className="text-[10px] font-black text-rose-400 uppercase tracking-[0.2em] border border-rose-400/30 px-3 py-1 rounded-full">
                 Memory {activeIdx + 1} of {data.length}
               </span>
               
               <p
-                className="text-3xl sm:text-5xl text-white font-bold text-center md:text-left leading-tight"
+                className="text-2xl sm:text-5xl text-white font-bold text-center md:text-left leading-tight"
                 style={{ fontFamily: "Charm, serif" }}
               >
                 {data[activeIdx].caption} 💕
               </p>
 
               {/* Reaction Heart Bar */}
-              <div className="flex flex-col gap-3 w-full mt-4">
-                <span className="text-xs text-white/50 font-bold uppercase tracking-wider text-center md:text-left">How did this make you feel?</span>
-                <div className="flex items-center justify-center md:justify-start gap-3">
+              <div className="flex flex-col gap-2 sm:gap-3 w-full mt-2 sm:mt-4">
+                <span className="text-[10px] sm:text-xs text-white/50 font-bold uppercase tracking-wider text-center md:text-left">How did this make you feel?</span>
+                <div className="flex items-center justify-center md:justify-start gap-2 sm:gap-3">
                   {["💕", "🥰", "😍", "💖", "🔥"].map((emoji) => (
                     <button
                       key={emoji}
-                      onClick={() => handleReaction(emoji)}
-                      className={`w-12 h-12 rounded-full text-2xl flex items-center justify-center transition-all cursor-pointer ${
+                      onClick={(e) => { e.stopPropagation(); handleReaction(emoji); }}
+                      className={`w-10 h-10 sm:w-12 sm:h-12 rounded-full text-xl sm:text-2xl flex items-center justify-center transition-all cursor-pointer ${
                         reactions[activeIdx] === emoji
                           ? "bg-rose-500 text-white scale-125 shadow-[0_0_20px_rgba(225,29,72,0.6)]"
                           : "bg-white/10 hover:bg-white/20 text-white hover:scale-110 border border-white/10"
@@ -232,7 +234,6 @@ export default function PhotoGallery({ data, onProgress }) {
                 </div>
               </div>
             </div>
-          </div>
         </div>,
         document.body
       )}

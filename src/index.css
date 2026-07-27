@@ -40,6 +40,11 @@ html, body, #root {
   background-color: #fdf2f8; /* Base fallback */
 }
 
+html {
+  scroll-behavior: smooth;
+  -webkit-overflow-scrolling: touch;
+}
+
 /* ============================================================
    LIQUID MORPHISM — the core glass effect
    ============================================================ */
