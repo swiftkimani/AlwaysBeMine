@@ -143,7 +143,7 @@ export default function PhotoGallery({ data, onProgress }) {
       {/* Premium Lightbox Modal */}
       {activeIdx !== null && createPortal(
         <div
-          className="fixed inset-0 z-[9999] flex flex-col md:flex-row items-center justify-center bg-black/95 backdrop-blur-2xl animate-fade-in p-4 sm:p-10 gap-6 md:gap-12 overflow-hidden"
+          className="fixed inset-0 z-[9999] flex flex-col md:flex-row items-center justify-center bg-black/95 backdrop-blur-sm animate-fade-in p-4 sm:p-10 gap-6 md:gap-12 overflow-hidden cursor-pointer"
           onClick={() => setActiveIdx(null)}
         >
           {/* Top Bar / Close */}
@@ -157,7 +157,7 @@ export default function PhotoGallery({ data, onProgress }) {
 
           {/* Image Container */}
           <div
-            className="relative w-full md:w-[65%] h-[50vh] md:h-[85vh] flex items-center justify-center group gallery-item"
+            className="relative w-full md:w-[65%] h-[50vh] md:h-[85vh] flex items-center justify-center group gallery-item cursor-auto"
             style={{ animation: "modal-slide-left 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards" }}
             onClick={(e) => e.stopPropagation()}
           >
@@ -199,7 +199,7 @@ export default function PhotoGallery({ data, onProgress }) {
 
             {/* Sidebar / Info panel */}
             <div
-              className="w-full md:w-[35%] max-w-md flex flex-col items-center md:items-start justify-center gap-4 sm:gap-6 bg-white/5 backdrop-blur-xl p-6 sm:p-8 rounded-3xl sm:rounded-[2rem] border border-white/10 shadow-2xl"
+              className="w-full md:w-[35%] max-w-md flex flex-col items-center md:items-start justify-center gap-4 sm:gap-6 bg-white/5 backdrop-blur-xl p-6 sm:p-8 rounded-3xl sm:rounded-[2rem] border border-white/10 shadow-2xl cursor-auto"
               style={{ animation: "modal-slide-left 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards" }}
               onClick={(e) => e.stopPropagation()}
             >

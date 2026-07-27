@@ -936,7 +936,7 @@ export default function Page() {
       {/* Achievement History Panel */}
       {showAchievementHistory && (
         <div className="fixed inset-0 z-[90] flex items-end md:items-center justify-center p-4" onClick={() => setShowAchievementHistory(false)}>
-          <div className="absolute inset-0 bg-black/20 backdrop-blur-sm" />
+          <div className="absolute inset-0 bg-black/20 backdrop-blur-sm" onClick={() => setShowAchievementHistory(false)} />
           <div
             className="relative liquid p-5 w-full max-w-sm max-h-[60vh] overflow-y-auto no-scrollbar animate-fade-in-up"
             onClick={(e) => e.stopPropagation()}
