@@ -405,61 +405,93 @@ function AchievementToast({ achievement, onDone }) {
       role="alert"
       aria-live="polite"
     >
-      <div className="liquid px-5 py-3 flex items-center gap-3 shadow-2xl border border-amber-200/40">
-        <span className="text-2xl" aria-hidden="true">{achievement.icon}</span>
+      <div className="bg-white/95 backdrop-blur-md px-6 py-4 flex items-center gap-4 shadow-[0_15px_40px_-5px_rgba(251,191,36,0.5)] border-2 border-amber-300 rounded-[2rem] w-[90vw] max-w-sm">
+        <span className="text-4xl drop-shadow-md" aria-hidden="true">{achievement.icon}</span>
         <div className="flex-1">
-          <p className="text-[10px] font-bold text-amber-500 uppercase tracking-wider">Achievement Unlocked!</p>
-          <p className="text-sm font-bold text-zinc-800">{achievement.label}</p>
+          <p className="text-[11px] font-black text-amber-500 uppercase tracking-widest mb-0.5">Achievement Unlocked!</p>
+          <p className="text-lg font-bold text-zinc-900 leading-tight">{achievement.label}</p>
         </div>
         <button
           onClick={handleDismiss}
-          className="w-6 h-6 rounded-full flex items-center justify-center text-zinc-400 hover:text-zinc-700 hover:bg-zinc-100 transition-all cursor-pointer shrink-0"
+          className="w-8 h-8 rounded-full flex items-center justify-center bg-zinc-100 text-zinc-500 hover:text-zinc-800 hover:bg-amber-100 transition-all cursor-pointer shrink-0"
           aria-label="Dismiss achievement"
         >
-          <BsX size={14} />
+          <BsX size={20} />
         </button>
       </div>
     </div>
   );
 }
 
-function Footer() {
-  return (
-      <a
-        className="fixed bottom-20 right-4 md:bottom-4 md:right-4 liquid opacity-80 hover:opacity-100 px-3 py-1.5 rounded-xl text-[10px] md:text-xs text-zinc-700 hover:text-zinc-900 transition-all duration-300 z-40"
-      href="https://github.com/swiftkimani/AlwaysBeMine"
-      target="_blank"
-      rel="noopener noreferrer"
-    >
-      Inspired by Swift
-    </a>
-  );
-}
 
-function Nav({ activeMode, setActiveMode, visitedModes }) {
+
+function Nav({ activeMode, setActiveMode, visitedModes, onNavClick }) {
+  const [isOpen, setIsOpen] = useState(true);
   return (
-    <nav className="fixed inset-x-0 top-0 z-50 liquid rounded-none border-x-0 border-t-0" role="navigation" aria-label="Main navigation" style={{ paddingTop: "var(--safe-top)" }}>
-      <div className="w-full max-w-5xl mx-auto px-3 sm:px-6 py-2 md:py-2.5 flex gap-1.5 md:gap-2 overflow-x-auto no-scrollbar">
-        {config.modes.map((mode) => (
-          <div key={mode} className="flex flex-col items-center gap-1 shrink-0">
-            <button
-              onClick={() => {
-                setActiveMode(mode);
-                window.location.hash = mode;
-              }}
-              aria-label={modeLabels[mode] || mode}
-              aria-current={activeMode === mode ? "page" : undefined}
-              className={`px-3 md:px-4 py-1.5 md:py-2 rounded-xl text-[11px] md:text-xs font-bold transition-all duration-300 cursor-pointer ${
-                activeMode === mode
-                  ? "btn-glow bg-white/80 text-zinc-900 shadow-lg shadow-rose-200/30"
-                  : "text-zinc-700 hover:bg-white/50 hover:text-zinc-900"
-              }`}
-            >
-              {modeLabels[mode] || mode}
-            </button>
-            <div className={`mode-dot ${visitedModes.has(mode) ? "visited" : ""}`} aria-hidden="true" />
-          </div>
-        ))}
+    <nav
+      style={{
+        position: "fixed",
+        left: "12px",
+        top: "50%",
+        transform: "translateY(-50%)",
+        zIndex: 50,
+      }}
+      className="flex flex-col items-center gap-3 pointer-events-none"
+      role="navigation"
+      aria-label="Main navigation"
+    >
+      {/* Top Toggle Button */}
+      <button 
+        onClick={() => setIsOpen(!isOpen)}
+        className="pointer-events-auto bg-zinc-900 text-white rounded-full p-2.5 shadow-[0_8px_20px_-4px_rgba(0,0,0,0.4)] hover:scale-110 active:scale-95 transition-all cursor-pointer flex items-center justify-center group relative border border-white/20"
+        aria-label="Toggle navigation"
+      >
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" className={`transition-transform duration-500 ${isOpen ? "" : "rotate-180"}`}>
+          <path d="M18 15l-6-6-6 6"/>
+        </svg>
+        {/* Tooltip */}
+        <span className="absolute left-full ml-3 px-2.5 py-1.5 bg-zinc-800 text-white text-[11px] font-bold rounded-md opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap shadow-lg tracking-wide pointer-events-none">
+          {isOpen ? "Hide" : "Show"}
+        </span>
+      </button>
+
+      {/* The actual menu */}
+      <div className={`liquid rounded-2xl border border-white/80 shadow-[0_12px_40px_-8px_rgba(225,29,72,0.25)] backdrop-blur-2xl pointer-events-auto transition-all duration-400 origin-top ${isOpen ? "opacity-100 scale-y-100 p-2" : "opacity-0 scale-y-0 h-0 overflow-hidden p-0 border-0 shadow-none"}`}>
+        <div className="flex flex-col gap-1.5">
+          {config.modes.map((mode) => {
+            const isActive = activeMode === mode;
+            const isVisited = visitedModes.has(mode);
+            const icon = (modeLabels[mode] || mode).split(" ")[0];
+
+            return (
+              <button
+                key={mode}
+                onClick={() => {
+                  if (mode !== activeMode) {
+                    onNavClick?.();
+                    setTimeout(() => {
+                      setActiveMode(mode);
+                      window.location.hash = mode;
+                    }, 150);
+                  }
+                }}
+                aria-label={modeLabels[mode] || mode}
+                title={modeLabels[mode] || mode}
+                aria-current={isActive ? "page" : undefined}
+                className={`relative flex items-center justify-center w-10 h-10 rounded-xl text-xl transition-all duration-200 cursor-pointer ${
+                  isActive
+                    ? "bg-gradient-to-br from-rose-500 via-pink-500 to-rose-600 text-white shadow-lg shadow-rose-500/40 scale-105"
+                    : "bg-white/60 hover:bg-white/90 text-zinc-600 hover:text-rose-500 border border-white/70 hover:scale-105"
+                }`}
+              >
+                <span className="leading-none select-none">{icon}</span>
+                {isVisited && !isActive && (
+                  <span className="absolute top-1 right-1 w-1.5 h-1.5 rounded-full bg-rose-400 shadow-sm" />
+                )}
+              </button>
+            );
+          })}
+        </div>
       </div>
     </nav>
   );
@@ -474,6 +506,7 @@ export default function Page() {
   const [yesPopupShown, setYesPopupShown] = useState(false);
   const [floatingGifs, setFloatingGifs] = useState([]);
   const [isTransitioning, setIsTransitioning] = useState(false);
+  const [ripple, setRipple] = useState(false);
   const [totalXP, setTotalXP] = useState(0);
   const [achievements, setAchievements] = useState([]);
   const [pendingAchievement, setPendingAchievement] = useState(null);
@@ -494,7 +527,7 @@ export default function Page() {
 
   const gifRef = useRef(null);
   const mainRef = useRef(null);
-  const yesButtonSize = Math.min(noCount * 12 + 18, 60);
+  const yesButtonSize = noCount === 0 ? "1.2rem" : (noCount * 12 + 16) + "px";
 
   const unlockedAchievements = useRef(new Set());
 
@@ -599,7 +632,17 @@ export default function Page() {
     if (yesPressed && noCount < 4 && !popupShown) {
       setIsTransitioning(true);
       setTimeout(() => {
-        Swal.fire({ title: config.earlyPopup, showClass: { popup: "animate__animated animate__fadeInUp animate__faster" }, width: 700, padding: "2em", color: config.popupColor, background: `#fff url(${swalbg})`, backdrop: `rgba(0,0,123,0.2) url(${loveu}) right no-repeat` });
+        Swal.fire({
+          title: config.earlyPopup,
+          showClass: { popup: "animate__animated animate__slideInUp animate__faster" },
+          hideClass: { popup: "animate__animated animate__fadeOut animate__faster" },
+          width: "min(700px, 92vw)",
+          padding: "2.5em 2em",
+          color: config.popupColor,
+          background: `#fff url(${swalbg})`,
+          backdrop: `rgba(0,0,0,0.7) url(${loveu}) right bottom / contain no-repeat`,
+          confirmButtonColor: "#e11d48",
+        });
         setPopupShown(true); setYesPressed(false); setIsTransitioning(false);
         unlockAchievement("first-yes", "💕", "First Yes! You said yes!");
       }, 400);
@@ -611,7 +654,17 @@ export default function Page() {
       setShowConfetti(true);
       setIsTransitioning(true);
       setTimeout(() => {
-        Swal.fire({ title: config.latePopup, width: 800, padding: "2em", color: config.popupColor, background: `#fff url(${swalbg})`, backdrop: `rgba(0,0,123,0.7) url(${purposerose}) right no-repeat` });
+        Swal.fire({
+          title: config.latePopup,
+          showClass: { popup: "animate__animated animate__slideInUp animate__faster" },
+          hideClass: { popup: "animate__animated animate__fadeOut animate__faster" },
+          width: "min(800px, 92vw)",
+          padding: "2.5em 2em",
+          color: config.popupColor,
+          background: `#fff url(${swalbg})`,
+          backdrop: `rgba(0,0,0,0.75) url(${purposerose}) right bottom / contain no-repeat`,
+          confirmButtonColor: "#e11d48",
+        });
         setYesPopupShown(true); setYesPressed(true); setIsTransitioning(false);
         unlockAchievement("eventual-yes", "🎉", "Eventual Yes! Love conquers all!");
       }, 400);
@@ -620,7 +673,17 @@ export default function Page() {
 
   useEffect(() => {
     if (noCount === config.stubbornCount) {
-      Swal.fire({ title: config.stubbornPopup, width: 850, padding: "2em", color: config.popupColor, background: `#fff url(${swalbg})`, backdrop: `rgba(0,104,123,0.7) url(${nogif1}) right no-repeat` });
+      Swal.fire({
+        title: config.stubbornPopup,
+        showClass: { popup: "animate__animated animate__slideInUp animate__faster" },
+        hideClass: { popup: "animate__animated animate__fadeOut animate__faster" },
+        width: "min(850px, 92vw)",
+        padding: "2.5em 2em",
+        color: config.popupColor,
+        background: `#fff url(${swalbg})`,
+        backdrop: `rgba(0,0,0,0.75) url(${nogif1}) right bottom / contain no-repeat`,
+        confirmButtonColor: "#e11d48",
+      });
     }
   }, [noCount]);
 
@@ -669,43 +732,49 @@ export default function Page() {
             {noCount > mouseStealMin && noCount < mouseStealMax && !yesPressed && <MouseStealing />}
             {yesPressed && noCount > 3 ? (
               <div className="animate-fade-in">
-                <img ref={gifRef} className="h-[180px] md:h-[220px] rounded-2xl shadow-2xl mx-auto" src={YesGifs[currentGifIndex]} alt="Yes Response" />
+                <img ref={gifRef} className="h-[200px] md:h-[240px] rounded-3xl drop-shadow-[0_15px_30px_rgba(225,29,72,0.35)] mx-auto hover:scale-105 transition-all duration-500" src={YesGifs[currentGifIndex]} alt="Yes Response" />
                 <div className="text-3xl md:text-5xl font-bold my-3 bg-gradient-to-r from-rose-600 via-pink-500 to-rose-600 bg-clip-text text-transparent" style={{ fontFamily: "Charm, serif" }}>{config.yesTitle}</div>
                 <div className="text-xl md:text-3xl font-bold my-1" style={{ fontFamily: "Beau Rivage, serif", fontWeight: 500 }}>{config.yesSubtitle}</div>
                 <WordMarquee messages={config.marqueeMessages} />
               </div>
             ) : (
-              <div className="animate-fade-in">
-                <TimeGreeting />
-                <LiveCountdown since={config.togetherSince} />
-                {config.togetherSince && (() => {
-                  const days = daysBetween(config.togetherSince);
-                  return days !== null ? (
-                    <div className="days-counter">
-                      <span className="days-num">{days}</span>
-                      <span>days of love</span>
-                    </div>
-                  ) : null;
-                })()}
-                <img src={lovesvg} className="animate-pulse w-20 md:w-32 drop-shadow-lg mx-auto mb-4" alt="Love SVG" />
-                <img ref={gifRef} className="h-[180px] md:h-[220px] rounded-2xl shadow-2xl mx-auto" src={Lovegif} alt="Love Animation" />
-                <h1 className="text-2xl md:text-5xl my-4 md:my-5 font-bold proposal-heading bg-gradient-to-r from-rose-600 via-pink-500 to-rose-600 bg-clip-text text-transparent" style={{ fontFamily: "Charm, serif" }}>{config.heading}</h1>
-                <div className="flex flex-wrap justify-center gap-3 md:gap-4 items-center">
+              <div className="animate-fade-in flex flex-col items-center justify-center gap-6 sm:gap-8 w-full max-w-4xl mx-auto text-center min-h-[calc(100dvh-5.5rem)] py-12 px-4 sm:px-12 relative">
+
+                {/* Hero Layout: Pulsing Love SVG & Creative Borderless Animated GIF */}
+                <div className="relative flex flex-col items-center justify-center z-10 mt-4 sm:mt-2 group">
+                  <div className="absolute w-48 sm:w-64 h-48 sm:h-64 bg-gradient-to-tr from-rose-400/30 via-pink-400/20 to-purple-400/30 rounded-full blur-3xl -z-10 animate-pulse pointer-events-none" />
+                  <img src={lovesvg} className="animate-pulse w-24 sm:w-28 md:w-32 drop-shadow-lg mx-auto mb-3" alt="Love SVG" />
+                  <img ref={gifRef} className="h-[190px] sm:h-[230px] md:h-[270px] rounded-3xl object-cover drop-shadow-[0_15px_30px_rgba(225,29,72,0.3)] hover:scale-105 transition-all duration-500 mx-auto" src={Lovegif} alt="Love Animation" />
+                </div>
+
+                {/* Massive Bold Heading for High Contrast */}
+                <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold proposal-heading bg-gradient-to-r from-rose-600 via-pink-600 to-rose-700 bg-clip-text text-transparent px-2 leading-normal drop-shadow-md my-4 pb-4 sm:pb-6" style={{ fontFamily: "Charm, cursive, serif" }}>
+                  {config.heading}
+                </h1>
+
+                {/* Big Action Buttons */}
+                <div className="flex flex-wrap justify-center gap-4 sm:gap-6 items-center w-full my-2">
                   <button onMouseEnter={handleMouseEnterYes} onMouseLeave={handleMouseLeave}
-                    className={`btn-glow btn-primary btn-yes-pulse ${config.acceptColor}`}
-                    style={{ fontSize: yesButtonSize }}
+                    className={`btn-primary btn-yes-pulse`}
+                    style={{ fontSize: yesButtonSize, padding: "0.6em 1.5em", transition: "all 0.2s ease" }}
                     onClick={handleYesClick}>
                     {config.acceptBtn}
                   </button>
                   <button onMouseEnter={handleMouseEnterNo} onMouseLeave={handleMouseLeave} onClick={handleNoClick}
-                    className={`btn-primary ${config.rejectColor}`}
-                    style={{ fontSize: "1rem" }}>
+                    className={`btn-secondary`}
+                    style={{ fontSize: "1.1rem" }}>
                     {noCount === 0 ? "No" : getNoButtonText()}
                   </button>
                 </div>
-                <SendLoveBar onLovePopup={triggerLovePopup} />
+
+                {/* Send Love Bar - Footer */}
+                <div className="w-full mt-4">
+                  <SendLoveBar onLovePopup={triggerLovePopup} />
+                </div>
+
+                {/* Ambient Floating Elements */}
                 {floatingGifs.map((gif) => (
-                  <img key={gif.id} src={gif.src} alt="" className="absolute w-10 h-10 md:w-12 md:h-12 animate-float" style={gif.style} />
+                  <img key={gif.id} src={gif.src} alt="" className="absolute w-10 h-10 md:w-12 md:h-12 animate-float pointer-events-none opacity-80" style={gif.style} />
                 ))}
               </div>
             )}
@@ -730,8 +799,33 @@ export default function Page() {
     }
   };
 
+  const triggerRipple = useCallback(() => {
+    setRipple(true);
+    setTimeout(() => setRipple(false), 600);
+  }, []);
+
   return (
     <div className="page-shell transition-opacity duration-700" style={{ opacity: isTransitioning ? 0 : 1 }}>
+      {/* Ripple page transition overlay */}
+      {ripple && (
+        <div className="page-ripple-overlay" aria-hidden="true" />
+      )}
+
+      {/* Floating Greeting Badge — always top-right */}
+      <div className="greeting-badge">
+        <TimeGreeting />
+        {config.togetherSince && (() => {
+          const days = daysBetween(config.togetherSince);
+          return days !== null ? (
+            <div className="flex items-center gap-1.5">
+              <span className="h-3 w-px bg-rose-300" />
+              <span className="text-rose-600 font-black text-xs">{days}</span>
+              <span className="text-zinc-600 font-semibold text-[10px]">Days 💕</span>
+            </div>
+          ) : null;
+        })()}
+      </div>
+
       {/* Ambient Floating Hearts */}
       <AmbientHearts />
 
@@ -769,9 +863,9 @@ export default function Page() {
         <span key={h.id} className="tap-heart" style={{ left: h.x - 16, top: h.y - 16 }} aria-hidden="true">❤️</span>
       ))}
 
-      <Nav activeMode={activeMode} setActiveMode={setActiveMode} visitedModes={visitedModes} />
+      <Nav activeMode={activeMode} setActiveMode={setActiveMode} visitedModes={visitedModes} onNavClick={triggerRipple} />
 
-      <main ref={mainRef} className="page-scroll" style={{ paddingTop: "calc(var(--safe-top) + 3.5rem)" }}>
+      <main ref={mainRef} className="page-scroll w-full">
         <div className={`page-content ${config.selectionColor}`}>
           {activeMode === "proposal" ? (
             <div className="proposal-stage">
@@ -779,30 +873,21 @@ export default function Page() {
             </div>
           ) : (
             <div className="mode-stage mode-enter" key={activeMode}>
-              <div className="mode-header relative">
-                <TimeGreeting />
-                <div>
+              <div className="mode-header flex flex-col items-center justify-center relative mb-5">
+                <div className="text-center">
                   <h1
-                    className="text-2xl md:text-4xl font-bold mb-1.5 bg-gradient-to-r from-rose-600 via-pink-500 to-purple-600 bg-clip-text text-transparent"
+                    className="text-2xl sm:text-3xl md:text-4xl font-bold mb-1 bg-gradient-to-r from-rose-600 via-pink-500 to-purple-600 bg-clip-text text-transparent"
                     style={{ fontFamily: "Charm, serif" }}
                   >
                     {config.navTitle}
                   </h1>
                   {config.title && (
-                    <p className="text-xs md:text-sm text-zinc-500" style={{ fontFamily: "Charm, serif" }}>
+                    <p className="text-xs sm:text-sm text-zinc-500" style={{ fontFamily: "Charm, serif" }}>
                       {config.title}
                     </p>
                   )}
                   <div className="w-16 h-1 mx-auto mt-2 rounded-full bg-gradient-to-r from-rose-400 to-pink-500" />
                 </div>
-                <button
-                  onClick={shareMode}
-                  className="absolute top-0 right-0 w-9 h-9 rounded-full flex items-center justify-center text-zinc-500 hover:text-rose-500 hover:bg-white/60 transition-all cursor-pointer"
-                  aria-label="Share this mode"
-                  title="Share"
-                >
-                  <BsShareFill size={14} />
-                </button>
               </div>
               <div className="mode-body">
                 {renderMode()}
@@ -812,37 +897,40 @@ export default function Page() {
         </div>
       </main>
 
-      {/* Back to Top */}
-      {showBackToTop && (
-        <button
-          onClick={() => mainRef.current?.scrollTo({ top: 0, behavior: "smooth" })}
-          className="back-to-top"
-          aria-label="Back to top"
-        >
-          <BsArrowUp size={16} />
-        </button>
-      )}
+      {/* Music FAB — chatbot-style, bottom right */}
+      <FloatingMusicControl tracks={loveTracks} />
 
-      {/* Draggable Music Control */}
-      <FloatingMusicControl
-        tracks={loveTracks}
-      />
+      {/* Utility rail — slim buttons stacked above music FAB */}
+      <div className="fixed bottom-24 right-4 sm:right-5 z-40 flex flex-col items-center gap-2">
+        {achievements.length > 0 && (
+          <button
+            onClick={() => setShowAchievementHistory(!showAchievementHistory)}
+            className="w-9 h-9 rounded-full flex items-center justify-center bg-white/70 hover:bg-white/95 text-zinc-700 hover:text-amber-500 transition-all cursor-pointer border border-white/80 shadow-md backdrop-blur-md relative"
+            aria-label={`View ${achievements.length} achievements`}
+            title={`${achievements.length} achievements`}
+          >
+            <span className="text-base">🏆</span>
+            <span className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-amber-400 text-white text-[9px] font-bold flex items-center justify-center shadow-sm">
+              {achievements.length}
+            </span>
+          </button>
+        )}
+
+        {showBackToTop && (
+          <button
+            onClick={() => mainRef.current?.scrollTo({ top: 0, behavior: "smooth" })}
+            className="w-9 h-9 rounded-full flex items-center justify-center bg-white/70 hover:bg-white/95 text-zinc-600 hover:text-zinc-900 transition-all cursor-pointer border border-white/80 shadow-md backdrop-blur-md"
+            aria-label="Back to top"
+            title="Back to top"
+          >
+            <BsArrowUp size={14} />
+          </button>
+        )}
+      </div>
 
       {/* Achievement Toast */}
       {pendingAchievement && (
         <AchievementToast achievement={pendingAchievement} onDone={() => setPendingAchievement(null)} />
-      )}
-
-      {/* Achievement History Button */}
-      {achievements.length > 0 && (
-        <button
-          onClick={() => setShowAchievementHistory(!showAchievementHistory)}
-          className="fixed bottom-20 left-4 md:bottom-4 md:left-4 z-40 w-9 h-9 rounded-full flex items-center justify-center liquid text-zinc-600 hover:text-amber-500 transition-all cursor-pointer shadow-lg"
-          aria-label={`View ${achievements.length} achievements`}
-          title={`${achievements.length} achievements`}
-        >
-          <span className="text-sm">🏆</span>
-        </button>
       )}
 
       {/* Achievement History Panel */}
@@ -903,8 +991,6 @@ export default function Page() {
           </div>
         </div>
       )}
-
-      <Footer />
     </div>
   );
 }

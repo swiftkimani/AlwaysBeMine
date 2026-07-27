@@ -14,13 +14,15 @@ export default function MarqueeProposal({ messages = [] }) {
     <div
       className="liquid"
       style={{
-        width: "min(92%, 900px)",
+        width: "100vw",
         height: "72px",
         margin: "32px auto",
-        borderRadius: "20px",
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
+        borderLeft: "none",
+        borderRight: "none",
+        overflow: "hidden"
       }}
     >
       <div

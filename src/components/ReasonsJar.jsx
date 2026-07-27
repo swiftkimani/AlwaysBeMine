@@ -27,42 +27,93 @@ export default function ReasonsJar({ data, onProgress }) {
   };
 
   return (
-    <div className="w-full max-w-2xl mx-auto">
-      {/* Jar Section */}
-      <div className="liquid p-6 md:p-8 text-center">
-        <div className="relative mb-5">
+    <div className="w-full max-w-3xl mx-auto px-2">
+      {/* Jar Section Card */}
+      <div className="liquid p-6 sm:p-8 md:p-10 text-center rounded-3xl border border-white/80 shadow-2xl">
+        <div className="relative mb-6">
+          {/* Animated Glass Jar SVG */}
           <div
-            className={`mx-auto w-40 h-48 md:w-48 md:h-56 relative cursor-pointer transition-transform duration-300 ${isShaking ? "animate-shake" : "hover:scale-105"}`}
+            className={`mx-auto w-44 h-52 md:w-52 md:h-60 relative cursor-pointer transition-transform duration-300 ${
+              isShaking ? "animate-shake" : "hover:scale-105 active:scale-95"
+            }`}
             onClick={pullReason}
             role="button"
             tabIndex={0}
-            aria-label={allRevealed ? "All reasons revealed" : `Pull a reason from the jar. ${unrevealedCount} remaining`}
-            onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); pullReason(); } }}
+            aria-label={
+              allRevealed
+                ? "All reasons revealed"
+                : `Pull a reason from the jar. ${unrevealedCount} remaining`
+            }
+            onKeyDown={(e) => {
+              if (e.key === "Enter" || e.key === " ") {
+                e.preventDefault();
+                pullReason();
+              }
+            }}
           >
-            <svg viewBox="0 0 200 260" className="w-full h-full drop-shadow-xl">
+            <svg viewBox="0 0 200 260" className="w-full h-full drop-shadow-2xl">
               <defs>
                 <linearGradient id="jarGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-                  <stop offset="0%" stopColor="rgba(255,255,255,0.7)" />
-                  <stop offset="100%" stopColor="rgba(255,255,255,0.4)" />
+                  <stop offset="0%" stopColor="rgba(255,255,255,0.85)" />
+                  <stop offset="100%" stopColor="rgba(255,225,238,0.55)" />
                 </linearGradient>
                 <linearGradient id="lidGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-                  <stop offset="0%" stopColor="#c4956a" />
-                  <stop offset="100%" stopColor="#a07050" />
+                  <stop offset="0%" stopColor="#d97706" />
+                  <stop offset="100%" stopColor="#b45309" />
                 </linearGradient>
               </defs>
-              <rect x="30" y="60" width="140" height="180" rx="15" fill="url(#jarGrad)" stroke="rgba(255,255,255,0.4)" strokeWidth="2" />
-              <rect x="40" y="40" width="120" height="30" rx="8" fill="url(#lidGrad)" stroke="#8b6340" strokeWidth="1.5" />
-              {/* Fill level indicator */}
-              <rect x="35" y={60 + 180 * (1 - unrevealedCount / data.length)} width="130" height={180 * (unrevealedCount / data.length)} rx="12" fill="rgba(244,63,94,0.08)" />
-              {/* Hearts */}
+
+              {/* Jar Body */}
+              <rect
+                x="30"
+                y="60"
+                width="140"
+                height="180"
+                rx="20"
+                fill="url(#jarGrad)"
+                stroke="rgba(255,255,255,0.9)"
+                strokeWidth="3"
+              />
+              {/* Jar Lid */}
+              <rect
+                x="36"
+                y="36"
+                width="128"
+                height="32"
+                rx="10"
+                fill="url(#lidGrad)"
+                stroke="#92400e"
+                strokeWidth="2"
+              />
+
+              {/* Fill indicator fluid */}
+              <rect
+                x="34"
+                y={64 + 172 * (1 - unrevealedCount / (data.length || 1))}
+                width="132"
+                height={172 * (unrevealedCount / (data.length || 1))}
+                rx="16"
+                fill="rgba(244,63,94,0.15)"
+              />
+
+              {/* Hearts Grid inside jar */}
               {data.map((_, i) => {
-                const col = i % 4;
-                const row = Math.floor(i / 4);
-                const x = 55 + col * 28;
-                const y = 85 + row * 35;
+                const maxCols = 5;
+                const col = i % maxCols;
+                const row = Math.floor(i / maxCols);
+                const x = 48 + col * 26;
+                const y = 88 + row * 24;
                 const revealed = revealedReasons.includes(i);
                 return (
-                  <text key={i} x={x} y={y} fontSize="16" className={`transition-all duration-500 ${revealed ? "opacity-0" : "opacity-90"}`}>
+                  <text
+                    key={i}
+                    x={x}
+                    y={y}
+                    fontSize="14"
+                    className={`transition-all duration-500 select-none ${
+                      revealed ? "opacity-0 scale-0" : "opacity-90"
+                    }`}
+                  >
                     💝
                   </text>
                 );
@@ -72,50 +123,79 @@ export default function ReasonsJar({ data, onProgress }) {
 
           {/* Pull Button */}
           {!allRevealed ? (
-              <button onClick={pullReason} disabled={isShaking} className="btn-primary bg-gradient-to-r from-rose-500 to-pink-500 hover:from-rose-600 hover:to-pink-600 disabled:from-rose-300 disabled:to-pink-300 text-white text-sm mt-4">
-              {isShaking ? "Shaking... 🫙" : `Pull a Reason 💝 (${unrevealedCount} left)`}
+            <button
+              onClick={pullReason}
+              disabled={isShaking}
+              className="btn-primary bg-gradient-to-r from-rose-500 via-pink-500 to-rose-600 hover:scale-105 disabled:from-rose-300 disabled:to-pink-300 text-white text-sm sm:text-base px-8 py-3 mt-4 shadow-lg"
+            >
+              {isShaking
+                ? "Shaking Jar... 🫙✨"
+                : `Pull a Reason 💝 (${unrevealedCount} left)`}
             </button>
           ) : (
-            <div className="animate-bounce-in">
-              <p className="text-base text-zinc-600 font-bold" style={{ fontFamily: "Charm, serif" }}>
-                You&apos;ve seen all {data.length} reasons! 🥰
+            <div className="animate-bounce-in mt-4 bg-rose-50/80 p-4 rounded-2xl border border-rose-200">
+              <p
+                className="text-base sm:text-lg text-rose-700 font-bold"
+                style={{ fontFamily: "Charm, serif" }}
+              >
+                You&apos;ve unlocked all {data.length} reasons why I love you! 🥰✨
               </p>
             </div>
           )}
         </div>
 
-        {/* Progress */}
-        <div className="flex items-center gap-3">
-          <div className="flex-1 progress-bar">
+        {/* Progress Bar */}
+        <div className="flex items-center gap-4 pt-2">
+          <div className="flex-1 progress-bar h-2.5">
             <div className="progress-bar-fill" style={{ width: `${pct}%` }} />
           </div>
-          <span className="xp-badge">+{revealedReasons.length * 10} XP</span>
+          <span className="xp-badge shrink-0 px-3 py-1 font-bold">
+            +{revealedReasons.length * 10} XP
+          </span>
         </div>
       </div>
 
       {/* Current Reason Popup */}
       {currentReason !== null && !isShaking && (
-        <div className="liquid mt-3 p-4 md:p-5 animate-bounce-in border-l-4 border-rose-400">
-          <p className="text-xs font-bold text-rose-400 mb-1">Reason #{revealedReasons.length}</p>
-          <p className="text-sm text-zinc-800 font-medium" style={{ fontFamily: "Charm, serif" }}>
+        <div className="liquid mt-4 p-6 sm:p-7 animate-bounce-in border-l-4 border-rose-500 shadow-xl rounded-3xl">
+          <div className="flex items-center justify-between mb-2">
+            <span className="text-xs font-black text-rose-500 uppercase tracking-widest bg-rose-50 px-3 py-1 rounded-full border border-rose-200/80">
+              Reason #{revealedReasons.length}
+            </span>
+            <span className="text-xs text-rose-400 font-bold">💕 From the Heart</span>
+          </div>
+          <p
+            className="text-base sm:text-lg text-zinc-900 font-semibold leading-relaxed break-words"
+            style={{ fontFamily: "Charm, serif" }}
+          >
             {data[currentReason]} 💝
           </p>
         </div>
       )}
 
-      {/* Revealed List */}
+      {/* Revealed Reasons History List */}
       {revealedReasons.length > 1 && (
-        <div className="mt-3 space-y-2 max-h-[30vh] overflow-y-auto no-scrollbar">
-          {revealedReasons.slice().reverse().map((idx, i) => (
-            <div key={idx} className="liquid p-3 md:p-4 flex items-start gap-3 animate-slide-in" style={{ animationDelay: `${i * 50}ms` }}>
-              <span className="w-6 h-6 rounded-full bg-rose-500/15 flex items-center justify-center text-[10px] font-bold text-rose-500 shrink-0 mt-0.5">
-                {revealedReasons.indexOf(idx) + 1}
-              </span>
-              <p className="text-xs text-zinc-700 leading-relaxed" style={{ fontFamily: "Charm, serif" }}>
-                {data[idx]}
-              </p>
-            </div>
-          ))}
+        <div className="mt-4 space-y-2.5 max-h-[40vh] overflow-y-auto no-scrollbar">
+          {revealedReasons
+            .slice()
+            .reverse()
+            .map((idx, i) => (
+              <div
+                key={idx}
+                className="liquid p-4 sm:p-5 flex items-center gap-4 animate-slide-in rounded-2xl border border-white/80 shadow-sm hover:shadow-md transition-all"
+                style={{ animationDelay: `${i * 40}ms` }}
+              >
+                <span className="w-7 h-7 rounded-full bg-rose-500/15 flex items-center justify-center text-xs font-black text-rose-600 shrink-0">
+                  {revealedReasons.indexOf(idx) + 1}
+                </span>
+                <p
+                  className="text-xs sm:text-sm text-zinc-800 font-medium leading-relaxed min-w-0 flex-1 break-words"
+                  style={{ fontFamily: "Charm, serif" }}
+                >
+                  {data[idx]}
+                </p>
+              </div>
+            ))}
         </div>
       )}
     </div>

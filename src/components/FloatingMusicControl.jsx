@@ -7,12 +7,9 @@ import {
   BsVolumeUpFill,
   BsVolumeMuteFill,
   BsHeartFill,
-  BsX,
   BsMusicNoteBeamed,
+  BsX,
 } from "react-icons/bs";
-
-const PANEL_W = 300;
-const BTN_SIZE = 56;
 
 export default function FloatingMusicControl({ tracks }) {
   const [currentIdx, setCurrentIdx] = useState(0);
@@ -21,28 +18,14 @@ export default function FloatingMusicControl({ tracks }) {
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
   const [isMuted, setIsMuted] = useState(false);
-  const [isExpanded, setIsExpanded] = useState(false);
+  const [isOpen, setIsOpen] = useState(false);
   const [liked, setLiked] = useState(new Set());
 
-  const [pos, setPos] = useState({ x: 44, y: 0 });
-  const [isDragging, setIsDragging] = useState(false);
-  const dragRef = useRef({ startX: 0, startY: 0, startPosX: 0, startPosY: 0 });
-  const hasMoved = useRef(false);
   const audioRef = useRef(null);
   const animRef = useRef(null);
   const panelRef = useRef(null);
 
   const track = tracks?.[currentIdx];
-
-  useEffect(() => {
-    const update = () => {
-      const safeBottom = parseInt(getComputedStyle(document.documentElement).getPropertyValue("--safe-bottom")) || 0;
-      setPos({ x: 44, y: window.innerHeight - 68 - safeBottom });
-    };
-    update();
-    window.addEventListener("resize", update);
-    return () => window.removeEventListener("resize", update);
-  }, []);
 
   useEffect(() => {
     if (!track?.src) return;
@@ -60,15 +43,49 @@ export default function FloatingMusicControl({ tracks }) {
     if (audioRef.current) {
       setCurrentTime(audioRef.current.currentTime);
       setDuration(audioRef.current.duration);
-      setProgress(audioRef.current.duration ? (audioRef.current.currentTime / audioRef.current.duration) * 100 : 0);
+      setProgress(
+        audioRef.current.duration
+          ? (audioRef.current.currentTime / audioRef.current.duration) * 100
+          : 0
+      );
     }
     animRef.current = requestAnimationFrame(updateProgress);
   }, []);
 
   useEffect(() => {
     if (isPlaying) animRef.current = requestAnimationFrame(updateProgress);
-    return () => { if (animRef.current) cancelAnimationFrame(animRef.current); };
+    return () => {
+      if (animRef.current) cancelAnimationFrame(animRef.current);
+    };
   }, [isPlaying, updateProgress]);
+
+  // Autoplay on first interaction
+  const hasAutoPlayed = useRef(false);
+  useEffect(() => {
+    const startAudio = () => {
+      if (!hasAutoPlayed.current) {
+        hasAutoPlayed.current = true;
+        setIsPlaying(true);
+      }
+      document.removeEventListener("click", startAudio);
+      document.removeEventListener("touchstart", startAudio);
+    };
+
+    document.addEventListener("click", startAudio);
+    document.addEventListener("touchstart", startAudio);
+
+    return () => {
+      document.removeEventListener("click", startAudio);
+      document.removeEventListener("touchstart", startAudio);
+    };
+  }, []);
+
+  // Auto-open panel when playing starts
+  useEffect(() => {
+    if (isPlaying) {
+      setIsOpen(true);
+    }
+  }, [isPlaying]);
 
   useEffect(() => {
     const audio = audioRef.current;
@@ -78,51 +95,30 @@ export default function FloatingMusicControl({ tracks }) {
     return () => audio.removeEventListener("ended", onEnd);
   }, [tracks.length]);
 
-  const handlePointerDown = (e) => {
-    e.preventDefault();
-    hasMoved.current = false;
-    dragRef.current = { startX: e.clientX, startY: e.clientY, startPosX: pos.x, startPosY: pos.y };
-    setIsDragging(true);
-  };
-
+  // close panel on outside click
   useEffect(() => {
-    if (!isDragging) return;
-    const onMove = (e) => {
-      const dx = e.clientX - dragRef.current.startX;
-      const dy = e.clientY - dragRef.current.startY;
-      if (Math.abs(dx) > 3 || Math.abs(dy) > 3) hasMoved.current = true;
-      setPos({
-        x: Math.max(BTN_SIZE / 2 + 8, Math.min(window.innerWidth - BTN_SIZE / 2 - 8, dragRef.current.startPosX + dx)),
-        y: Math.max(80, Math.min(window.innerHeight - BTN_SIZE / 2 - 8, dragRef.current.startPosY + dy)),
-      });
-    };
-    const onUp = () => setIsDragging(false);
-    window.addEventListener("pointermove", onMove);
-    window.addEventListener("pointerup", onUp);
-    return () => { window.removeEventListener("pointermove", onMove); window.removeEventListener("pointerup", onUp); };
-  }, [isDragging]);
-
-  const handleClick = () => { if (!hasMoved.current) setIsExpanded((p) => !p); };
-
-  useEffect(() => {
-    if (!isExpanded) return;
+    if (!isOpen) return;
     const onDown = (e) => {
       if (panelRef.current && !panelRef.current.contains(e.target)) {
-        const btn = e.target.closest("[data-music-btn]");
-        if (!btn) setIsExpanded(false);
+        setIsOpen(false);
       }
     };
     window.addEventListener("pointerdown", onDown);
     return () => window.removeEventListener("pointerdown", onDown);
-  }, [isExpanded]);
+  }, [isOpen]);
 
-  const togglePlay = () => {
+  const togglePlay = (e) => {
+    e?.stopPropagation();
     if (!audioRef.current) return;
-    if (isPlaying) audioRef.current.pause(); else audioRef.current.play().catch(() => {});
+    if (isPlaying) audioRef.current.pause();
+    else audioRef.current.play().catch(() => {});
     setIsPlaying(!isPlaying);
   };
 
-  const skipNext = () => { setCurrentIdx((p) => (p + 1) % tracks.length); setProgress(0); };
+  const skipNext = () => {
+    setCurrentIdx((p) => (p + 1) % tracks.length);
+    setProgress(0);
+  };
   const skipPrev = () => {
     if (audioRef.current?.currentTime > 3) audioRef.current.currentTime = 0;
     else setCurrentIdx((p) => (p - 1 + tracks.length) % tracks.length);
@@ -137,138 +133,319 @@ export default function FloatingMusicControl({ tracks }) {
 
   const seek = (e) => {
     const val = Number(e.target.value);
-    if (audioRef.current) audioRef.current.currentTime = (val / 100) * (audioRef.current.duration || 0);
+    if (audioRef.current)
+      audioRef.current.currentTime = (val / 100) * (audioRef.current.duration || 0);
     setProgress(val);
   };
 
   const toggleLike = (e) => {
     e.stopPropagation();
-    setLiked((p) => { const n = new Set(p); n.has(currentIdx) ? n.delete(currentIdx) : n.add(currentIdx); return n; });
+    setLiked((p) => {
+      const n = new Set(p);
+      n.has(currentIdx) ? n.delete(currentIdx) : n.add(currentIdx);
+      return n;
+    });
   };
 
-  const fmt = (s) => { if (!s || isNaN(s)) return "0:00"; return `${Math.floor(s / 60)}:${Math.floor(s % 60).toString().padStart(2, "0")}`; };
+  const fmt = (s) => {
+    if (!s || isNaN(s)) return "0:00";
+    return `${Math.floor(s / 60)}:${Math.floor(s % 60)
+      .toString()
+      .padStart(2, "0")}`;
+  };
 
   if (!track) return null;
 
-  const safeBottom = parseInt(getComputedStyle(document.documentElement).getPropertyValue("--safe-bottom")) || 0;
-  const btnLeft = Math.max(PANEL_W / 2 + 8, Math.min(pos.x, window.innerWidth - PANEL_W / 2 - 8));
-
-  const panelAbove = pos.y > 320;
-  const panelBottom = panelAbove ? undefined : BTN_SIZE / 2 + 10;
-  const panelTop = panelAbove ? undefined : -(PANEL_W > 280 ? 340 : 300);
-
   return (
-    <>
-      {isExpanded && (
+    <div
+      ref={panelRef}
+      style={{ position: "fixed", bottom: "max(20px, 4dvh)", right: "max(16px, 2dvw)", zIndex: 60 }}
+    >
+      {/* ── Expanded music panel (chatbot tooltip style) ── */}
+      {isOpen && (
         <div
-          ref={panelRef}
-          className="fixed z-[60] animate-fade-in-up"
-          style={{
-            left: btnLeft,
-            bottom: panelAbove ? window.innerHeight - pos.y + BTN_SIZE / 2 + 10 : undefined,
-            top: panelAbove ? undefined : window.innerHeight - pos.y + BTN_SIZE / 2 + 10,
-            transform: "translateX(-50%)",
-            width: PANEL_W,
-          }}
+          className="absolute bottom-[calc(100%+12px)] right-0 w-80 animate-fade-in-up"
+          style={{ transformOrigin: "bottom right" }}
         >
-          <div className="liquid rounded-2xl p-3.5 shadow-2xl">
-            <div className="flex items-center gap-2.5 mb-2.5">
-              <div className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 transition-all duration-300 ${isPlaying ? "bg-gradient-to-br from-rose-500 to-pink-500 animate-pulse-glow" : "bg-white/30"}`}>
+          {/* Panel card */}
+          <div
+            className="relative rounded-3xl overflow-hidden shadow-[0_20px_60px_-10px_rgba(225,29,72,0.35)]"
+            style={{
+              background:
+                "linear-gradient(145deg,rgba(255,255,255,0.95),rgba(255,240,248,0.97))",
+              backdropFilter: "blur(28px)",
+              border: "1.5px solid rgba(255,255,255,0.8)",
+            }}
+          >
+            {/* Decorative header gradient */}
+            <div
+              className="h-1.5 w-full"
+              style={{
+                background:
+                  "linear-gradient(90deg,#f43f5e,#ec4899,#a855f7,#f43f5e)",
+                backgroundSize: "200% 100%",
+                animation: "gradientShift 3s linear infinite",
+              }}
+            />
+
+            {/* Header: now playing */}
+            <div className="px-4 pt-3 pb-2 flex items-center gap-3">
+              {/* Animated equaliser or note */}
+              <div
+                className={`w-10 h-10 rounded-2xl flex items-center justify-center shrink-0 transition-all duration-300 ${
+                  isPlaying
+                    ? "bg-gradient-to-br from-rose-500 to-pink-500 shadow-md shadow-rose-400/50"
+                    : "bg-gradient-to-br from-rose-100 to-pink-100"
+                }`}
+              >
                 {isPlaying ? (
-                  <div className="flex gap-0.5 items-end h-3.5">
-                    <span className="w-0.5 bg-white animate-bounce" style={{ height: "60%", animationDelay: "0ms" }} />
-                    <span className="w-0.5 bg-white animate-bounce" style={{ height: "100%", animationDelay: "150ms" }} />
-                    <span className="w-0.5 bg-white animate-bounce" style={{ height: "40%", animationDelay: "300ms" }} />
+                  <div className="flex gap-[3px] items-end h-4">
+                    {[0, 150, 300].map((delay) => (
+                      <span
+                        key={delay}
+                        className="w-[3px] rounded-full bg-white"
+                        style={{
+                          height: "100%",
+                          animation: `eqBar 0.6s ease-in-out ${delay}ms infinite alternate`,
+                        }}
+                      />
+                    ))}
                   </div>
-                ) : <BsMusicNoteBeamed size={14} className="text-rose-500" />}
+                ) : (
+                  <BsMusicNoteBeamed size={16} className="text-rose-500" />
+                )}
               </div>
+
               <div className="min-w-0 flex-1">
-                <p className="text-[11px] font-bold text-zinc-800 truncate">{track.title}</p>
-                <p className="text-[9px] text-zinc-500 truncate">{track.artist}</p>
+                <p className="text-xs font-black text-zinc-800 truncate leading-tight">
+                  {track.title}
+                </p>
+                <p className="text-[10px] text-zinc-400 truncate leading-tight mt-0.5">
+                  {track.artist}
+                </p>
               </div>
-              <button onClick={() => setIsExpanded(false)} className="w-6 h-6 rounded-full flex items-center justify-center text-zinc-400 hover:text-zinc-700 hover:bg-white/50 transition-all cursor-pointer" aria-label="Close">
-                <BsX size={14} />
+
+              <button
+                onClick={(e) => { e.stopPropagation(); toggleLike(e); }}
+                className={`w-7 h-7 rounded-full flex items-center justify-center transition-all cursor-pointer ${
+                  liked.has(currentIdx)
+                    ? "text-rose-500 bg-rose-50"
+                    : "text-zinc-300 hover:text-rose-400 hover:bg-rose-50"
+                }`}
+                aria-label="Like track"
+              >
+                <BsHeartFill size={12} />
+              </button>
+
+              <button
+                onClick={(e) => { e.stopPropagation(); setIsOpen(false); }}
+                className="w-7 h-7 rounded-full flex items-center justify-center text-zinc-400 hover:text-zinc-700 hover:bg-zinc-100 transition-all cursor-pointer"
+                aria-label="Close music player"
+              >
+                <BsX size={16} />
               </button>
             </div>
 
-            <div className="mb-2.5">
-              <input type="range" min="0" max="100" value={progress} onChange={seek} className="audio-progress w-full" />
-              <div className="flex justify-between text-[9px] text-zinc-400 mt-0.5">
+            {/* Progress bar */}
+            <div className="px-4 pb-2">
+              <input
+                type="range"
+                min="0"
+                max="100"
+                value={progress}
+                onChange={seek}
+                className="audio-progress w-full"
+              />
+              <div className="flex justify-between text-[9px] font-semibold text-zinc-400 mt-1">
                 <span>{fmt(currentTime)}</span>
                 <span>{fmt(duration)}</span>
               </div>
             </div>
 
-            <div className="flex items-center justify-center gap-2.5 mb-2.5">
-              <button onClick={toggleLike} className={`w-8 h-8 rounded-full flex items-center justify-center transition-all cursor-pointer ${liked.has(currentIdx) ? "text-rose-500" : "text-zinc-400 hover:text-rose-400 hover:bg-white/30"}`} aria-label="Like">
-                <BsHeartFill size={13} fill={liked.has(currentIdx) ? "currentColor" : "none"} />
+            {/* Controls */}
+            <div className="px-4 pb-3 flex items-center justify-center gap-3">
+              <button
+                onClick={(e) => { e.stopPropagation(); skipPrev(); }}
+                className="w-9 h-9 rounded-full flex items-center justify-center text-zinc-500 hover:text-zinc-800 hover:bg-zinc-100 transition-all cursor-pointer"
+                aria-label="Previous"
+              >
+                <BsSkipBackwardFill size={15} />
               </button>
-              <button onClick={skipPrev} className="w-9 h-9 rounded-full flex items-center justify-center text-zinc-600 hover:text-zinc-900 hover:bg-white/40 transition-all cursor-pointer" aria-label="Previous">
-                <BsSkipBackwardFill size={14} />
+
+              <button
+                onClick={togglePlay}
+                className="w-12 h-12 rounded-full flex items-center justify-center bg-gradient-to-br from-rose-500 to-pink-500 text-white shadow-lg shadow-rose-400/50 hover:shadow-xl hover:scale-105 active:scale-95 transition-all cursor-pointer"
+                aria-label={isPlaying ? "Pause" : "Play"}
+              >
+                {isPlaying ? (
+                  <BsPauseFill size={22} />
+                ) : (
+                  <BsPlayFill size={22} className="ml-0.5" />
+                )}
               </button>
-              <button onClick={togglePlay} className="w-11 h-11 rounded-full flex items-center justify-center bg-gradient-to-br from-rose-500 to-pink-500 text-white shadow-lg hover:shadow-xl hover:scale-105 active:scale-95 transition-all cursor-pointer" aria-label={isPlaying ? "Pause" : "Play"}>
-                {isPlaying ? <BsPauseFill size={18} /> : <BsPlayFill size={18} className="ml-0.5" />}
+
+              <button
+                onClick={(e) => { e.stopPropagation(); skipNext(); }}
+                className="w-9 h-9 rounded-full flex items-center justify-center text-zinc-500 hover:text-zinc-800 hover:bg-zinc-100 transition-all cursor-pointer"
+                aria-label="Next"
+              >
+                <BsSkipForwardFill size={15} />
               </button>
-              <button onClick={skipNext} className="w-9 h-9 rounded-full flex items-center justify-center text-zinc-600 hover:text-zinc-900 hover:bg-white/40 transition-all cursor-pointer" aria-label="Next">
-                <BsSkipForwardFill size={14} />
-              </button>
-              <button onClick={toggleMute} className="w-8 h-8 rounded-full flex items-center justify-center text-zinc-400 hover:text-zinc-700 hover:bg-white/30 transition-all cursor-pointer" aria-label={isMuted ? "Unmute" : "Mute"}>
-                {isMuted ? <BsVolumeMuteFill size={12} /> : <BsVolumeUpFill size={12} />}
+
+              <button
+                onClick={(e) => { e.stopPropagation(); toggleMute(); }}
+                className="w-8 h-8 rounded-full flex items-center justify-center text-zinc-400 hover:text-zinc-700 hover:bg-zinc-100 transition-all cursor-pointer"
+                aria-label={isMuted ? "Unmute" : "Mute"}
+              >
+                {isMuted ? (
+                  <BsVolumeMuteFill size={13} />
+                ) : (
+                  <BsVolumeUpFill size={13} />
+                )}
               </button>
             </div>
 
-            <div className="space-y-0.5 max-h-[130px] overflow-y-auto no-scrollbar border-t border-white/30 pt-2">
+            {/* Track list */}
+            <div className="border-t border-zinc-100/80 px-3 pb-3 pt-2 space-y-1 max-h-[156px] overflow-y-auto no-scrollbar">
+              <p className="text-[9px] font-black uppercase tracking-widest text-zinc-400 px-1 mb-2">
+                ♫ Playlist
+              </p>
               {tracks.map((t, idx) => (
                 <button
                   key={idx}
-                  onClick={() => { setCurrentIdx(idx); setProgress(0); setIsPlaying(true); }}
-                  className={`w-full flex items-center gap-2 p-1.5 rounded-lg transition-all cursor-pointer text-left ${idx === currentIdx ? "bg-rose-50/80 border border-rose-200/60" : "hover:bg-white/30 border border-transparent"}`}
+                  onClick={() => {
+                    setCurrentIdx(idx);
+                    setProgress(0);
+                    setIsPlaying(true);
+                  }}
+                  className={`w-full flex items-center gap-2.5 px-2 py-2 rounded-xl transition-all cursor-pointer text-left group ${
+                    idx === currentIdx
+                      ? "bg-gradient-to-r from-rose-50 to-pink-50 border border-rose-200/80"
+                      : "hover:bg-zinc-50 border border-transparent"
+                  }`}
                 >
-                  <span className={`w-4 h-4 rounded flex items-center justify-center text-[9px] font-bold shrink-0 ${idx === currentIdx ? "bg-rose-500 text-white" : "bg-white/40 text-zinc-500"}`}>
+                  <span
+                    className={`w-5 h-5 rounded-lg flex items-center justify-center text-[9px] font-black shrink-0 transition-all ${
+                      idx === currentIdx
+                        ? "bg-gradient-to-br from-rose-500 to-pink-500 text-white shadow-sm"
+                        : "bg-zinc-200/70 text-zinc-500 group-hover:bg-zinc-300/70"
+                    }`}
+                  >
                     {idx === currentIdx && isPlaying ? "▶" : idx + 1}
                   </span>
                   <div className="min-w-0 flex-1">
-                    <p className={`text-[10px] font-bold truncate ${idx === currentIdx ? "text-rose-600" : "text-zinc-800"}`}>{t.title}</p>
-                    <p className="text-[8px] text-zinc-500 truncate">{t.artist}</p>
+                    <p
+                      className={`text-[10px] font-bold truncate ${
+                        idx === currentIdx ? "text-rose-600" : "text-zinc-700"
+                      }`}
+                    >
+                      {t.title}
+                    </p>
+                    <p className="text-[9px] text-zinc-400 truncate">
+                      {t.artist}
+                    </p>
                   </div>
                 </button>
               ))}
             </div>
+
+            {/* Inspired by footer */}
+            <div className="border-t border-zinc-100/80 px-4 py-2 flex items-center justify-between">
+              <a
+                href="https://github.com/swiftkimani/AlwaysBeMine"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-[9px] font-semibold text-zinc-400 hover:text-rose-500 transition-colors"
+              >
+                Inspired by Swift ✨
+              </a>
+              <span className="text-[9px] text-zinc-300">
+                {tracks.length} songs
+              </span>
+            </div>
           </div>
 
-          {/* Connector arrow pointing down to button */}
+          {/* Tail / caret pointing down to FAB */}
           <div
-            className="absolute left-1/2 -translate-x-1/2"
-            style={{ [panelAbove ? "bottom" : "top"]: "-8px" }}
-          >
-            <div
-              className="w-4 h-4 rotate-45 liquid"
-              style={{ borderRadius: "3px" }}
-            />
-          </div>
+            className="absolute -bottom-2 right-5 w-4 h-4 rotate-45"
+            style={{
+              background: "rgba(255,255,255,0.97)",
+              border: "1.5px solid rgba(255,255,255,0.8)",
+              borderTop: "none",
+              borderLeft: "none",
+              boxShadow: "2px 2px 6px rgba(225,29,72,0.1)",
+            }}
+          />
         </div>
       )}
 
-      <div
-        data-music-btn
-        className="fixed z-50 select-none"
-        style={{ left: pos.x, top: pos.y, transform: "translate(-50%, -50%)", touchAction: "none" }}
-        onPointerDown={handlePointerDown}
-        onClick={handleClick}
+      {/* ── FAB bubble button ── */}
+      <button
+        onClick={() => setIsOpen((p) => !p)}
+        aria-label="Open music player"
+        title="Music Player"
+        className={`relative flex items-center justify-center w-14 h-14 rounded-full cursor-pointer transition-all duration-300 select-none ${
+          isOpen
+            ? "shadow-[0_8px_30px_-4px_rgba(225,29,72,0.5)] scale-95"
+            : "shadow-[0_8px_30px_-4px_rgba(225,29,72,0.4)] hover:scale-105 hover:shadow-[0_12px_40px_-4px_rgba(225,29,72,0.55)] active:scale-95"
+        }`}
+        style={{
+          background: isPlaying
+            ? "linear-gradient(135deg,#f43f5e,#ec4899,#a855f7)"
+            : "linear-gradient(135deg,#f43f5e,#be123c)",
+          backgroundSize: "200% 200%",
+          animation: isPlaying ? "gradientShift 2s linear infinite" : "none",
+        }}
       >
-        <div className={`liquid rounded-full w-14 h-14 flex items-center justify-center cursor-pointer shadow-xl transition-all duration-300 ${isDragging ? "scale-110 shadow-2xl" : "hover:scale-105"} ${isPlaying ? "ring-2 ring-rose-400/60 animate-pulse-glow" : ""}`}>
+        {/* Pulsing ring when playing */}
+        {isPlaying && (
+          <span
+            className="absolute inset-0 rounded-full"
+            style={{
+              background: "linear-gradient(135deg,#f43f5e,#ec4899,#a855f7)",
+              animation: "fabPulse 1.8s ease-out infinite",
+              opacity: 0.4,
+            }}
+          />
+        )}
+
+        <span className="relative z-10 text-white">
           {isPlaying ? (
-            <div className="flex gap-0.5 items-end h-5">
-              <span className="w-[3px] rounded-full bg-rose-500 animate-bounce" style={{ height: "60%", animationDelay: "0ms" }} />
-              <span className="w-[3px] rounded-full bg-pink-500 animate-bounce" style={{ height: "100%", animationDelay: "150ms" }} />
-              <span className="w-[3px] rounded-full bg-rose-400 animate-bounce" style={{ height: "40%", animationDelay: "300ms" }} />
-              <span className="w-[3px] rounded-full bg-pink-400 animate-bounce" style={{ height: "80%", animationDelay: "75ms" }} />
-            </div>
+            <BsMusicNoteBeamed size={22} className="animate-bounce" />
           ) : (
-            <BsMusicNoteBeamed size={22} className="text-rose-500" />
+            <BsMusicNoteBeamed size={22} />
           )}
-        </div>
-      </div>
-    </>
+        </span>
+
+        {/* Playing indicator dot */}
+        {isPlaying && (
+          <span className="absolute top-1 right-1 w-2.5 h-2.5 bg-white rounded-full shadow-sm" />
+        )}
+      </button>
+
+      <style>{`
+        @keyframes gradientShift {
+          0% { background-position: 0% 50%; }
+          50% { background-position: 100% 50%; }
+          100% { background-position: 0% 50%; }
+        }
+        @keyframes fabPulse {
+          0% { transform: scale(1); opacity: 0.5; }
+          80% { transform: scale(1.7); opacity: 0; }
+          100% { transform: scale(1.7); opacity: 0; }
+        }
+        @keyframes eqBar {
+          from { transform: scaleY(0.2); }
+          to { transform: scaleY(1); }
+        }
+        @keyframes fade-in-up {
+          from { opacity: 0; transform: translateY(10px) scale(0.97); }
+          to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+        .animate-fade-in-up {
+          animation: fade-in-up 0.22s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+        }
+      `}</style>
+    </div>
   );
 }

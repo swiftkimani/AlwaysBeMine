@@ -21,30 +21,30 @@ export default function PromiseBuilder({ data, title, subtitle, onProgress }) {
   const allFlipped = flippedCards.size === data.length;
 
   return (
-    <div className="w-full max-w-5xl mx-auto">
+    <div className="w-full mx-auto">
       {/* Title */}
       <div className="text-center mb-5">
-        <h2 className="text-xl md:text-3xl font-bold text-zinc-900 mb-1" style={{ fontFamily: "Charm, serif" }}>
+        <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-zinc-900 mb-1" style={{ fontFamily: "Charm, serif" }}>
           {title}
         </h2>
         <p className="text-xs text-zinc-500">{subtitle}</p>
       </div>
 
       {/* Progress */}
-      <div className="liquid p-3 md:p-4 mb-5 flex items-center gap-3">
-        <div className="w-8 h-8 rounded-lg bg-rose-500/15 flex items-center justify-center text-sm">🤝</div>
+      <div className="liquid p-4 sm:p-5 mb-5 flex items-center gap-3.5">
+        <div className="w-9 h-9 rounded-xl bg-rose-500/15 flex items-center justify-center text-base shrink-0">🤝</div>
         <div className="flex-1">
-          <p className="text-[10px] font-bold text-zinc-600">Promises Sealed</p>
-          <div className="progress-bar mt-1">
+          <p className="text-xs font-bold text-zinc-700">Promises Sealed</p>
+          <div className="progress-bar mt-1.5">
             <div className="progress-bar-fill" style={{ width: `${pct}%` }} />
           </div>
         </div>
-        <span className="text-[10px] text-zinc-500">{flippedCards.size}/{data.length}</span>
-        <span className="xp-badge">+{flippedCards.size * 15} XP</span>
+        <span className="text-xs font-semibold text-zinc-500 shrink-0">{flippedCards.size}/{data.length}</span>
+        <span className="xp-badge shrink-0">+{flippedCards.size * 15} XP</span>
       </div>
 
       {/* Cards Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 md:gap-5">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-5">
         {data.map((promise, idx) => {
           const isFlipped = flippedCards.has(idx);
           return (
@@ -60,7 +60,7 @@ export default function PromiseBuilder({ data, title, subtitle, onProgress }) {
               aria-expanded={isFlipped}
             >
               <div
-                className={`relative w-full h-40 md:h-44 transition-transform duration-500`}
+                className={`relative w-full h-44 sm:h-48 transition-transform duration-500`}
                 style={{
                   transformStyle: "preserve-3d",
                   transform: isFlipped ? "rotateY(180deg)" : "rotateY(0deg)",
@@ -68,7 +68,7 @@ export default function PromiseBuilder({ data, title, subtitle, onProgress }) {
               >
                 {/* Front */}
                 <div
-                  className="absolute inset-0 rounded-xl flex items-center justify-center p-5 border border-zinc-200 shadow-xl"
+                  className="absolute inset-0 rounded-2xl flex items-center justify-center p-5 border border-zinc-200/80 shadow-lg group-hover:shadow-xl"
                   style={{
                     backfaceVisibility: "hidden",
                     background: "linear-gradient(135deg, rgba(255,255,255,0.95), rgba(255,250,245,0.95))",
@@ -77,18 +77,18 @@ export default function PromiseBuilder({ data, title, subtitle, onProgress }) {
                 >
                   <div className="text-center">
                     <span className="text-3xl mb-2 block group-hover:scale-110 transition-transform duration-300">
-                      {isFlipped ? "💝" : "💝"}
+                      💝
                     </span>
-                    <p className="text-xs text-zinc-500 font-bold">Promise #{idx + 1}</p>
-                    <p className="text-[10px] text-zinc-400 mt-1.5 bg-zinc-50 px-2.5 py-0.5 rounded-full inline-block border border-zinc-200">
-                      {isFlipped ? "Tap to hide" : "Tap to reveal"}
+                    <p className="text-xs sm:text-sm text-zinc-700 font-bold">Promise #{idx + 1}</p>
+                    <p className="text-[10px] text-zinc-400 mt-2 bg-zinc-100/80 px-3 py-1 rounded-full inline-block border border-zinc-200">
+                      Tap to reveal ✨
                     </p>
                   </div>
                 </div>
 
                 {/* Back */}
                 <div
-                  className="absolute inset-0 rounded-xl flex items-center justify-center p-5 border border-rose-200/50 shadow-xl"
+                  className="absolute inset-0 rounded-2xl flex items-center justify-center p-5 border border-rose-200/80 shadow-xl"
                   style={{
                     backfaceVisibility: "hidden",
                     transform: "rotateY(180deg)",
@@ -96,11 +96,11 @@ export default function PromiseBuilder({ data, title, subtitle, onProgress }) {
                     backdropFilter: "blur(12px)",
                   }}
                 >
-                  <div className="text-center">
-                    <p className="text-zinc-800 text-xs md:text-sm leading-relaxed mb-2" style={{ fontFamily: "Charm, serif" }}>
+                  <div className="text-center flex flex-col items-center justify-center h-full">
+                    <p className="text-zinc-800 text-xs sm:text-sm md:text-base font-medium leading-relaxed mb-2" style={{ fontFamily: "Charm, serif" }}>
                       {promise}
                     </p>
-                    <span className="text-[10px] text-rose-400 font-bold">Sealed with love 💕</span>
+                    <span className="text-[10px] text-rose-500 font-bold bg-rose-50 px-2.5 py-0.5 rounded-full border border-rose-200">Sealed with love 💕</span>
                   </div>
                 </div>
               </div>
@@ -111,8 +111,8 @@ export default function PromiseBuilder({ data, title, subtitle, onProgress }) {
 
       {/* All done */}
       {allFlipped && (
-        <div className="liquid mt-4 p-4 md:p-5 text-center animate-bounce-in border-l-4 border-rose-400">
-          <p className="text-sm text-zinc-800 font-bold" style={{ fontFamily: "Charm, serif" }}>
+        <div className="liquid mt-5 p-4 sm:p-5 text-center animate-bounce-in border-l-4 border-rose-500 shadow-md">
+          <p className="text-sm sm:text-base text-zinc-800 font-bold" style={{ fontFamily: "Charm, serif" }}>
             All {data.length} promises revealed! Every single one is from the heart. 🥰
           </p>
         </div>

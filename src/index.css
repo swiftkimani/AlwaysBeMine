@@ -32,12 +32,12 @@ body {
   background-position: center;
   background-size: cover;
   background-attachment: fixed;
-  overflow: hidden;
 }
 
 html, body, #root {
   width: 100%;
-  height: 100%;
+  min-height: 100dvh;
+  background-color: #fdf2f8; /* Base fallback */
 }
 
 /* ============================================================
@@ -57,6 +57,8 @@ html, body, #root {
   position: relative;
   overflow: hidden;
   transition: box-shadow 0.4s ease, transform 0.3s ease;
+  word-break: break-word;
+  overflow-wrap: break-word;
 }
 
 .liquid::before {
@@ -91,50 +93,117 @@ html, body, #root {
 }
 
 /* ============================================================
+   SWAL2 MODAL — 3/4 Screen Slide from Right
+   ============================================================ */
+.swal2-container {
+  padding: 0 !important;
+  justify-content: flex-end !important;
+}
+
+@keyframes modal-slide-left {
+  0% { transform: translateX(100%); opacity: 0; }
+  100% { transform: translateX(0); opacity: 1; }
+}
+
+@keyframes modal-slide-out-right {
+  0% { transform: translateX(0); opacity: 1; }
+  100% { transform: translateX(100%); opacity: 0; }
+}
+
+.swal2-backdrop-show {
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+.swal2-popup {
+  margin: 0 !important;
+  height: 100dvh !important;
+  width: 75vw !important;
+  max-width: 75vw !important;
+  border-radius: 2rem 0 0 2rem !important;
+  box-shadow: -20px 0 80px rgba(0,0,0,0.5) !important;
+  border: 1px solid rgba(255,255,255,0.2) !important;
+  border-right: none !important;
+  overflow-y: auto !important;
+  animation: modal-slide-left 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards !important;
+}
+
+.swal2-popup.swal2-hide {
+  animation: modal-slide-out-right 0.4s cubic-bezier(0.7, 0, 0.84, 0) forwards !important;
+}
+
+/* ============================================================
+   GLOBAL OVERFLOW & MOBILE TEXT FIX
+   ============================================================ */
+* {
+  min-width: 0;
+}
+
+img, video, iframe {
+  max-width: 100%;
+  height: auto;
+}
+
+p, h1, h2, h3, h4, h5, h6, span, li, td, th {
+  overflow-wrap: break-word;
+  word-break: break-word;
+  hyphens: auto;
+}
+
+/* ============================================================
    GLOBAL LAYOUT
    ============================================================ */
 .page-shell {
   position: relative;
   width: 100%;
-  height: 100dvh;
-  overflow: hidden;
+  min-height: 100dvh;
+  overflow-x: hidden;
+}
+
+/* Force Spline to cover completely */
+.fixed.inset-0.-z-10 canvas {
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: cover;
 }
 
 .page-scroll {
   width: 100%;
-  height: 100%;
-  overflow-y: auto;
+  min-height: 100dvh;
+  /* Offset for the fixed 52px left nav */
+  padding-left: 60px;
   overflow-x: hidden;
-  -ms-overflow-style: none;
-  scrollbar-width: none;
 }
 
-.page-scroll::-webkit-scrollbar {
-  display: none;
+@media (min-width: 640px) {
+  .page-scroll { padding-left: 64px; }
 }
 
 .page-scroll > .page-content {
   width: 100%;
-  max-width: 80rem;
+  max-width: 54rem;
   margin-left: auto;
   margin-right: auto;
-  padding: 0.75rem 1.25rem 5rem;
+  padding: 1rem 1rem 5rem;
+  overflow-x: hidden;
+  word-break: break-word;
+  overflow-wrap: break-word;
 }
 
 @media (min-width: 480px) {
-  .page-scroll > .page-content { padding: 1rem 1.75rem 4.5rem; }
+  .page-scroll > .page-content { padding: 1rem 1.25rem 5rem; }
 }
 
 @media (min-width: 640px) {
-  .page-scroll > .page-content { padding: 1rem 2rem 4rem; }
+  .page-scroll > .page-content { padding: 1.25rem 1.5rem 4.5rem; }
 }
 
 @media (min-width: 768px) {
-  .page-scroll > .page-content { padding: 1.25rem 2.5rem 4rem; }
+  .page-scroll > .page-content { padding: 1.5rem 2rem 4rem; }
 }
 
 @media (min-width: 1024px) {
-  .page-scroll > .page-content { padding: 1.5rem 3rem 3.5rem; }
+  .page-scroll > .page-content { padding: 1.75rem 2.5rem 3.5rem; }
 }
 
 /* Proposal: true viewport-centered layout */
@@ -144,32 +213,40 @@ html, body, #root {
   align-items: center;
   justify-content: center;
   width: 100%;
-  min-height: calc(100dvh - 4rem);
-  padding: 1.5rem 0.5rem;
+  min-height: calc(100dvh - 2rem);
+  padding: 0.5rem 1rem;
   text-align: center;
+  overflow-x: hidden;
+  word-break: break-word;
+  overflow-wrap: break-word;
 }
 
 @media (min-width: 640px) {
-  .proposal-stage { padding: 2rem 1rem; }
+  .proposal-stage { padding: 0.75rem 1.5rem; }
 }
 
 /* Non-proposal modes */
 .mode-stage {
-  padding: 0.5rem 0 1.5rem;
+  padding: 0.5rem 0 2rem;
 }
 
 @media (min-width: 768px) {
-  .mode-stage { padding: 1rem 0 2rem; }
+  .mode-stage { padding: 1rem 0 2.5rem; }
 }
 
 .mode-header {
   text-align: center;
-  margin-bottom: 1.25rem;
+  margin-bottom: 1.5rem;
   padding: 0 0.5rem;
+  overflow: hidden;
+}
+
+@media (min-width: 640px) {
+  .mode-header { padding: 0 1rem; margin-bottom: 1.75rem; }
 }
 
 @media (min-width: 768px) {
-  .mode-header { margin-bottom: 1.75rem; }
+  .mode-header { margin-bottom: 2rem; }
 }
 
 .mode-body {
@@ -180,17 +257,23 @@ html, body, #root {
    BUTTONS
    ============================================================ */
 .btn-primary {
-  padding: 0.75rem 2rem;
-  border-radius: 1rem;
-  font-weight: 700;
+  padding: 0.85rem 2.5rem;
+  border-radius: 9999px;
+  font-weight: 800;
+  font-size: 1.1rem;
   color: white;
+  background: linear-gradient(135deg, #e11d48, #be123c, #9f1239);
+  border: 2px solid #fda4af;
   cursor: pointer;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  box-shadow: 0 8px 25px -5px rgba(0, 0, 0, 0.25);
+  box-shadow: 0 8px 25px -5px rgba(225, 29, 72, 0.5);
   position: relative;
   overflow: hidden;
-  min-height: 44px;
-  min-width: 44px;
+  min-height: 48px;
+  min-width: 120px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .btn-primary:hover {
@@ -200,6 +283,27 @@ html, body, #root {
 
 .btn-primary:active {
   transform: scale(0.96);
+}
+
+.btn-secondary {
+  padding: 0.85rem 2.5rem;
+  border-radius: 9999px;
+  font-weight: 800;
+  font-size: 1.1rem;
+  color: #e11d48;
+  background: white;
+  border: 2px solid #fda4af;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 4px 15px -5px rgba(225, 29, 72, 0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.btn-secondary:hover {
+  background: #fff1f2;
+  box-shadow: 0 6px 20px -5px rgba(225, 29, 72, 0.3);
 }
 
 .btn-glow {
@@ -695,28 +799,49 @@ a:focus-visible {
    ============================================================ */
 .send-love-bar {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   justify-content: center;
-  gap: 0.75rem;
+  gap: 0.5rem;
   margin-top: 1rem;
+}
+
+@media (min-width: 480px) {
+  .send-love-bar {
+    gap: 0.75rem;
+  }
 }
 
 .send-love-btn {
   display: flex;
   flex-direction: column;
   align-items: center;
+  justify-content: center;
   gap: 4px;
-  padding: 10px 16px;
-  border-radius: 1rem;
+  padding: 10px 14px;
+  border-radius: 1.25rem;
   border: none;
   cursor: pointer;
-  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-  background: linear-gradient(135deg, rgba(255, 240, 245, 0.7), rgba(255, 255, 255, 0.5));
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  background: linear-gradient(135deg, rgba(255, 228, 230, 0.9), rgba(255, 255, 255, 0.95));
   backdrop-filter: blur(16px) saturate(180%);
   -webkit-backdrop-filter: blur(16px) saturate(180%);
-  border: 1px solid rgba(255, 255, 255, 0.6);
-  box-shadow: 0 4px 16px rgba(244, 63, 94, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.7);
-  min-width: 72px;
+  border: 1px solid rgba(255, 190, 200, 0.8);
+  box-shadow: 0 6px 20px rgba(225, 29, 72, 0.15), inset 0 2px 0 rgba(255, 255, 255, 0.9);
+  color: #e11d48;
+  font-weight: 800;
+  min-width: 65px;
+  flex: 1 1 65px;
+  max-width: 90px;
+}
+
+@media (min-width: 480px) {
+  .send-love-btn {
+    padding: 10px 16px;
+    min-width: 72px;
+    flex: initial;
+    max-width: none;
+  }
 }
 
 .send-love-btn:hover {
@@ -787,15 +912,66 @@ a:focus-visible {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  padding: 6px 16px;
-  border-radius: 9999px;
-  font-size: 0.75rem;
+  font-size: 0.72rem;
   font-weight: 600;
-  background: linear-gradient(135deg, rgba(251, 191, 36, 0.12), rgba(244, 63, 94, 0.1));
-  border: 1px solid rgba(251, 191, 36, 0.2);
   color: #92400e;
-  margin-bottom: 0.75rem;
-  backdrop-filter: blur(8px);
+}
+
+/* ============================================================
+   GREETING BADGE — fixed floating top-right
+   ============================================================ */
+.greeting-badge {
+  position: fixed;
+  top: 12px;
+  right: 16px;
+  z-index: 55;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 14px;
+  border-radius: 9999px;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.88), rgba(255, 240, 248, 0.92));
+  backdrop-filter: blur(16px) saturate(180%);
+  -webkit-backdrop-filter: blur(16px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.75);
+  box-shadow: 0 4px 20px rgba(225, 29, 72, 0.12), 0 1px 4px rgba(0,0,0,0.06);
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: #92400e;
+  transition: all 0.3s ease;
+  pointer-events: none;
+}
+
+@media (max-width: 480px) {
+  .greeting-badge {
+    top: 8px;
+    right: 8px;
+    padding: 4px 10px;
+    font-size: 0.65rem;
+  }
+}
+
+/* ============================================================
+   PAGE RIPPLE OVERLAY — bubble effect on nav switch
+   ============================================================ */
+@keyframes page-ripple {
+  0% { transform: scale(0); opacity: 0.8; }
+  100% { transform: scale(6); opacity: 0; }
+}
+
+.page-ripple-overlay {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  width: 200px;
+  height: 200px;
+  margin-top: -100px;
+  margin-left: -100px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(244, 63, 94, 0.35), rgba(236, 72, 153, 0.2), transparent 70%);
+  pointer-events: none;
+  z-index: 200;
+  animation: page-ripple 0.6s cubic-bezier(0.22, 1, 0.36, 1) forwards;
 }
 
 /* ============================================================

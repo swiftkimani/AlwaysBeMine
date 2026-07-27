@@ -18,20 +18,19 @@ function Root() {
     return () => clearTimeout(timer);
   }, []);
 
-  if (loading) {
-    return (
-      <div
-        className={`transition-opacity duration-600 ${fadeOut ? "opacity-0" : "opacity-100"}`}
-      >
-        <Preloader />
-      </div>
-    );
-  }
-
   return (
-    <div className="animate-fade-in">
-      <App />
-    </div>
+    <>
+      <div className="animate-fade-in w-full h-full">
+        <App />
+      </div>
+      {loading && (
+        <div
+          className={`fixed inset-0 z-[9999] bg-black pointer-events-none transition-opacity duration-700 ease-in-out ${fadeOut ? "opacity-0" : "opacity-100"}`}
+        >
+          <Preloader />
+        </div>
+      )}
+    </>
   );
 }
 
