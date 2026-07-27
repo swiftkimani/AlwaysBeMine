@@ -144,18 +144,18 @@ const themes = {
 
     // --- Gallery Mode ---
     gallery: [
-      { caption: "Standing together at sunset", src: "/gallery_couple_sunset.png", color: "from-orange-400 to-rose-500" },
-      { caption: "A magical day in the park", src: "/gallery_couple_park.png", color: "from-emerald-400 to-teal-500" },
-      { caption: "The day we first smiled at each other", src: "/gallery_cartoon_1.png", color: "from-rose-400 to-pink-500" },
-      { caption: "Our first adventure together", src: "/gallery_cartoon_2.png", color: "from-purple-400 to-indigo-500" },
-      { caption: "A romantic boat ride under the stars", src: "/gallery_boat.png", color: "from-blue-500 to-purple-600" },
-      { caption: "Dancing with fireflies", src: "/gallery_dancing.png", color: "from-indigo-500 to-violet-600" },
-      { caption: "Sharing ice cream on a sunny day", src: "/gallery_icecream.png", color: "from-pink-400 to-rose-500" },
-      { caption: "Winter wonderland walk", src: "/gallery_winter.png", color: "from-cyan-400 to-blue-500" },
       { caption: "Lost in a magical library", src: "/gallery_library.png", color: "from-amber-400 to-orange-500" },
-      { caption: "Coffee dates are the best", src: "/gallery_cafe.png", color: "from-orange-400 to-red-500" },
       { caption: "Making friends with enchanted animals", src: "/gallery_animals.png", color: "from-green-400 to-emerald-500" },
-      { caption: "Exploring the sci-fi future", src: "/gallery_scifi.png", color: "from-fuchsia-500 to-pink-600" },
+      { caption: "The day we first smiled at each other", src: "/gallery_cartoon_1.png", color: "from-rose-400 to-pink-500" },
+      { caption: "Getting lost in a good book", src: "/gallery_library.png", color: "from-blue-400 to-indigo-500" },
+      { caption: "A walk in the magical forest", src: "/gallery_animals.png", color: "from-emerald-400 to-teal-500" },
+      { caption: "That perfect smile", src: "/gallery_cartoon_1.png", color: "from-pink-400 to-purple-500" },
+      { caption: "Peace and quiet moments", src: "/gallery_library.png", color: "from-purple-400 to-pink-500" },
+      { caption: "Nature's beauty", src: "/gallery_animals.png", color: "from-teal-400 to-cyan-500" },
+      { caption: "Unforgettable gaze", src: "/gallery_cartoon_1.png", color: "from-red-400 to-rose-500" },
+      { caption: "Lost in stories", src: "/gallery_library.png", color: "from-indigo-400 to-blue-500" },
+      { caption: "Snow white moments", src: "/gallery_animals.png", color: "from-lime-400 to-green-500" },
+      { caption: "Looking adorable", src: "/gallery_cartoon_1.png", color: "from-fuchsia-400 to-pink-500" },
     ],
 
     // --- Promises Mode ---

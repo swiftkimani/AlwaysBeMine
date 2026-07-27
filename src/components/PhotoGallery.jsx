@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { BsX, BsChevronLeft, BsChevronRight, BsHeartFill } from "react-icons/bs";
+import { createPortal } from "react-dom";
 
 const memoryLabels = [
   "📸 First Date",
@@ -80,7 +81,7 @@ export default function PhotoGallery({ data, onProgress }) {
           <div
             key={idx}
             onClick={() => handleView(idx)}
-            className={`relative p-2 sm:p-3 pb-10 sm:pb-12 cursor-pointer group transition-all duration-500 shadow-[0_8px_20px_-4px_rgba(0,0,0,0.15)] hover:shadow-[0_20px_40px_-5px_rgba(0,0,0,0.25)] hover:-translate-y-3 hover:scale-105 hover:z-20 bg-[#fdfbf9] border border-zinc-200 aspect-[4/5] flex flex-col ${
+            className={`gallery-item relative p-2 sm:p-3 pb-10 sm:pb-12 cursor-pointer group transition-all duration-500 shadow-[0_8px_20px_-4px_rgba(0,0,0,0.15)] hover:shadow-[0_20px_40px_-5px_rgba(0,0,0,0.25)] hover:-translate-y-3 hover:scale-105 hover:z-20 bg-[#fdfbf9] border border-zinc-200 aspect-[4/5] flex flex-col ${
               ["-rotate-2", "rotate-2", "-rotate-1", "rotate-1", "-rotate-3", "rotate-3"][idx % 6]
             }`}
           >
@@ -139,54 +140,57 @@ export default function PhotoGallery({ data, onProgress }) {
       </div>
 
       {/* Premium Lightbox Modal */}
-      {activeIdx !== null && (
+      {/* Premium Lightbox Modal */}
+      {activeIdx !== null && createPortal(
         <div
-          className="fixed inset-0 z-[120] flex items-center justify-end bg-black/75 backdrop-blur-md animate-fade-in"
+          className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/90 backdrop-blur-xl animate-fade-in"
           onClick={() => setActiveIdx(null)}
         >
+          {/* Main Container - slides from right */}
           <div
-            className="w-[75vw] h-[100dvh] relative bg-zinc-950 shadow-[-20px_0_80px_rgba(0,0,0,0.5)] flex flex-col rounded-l-[2rem] overflow-hidden"
+            className="w-full h-full relative bg-zinc-950 flex flex-col md:flex-row items-center justify-center p-4 sm:p-10 gap-6 md:gap-12 overflow-hidden"
             style={{ animation: "modal-slide-left 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards" }}
             onClick={(e) => e.stopPropagation()}
           >
-            {/* Top Bar */}
+            {/* Top Bar / Close */}
             <button
               onClick={() => setActiveIdx(null)}
-              className="absolute top-4 right-4 w-9 h-9 rounded-full bg-zinc-100 hover:bg-rose-100 text-zinc-600 hover:text-rose-600 flex items-center justify-center transition-all cursor-pointer z-10 border border-zinc-200"
+              className="absolute top-6 right-6 sm:top-8 sm:right-8 w-12 h-12 rounded-full bg-white/10 hover:bg-white/20 text-white flex items-center justify-center transition-all cursor-pointer z-50 backdrop-blur-md border border-white/20 hover:scale-110"
               aria-label="Close photo preview"
             >
-              <BsX size={20} />
+              <BsX size={32} />
             </button>
 
-            {/* Prev/Next arrows */}
-            <button
-              onClick={handlePrev}
-              className="absolute left-3 sm:left-4 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-white/90 hover:bg-white text-zinc-800 shadow-xl flex items-center justify-center transition-all cursor-pointer z-10 border border-white"
-              aria-label="Previous photo"
-            >
-              <BsChevronLeft size={18} />
-            </button>
-            <button
-              onClick={handleNext}
-              className="absolute right-3 sm:right-4 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-white/90 hover:bg-white text-zinc-800 shadow-xl flex items-center justify-center transition-all cursor-pointer z-10 border border-white"
-              aria-label="Next photo"
-            >
-              <BsChevronRight size={18} />
-            </button>
+            {/* Image Container */}
+            <div className="relative w-full md:w-[65%] h-[50vh] md:h-[85vh] flex items-center justify-center group gallery-item">
+              {/* Prev/Next arrows */}
+              <button
+                onClick={handlePrev}
+                className="absolute left-2 sm:left-4 top-1/2 -translate-y-1/2 w-12 h-12 rounded-full bg-white/10 hover:bg-white text-white hover:text-zinc-900 backdrop-blur-md shadow-xl flex items-center justify-center transition-all cursor-pointer z-10 border border-white/20 opacity-0 group-hover:opacity-100 -translate-x-4 group-hover:translate-x-0"
+                aria-label="Previous photo"
+              >
+                <BsChevronLeft size={24} />
+              </button>
+              <button
+                onClick={handleNext}
+                className="absolute right-2 sm:right-4 top-1/2 -translate-y-1/2 w-12 h-12 rounded-full bg-white/10 hover:bg-white text-white hover:text-zinc-900 backdrop-blur-md shadow-xl flex items-center justify-center transition-all cursor-pointer z-10 border border-white/20 opacity-0 group-hover:opacity-100 translate-x-4 group-hover:translate-x-0"
+                aria-label="Next photo"
+              >
+                <BsChevronRight size={24} />
+              </button>
 
-            {/* Image display */}
-            <div className="w-full max-h-[55vh] overflow-hidden rounded-2xl bg-zinc-950 flex items-center justify-center shadow-inner my-2">
+              {/* Image display */}
               {data[activeIdx].src ? (
                 <img
                   src={data[activeIdx].src}
                   alt={data[activeIdx].caption}
-                  className="max-h-[55vh] w-auto object-contain rounded-xl"
+                  className="max-h-full max-w-full object-contain rounded-2xl drop-shadow-[0_20px_50px_rgba(0,0,0,0.5)] transition-transform duration-500 hover:scale-[1.02]"
                 />
               ) : (
                 <div
                   className={`bg-gradient-to-br ${
                     data[activeIdx].color || "from-rose-400 to-purple-500"
-                  } w-full h-72 flex items-center justify-center rounded-xl`}
+                  } w-full h-full flex items-center justify-center rounded-2xl`}
                 >
                   <span className="text-7xl animate-pulse">
                     {["📸", "🌅", "💕", "✨", "🎭", "🌸"][activeIdx % 6]}
@@ -195,37 +199,42 @@ export default function PhotoGallery({ data, onProgress }) {
               )}
             </div>
 
-            {/* Caption & Reaction row */}
-            <p
-              className="text-base sm:text-lg text-zinc-900 font-black text-center mt-3 leading-relaxed"
-              style={{ fontFamily: "Charm, serif" }}
-            >
-              {data[activeIdx].caption} 💕
-            </p>
+            {/* Sidebar / Info panel */}
+            <div className="w-full md:w-[35%] max-w-md flex flex-col items-center md:items-start justify-center gap-6 bg-white/5 backdrop-blur-xl p-8 rounded-[2rem] border border-white/10 shadow-2xl">
+              <span className="text-[10px] font-black text-rose-400 uppercase tracking-[0.2em] border border-rose-400/30 px-3 py-1 rounded-full">
+                Memory {activeIdx + 1} of {data.length}
+              </span>
+              
+              <p
+                className="text-3xl sm:text-5xl text-white font-bold text-center md:text-left leading-tight"
+                style={{ fontFamily: "Charm, serif" }}
+              >
+                {data[activeIdx].caption} 💕
+              </p>
 
-            {/* Reaction Heart Bar */}
-            <div className="flex items-center gap-3 mt-3 pt-2 border-t border-zinc-100 w-full justify-center">
-              <span className="text-xs text-zinc-400 font-bold">React:</span>
-              {["💕", "🥰", "😍", "💖", "🔥"].map((emoji) => (
-                <button
-                  key={emoji}
-                  onClick={() => handleReaction(emoji)}
-                  className={`w-9 h-9 rounded-full text-base flex items-center justify-center transition-all cursor-pointer ${
-                    reactions[activeIdx] === emoji
-                      ? "bg-rose-500 text-white scale-110 shadow-md"
-                      : "bg-zinc-100 hover:bg-rose-50 hover:scale-110"
-                  }`}
-                >
-                  {emoji}
-                </button>
-              ))}
+              {/* Reaction Heart Bar */}
+              <div className="flex flex-col gap-3 w-full mt-4">
+                <span className="text-xs text-white/50 font-bold uppercase tracking-wider text-center md:text-left">How did this make you feel?</span>
+                <div className="flex items-center justify-center md:justify-start gap-3">
+                  {["💕", "🥰", "😍", "💖", "🔥"].map((emoji) => (
+                    <button
+                      key={emoji}
+                      onClick={() => handleReaction(emoji)}
+                      className={`w-12 h-12 rounded-full text-2xl flex items-center justify-center transition-all cursor-pointer ${
+                        reactions[activeIdx] === emoji
+                          ? "bg-rose-500 text-white scale-125 shadow-[0_0_20px_rgba(225,29,72,0.6)]"
+                          : "bg-white/10 hover:bg-white/20 text-white hover:scale-110 border border-white/10"
+                      }`}
+                    >
+                      {emoji}
+                    </button>
+                  ))}
+                </div>
+              </div>
             </div>
-
-            <span className="text-[10px] font-black text-rose-500 mt-2 uppercase tracking-widest">
-              Memory {activeIdx + 1} of {data.length}
-            </span>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
     </div>
   );

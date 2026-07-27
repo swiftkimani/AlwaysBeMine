@@ -18,6 +18,7 @@ export default function FloatingMusicControl({ tracks }) {
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
   const [isMuted, setIsMuted] = useState(false);
+  const [volume, setVolume] = useState(50);
   const [isOpen, setIsOpen] = useState(false);
   const [liked, setLiked] = useState(new Set());
 
@@ -36,7 +37,12 @@ export default function FloatingMusicControl({ tracks }) {
     const audio = audioRef.current;
     audio.src = track.src;
     audio.load();
-    if (isPlaying) audio.play().catch(() => {});
+    if (isPlaying) {
+      audio.play().catch(() => {});
+      document.body.classList.add('music-playing');
+    } else {
+      document.body.classList.remove('music-playing');
+    }
   }, [track, isPlaying]);
 
   const updateProgress = useCallback(() => {
@@ -59,13 +65,29 @@ export default function FloatingMusicControl({ tracks }) {
     };
   }, [isPlaying, updateProgress]);
 
-  // Autoplay on first interaction
+  // Volume synchronization
+  useEffect(() => {
+    if (audioRef.current) {
+      audioRef.current.volume = isMuted ? 0 : volume / 100;
+    }
+  }, [volume, isMuted]);
+
+  // Autoplay on first interaction with fade in
   const hasAutoPlayed = useRef(false);
   useEffect(() => {
     const startAudio = () => {
       if (!hasAutoPlayed.current) {
         hasAutoPlayed.current = true;
         setIsPlaying(true);
+        // Start volume at 5 and smoothly increase to 50
+        setVolume(5);
+        let vol = 5;
+        const fadeInterval = setInterval(() => {
+          vol += 2;
+          if (vol > 50) vol = 50;
+          setVolume(vol);
+          if (vol >= 50) clearInterval(fadeInterval);
+        }, 150);
       }
       document.removeEventListener("click", startAudio);
       document.removeEventListener("touchstart", startAudio);
@@ -110,8 +132,13 @@ export default function FloatingMusicControl({ tracks }) {
   const togglePlay = (e) => {
     e?.stopPropagation();
     if (!audioRef.current) return;
-    if (isPlaying) audioRef.current.pause();
-    else audioRef.current.play().catch(() => {});
+    if (isPlaying) {
+      audioRef.current.pause();
+      document.body.classList.remove('music-playing');
+    } else {
+      audioRef.current.play().catch(() => {});
+      document.body.classList.add('music-playing');
+    }
     setIsPlaying(!isPlaying);
   };
 
@@ -292,17 +319,33 @@ export default function FloatingMusicControl({ tracks }) {
                 <BsSkipForwardFill size={15} />
               </button>
 
-              <button
-                onClick={(e) => { e.stopPropagation(); toggleMute(); }}
-                className="w-8 h-8 rounded-full flex items-center justify-center text-zinc-400 hover:text-zinc-700 hover:bg-zinc-100 transition-all cursor-pointer"
-                aria-label={isMuted ? "Unmute" : "Mute"}
-              >
-                {isMuted ? (
-                  <BsVolumeMuteFill size={13} />
-                ) : (
-                  <BsVolumeUpFill size={13} />
-                )}
-              </button>
+              <div className="flex items-center group/vol hover:bg-zinc-50 rounded-full transition-all pr-2 cursor-default">
+                <button
+                  onClick={(e) => { e.stopPropagation(); toggleMute(); }}
+                  className="w-8 h-8 rounded-full flex items-center justify-center text-zinc-400 hover:text-zinc-700 hover:bg-zinc-100 transition-all cursor-pointer"
+                  aria-label={isMuted ? "Unmute" : "Mute"}
+                >
+                  {isMuted ? (
+                    <BsVolumeMuteFill size={13} />
+                  ) : (
+                    <BsVolumeUpFill size={13} />
+                  )}
+                </button>
+                <input
+                  type="range"
+                  min="0"
+                  max="100"
+                  value={volume}
+                  onChange={(e) => {
+                    e.stopPropagation();
+                    setVolume(Number(e.target.value));
+                    if (isMuted) setIsMuted(false);
+                  }}
+                  className="w-0 opacity-0 group-hover/vol:w-16 group-hover/vol:opacity-100 transition-all duration-300 origin-left h-1 accent-rose-500 cursor-pointer"
+                  title="Volume"
+                  aria-label="Volume"
+                />
+              </div>
             </div>
 
             {/* Track list */}
