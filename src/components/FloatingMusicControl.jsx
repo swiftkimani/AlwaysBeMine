@@ -32,7 +32,7 @@ export default function FloatingMusicControl({ tracks }) {
     if (!track?.src) return;
     if (!audioRef.current) {
       audioRef.current = new Audio();
-      audioRef.current.volume = 0.7;
+      audioRef.current.volume = 1.0;
     }
     const audio = audioRef.current;
     audio.src = track.src;
@@ -79,14 +79,14 @@ export default function FloatingMusicControl({ tracks }) {
       if (!hasAutoPlayed.current) {
         hasAutoPlayed.current = true;
         setIsPlaying(true);
-        // Start volume at 5 and smoothly increase to 50
+        // Start volume at 5 and smoothly increase to 100
         setVolume(5);
         let vol = 5;
         const fadeInterval = setInterval(() => {
-          vol += 2;
-          if (vol > 50) vol = 50;
+          vol += 5;
+          if (vol > 100) vol = 100;
           setVolume(vol);
-          if (vol >= 50) clearInterval(fadeInterval);
+          if (vol >= 100) clearInterval(fadeInterval);
         }, 150);
       }
       document.removeEventListener("click", startAudio);
@@ -186,7 +186,7 @@ export default function FloatingMusicControl({ tracks }) {
   return (
     <div
       ref={panelRef}
-      style={{ position: "fixed", bottom: "max(20px, 4dvh)", right: "max(16px, 2dvw)", zIndex: 60 }}
+      style={{ position: "fixed", top: "75%", transform: "translateY(-50%)", right: "max(16px, 2dvw)", zIndex: 60 }}
     >
       {/* ── Expanded music panel (chatbot tooltip style) ── */}
       {isOpen && (
