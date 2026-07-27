@@ -634,8 +634,6 @@ export default function Page() {
       setTimeout(() => {
         Swal.fire({
           title: config.earlyPopup,
-          showClass: { popup: "animate__animated animate__slideInUp animate__faster" },
-          hideClass: { popup: "animate__animated animate__fadeOut animate__faster" },
           width: "min(700px, 92vw)",
           padding: "2.5em 2em",
           color: config.popupColor,
@@ -656,8 +654,6 @@ export default function Page() {
       setTimeout(() => {
         Swal.fire({
           title: config.latePopup,
-          showClass: { popup: "animate__animated animate__slideInUp animate__faster" },
-          hideClass: { popup: "animate__animated animate__fadeOut animate__faster" },
           width: "min(800px, 92vw)",
           padding: "2.5em 2em",
           color: config.popupColor,
@@ -675,8 +671,6 @@ export default function Page() {
     if (noCount === config.stubbornCount) {
       Swal.fire({
         title: config.stubbornPopup,
-        showClass: { popup: "animate__animated animate__slideInUp animate__faster" },
-        hideClass: { popup: "animate__animated animate__fadeOut animate__faster" },
         width: "min(850px, 92vw)",
         padding: "2.5em 2em",
         color: config.popupColor,
