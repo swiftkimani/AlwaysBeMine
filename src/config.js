@@ -16,6 +16,11 @@
  * ============================================================
  */
 
+import enTrack1 from "./assets/AudioTracks/Love_LoveMeLikeYouDo.mp3";
+import enTrack2 from "./assets/AudioTracks/Love_EDPerfect.mp3";
+import enTrack3 from "./assets/AudioTracks/Love_TheWalters.mp3";
+import enTrack4 from "./assets/AudioTracks/Love_UntilIFoundYou.mp3";
+
 const theme = "valentine";
 
 const themes = {
@@ -175,25 +180,46 @@ const themes = {
     promiseSubtitle: "Click a card to flip and read each promise",
 
     // --- Playlist Mode ---
+    // Real songs only: local tracks play inline, plus a link to the full
+    // official Spotify playlist for each language.
     playlist: {
       title: "Our Love Songs",
-      subtitle: "Songs that remind me of us",
-      spotify: "https://open.spotify.com/embed/playlist/37i9dQZF1DX5xJoc6fOBqA?utm_source=generator&theme=0",
-      youtube: "https://www.youtube.com/embed/videoseries?list=PLrAXtmErZgOeiKm4sgNOknGvNjby9efdf",
-      height: 352,
-      compactHeight: 152,
+      subtitle: "Songs that remind me of us — pick your vibe",
       note: "Press play and let these songs set the mood for our story",
-      tracks: [
-        { title: "Perfect (Instrumental)", artist: "Romantic", src: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" },
-        { title: "All of Me", artist: "Piano Cover", src: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3" },
-        { title: "At Last", artist: "Jazz Vibes", src: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3" },
-        { title: "A Thousand Years", artist: "Acoustic", src: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-4.mp3" },
-        { title: "Thinking Out Loud", artist: "Guitar Cover", src: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-5.mp3" },
-        { title: "Can't Help Falling in Love", artist: "Lofi", src: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-6.mp3" },
-        { title: "Say You Won't Let Go", artist: "Acoustic Pop", src: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-7.mp3" },
-        { title: "You Are The Reason", artist: "Piano & Cello", src: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-8.mp3" },
-        { title: "Beautiful In White", artist: "Wedding Version", src: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-9.mp3" },
-        { title: "Photograph", artist: "Instrumental", src: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-10.mp3" },
+      languages: [
+        {
+          code: "en",
+          label: "English",
+          flag: "🇬🇧",
+          playlistName: "Love Ballads",
+          spotifyUrl: "https://open.spotify.com/playlist/37i9dQZF1DWYMvTygsLWlG",
+          tracks: [
+            { title: "Love Me Like You Do", artist: "Ellie Goulding", src: enTrack1 },
+            { title: "Perfect", artist: "Ed Sheeran", src: enTrack2 },
+            { title: "I Love You So", artist: "The Walters", src: enTrack3 },
+            { title: "Until I Found You", artist: "Stephen Sanchez", src: enTrack4 },
+          ],
+          highlights: [
+            { title: "All of Me", artist: "John Legend" },
+            { title: "Can't Help Falling in Love", artist: "Elvis Presley" },
+            { title: "When I Was Your Man", artist: "Bruno Mars" },
+            { title: "Thinking Out Loud", artist: "Ed Sheeran" },
+          ],
+        },
+        {
+          code: "sw",
+          label: "Swahili",
+          flag: "🇰🇪",
+          playlistName: "Swahili Love",
+          spotifyUrl: "https://open.spotify.com/playlist/37i9dQZF1DX1YGbV4eeC1J",
+          highlights: [
+            { title: "Natulizana", artist: "Diamond Platnumz" },
+            { title: "I Love You", artist: "Zuchu" },
+            { title: "Wivu", artist: "Vanillah & Otile Brown" },
+            { title: "Bhuju", artist: "Alikiba & Mbosso" },
+            { title: "Love Design", artist: "Darassa & Harmonize" },
+          ],
+        },
       ],
     },
   },
@@ -303,20 +329,32 @@ const themes = {
     playlist: {
       title: "Birthday Vibes",
       subtitle: "Songs to celebrate your special day",
-      spotify: "https://open.spotify.com/embed/playlist/37i9dQZF1DWUVpAXiEPK8P?utm_source=generator&theme=0",
-      youtube: "https://www.youtube.com/embed/videoseries?list=PLrAXtmErZgOeiKm4sgNOknGvNjby9efdf",
-      height: 352,
-      compactHeight: 152,
       note: "Turn up the volume and let's celebrate!",
-      tracks: [
-        { title: "Happy", artist: "Pharrell Williams", url: "https://open.spotify.com/track/60bWsV3kCwqh3g6b611aFh" },
-        { title: "Birthday", artist: "Katy Perry", url: "https://open.spotify.com/track/60bWsV3kCwqh3g6b611aFh" },
-        { title: "Celebrate", artist: "Mika", url: "https://open.spotify.com/track/0E7KjCF4f0IzMq2NMc0hHd" },
-        { title: "Best Day of My Life", artist: "American Authors", url: "https://open.spotify.com/track/2yQ9m3EF5t5dTe6mRbP6lA" },
-        { title: "Good As Hell", artist: "Lizzo", url: "https://open.spotify.com/track/5GhZPrCEmPNJmqrJ3bDPf" },
-        { title: "Levitating", artist: "Dua Lipa", url: "https://open.spotify.com/track/39LLxExYz6ewLAo9BKLRX8" },
-        { title: "Dynamite", artist: "BTS", url: "https://open.spotify.com/track/0VjIjW4GlUZAMYd2vXMi3b" },
-        { title: "Uptown Funk", artist: "Bruno Mars", url: "https://open.spotify.com/track/32OlwWuMpZ6b0aN2RZOeMS" },
+      languages: [
+        {
+          code: "en",
+          label: "English",
+          flag: "🇬🇧",
+          playlistName: "Love Ballads",
+          spotifyUrl: "https://open.spotify.com/playlist/37i9dQZF1DWYMvTygsLWlG",
+          highlights: [
+            { title: "Perfect", artist: "Ed Sheeran" },
+            { title: "All of Me", artist: "John Legend" },
+            { title: "Can't Help Falling in Love", artist: "Elvis Presley" },
+          ],
+        },
+        {
+          code: "sw",
+          label: "Swahili",
+          flag: "🇰🇪",
+          playlistName: "Swahili Love",
+          spotifyUrl: "https://open.spotify.com/playlist/37i9dQZF1DX1YGbV4eeC1J",
+          highlights: [
+            { title: "Natulizana", artist: "Diamond Platnumz" },
+            { title: "I Love You", artist: "Zuchu" },
+            { title: "Wivu", artist: "Vanillah & Otile Brown" },
+          ],
+        },
       ],
     },
   },
@@ -429,20 +467,32 @@ const themes = {
     playlist: {
       title: "Our Anniversary Playlist",
       subtitle: "Songs from every chapter of us",
-      spotify: "https://open.spotify.com/embed/playlist/37i9dQZF1DX08SipB0W7aE?utm_source=generator&theme=0",
-      youtube: "https://www.youtube.com/embed/videoseries?list=PLrAXtmErZgOeiKm4sgNOknGvNjby9efdf",
-      height: 352,
-      compactHeight: 152,
       note: "Every song here reminds me of a moment we shared",
-      tracks: [
-        { title: "Perfect", artist: "Ed Sheeran", url: "https://open.spotify.com/track/0tgVpDi06FyKnA3Qy7zw4" },
-        { title: "All of Me", artist: "John Legend", url: "https://open.spotify.com/track/3U4isOIWM3VvDubwSI3y7a" },
-        { title: "At Last", artist: "Etta James", url: "https://open.spotify.com/track/4Hhv2vrOTy89HFRcjU3QOx" },
-        { title: "Love Someone", artist: "Lukas Graham", url: "https://open.spotify.com/track/1F5Y1L1XvV6QeYk7x4a1cF" },
-        { title: "Stay With Me", artist: "Sam Smith", url: "https://open.spotify.com/track/6lS8q48T1OaJrRH8U8gWw" },
-        { title: "I'm Yours", artist: "Jason Mraz", url: "https://open.spotify.com/track/3COkNtTg26CM2Poj7WcYwc" },
-        { title: "Make You Feel My Love", artist: "Adele", url: "https://open.spotify.com/track/3E8gQ0v0VFPkHYRQa49y3c" },
-        { title: "I Don't Want to Miss a Thing", artist: "Aerosmith", url: "https://open.spotify.com/track/5EdeyY4wz0a7t5yVx2QnVl" },
+      languages: [
+        {
+          code: "en",
+          label: "English",
+          flag: "🇬🇧",
+          playlistName: "Love Ballads",
+          spotifyUrl: "https://open.spotify.com/playlist/37i9dQZF1DWYMvTygsLWlG",
+          highlights: [
+            { title: "Perfect", artist: "Ed Sheeran" },
+            { title: "All of Me", artist: "John Legend" },
+            { title: "I Will Always Love You", artist: "Whitney Houston" },
+          ],
+        },
+        {
+          code: "sw",
+          label: "Swahili",
+          flag: "🇰🇪",
+          playlistName: "Swahili Love",
+          spotifyUrl: "https://open.spotify.com/playlist/37i9dQZF1DX1YGbV4eeC1J",
+          highlights: [
+            { title: "Natulizana", artist: "Diamond Platnumz" },
+            { title: "I Love You", artist: "Zuchu" },
+            { title: "Love Design", artist: "Darassa & Harmonize" },
+          ],
+        },
       ],
     },
   },
@@ -544,20 +594,32 @@ const themes = {
     playlist: {
       title: "Songs That Make Me Think of You",
       subtitle: "Every beat reminds me of your smile",
-      spotify: "https://open.spotify.com/embed/playlist/37i9dQZF1DX5xJoc6fOBqA?utm_source=generator&theme=0",
-      youtube: "https://www.youtube.com/embed/videoseries?list=PLrAXtmErZgOeiKm4sgNOknGvNjby9efdf",
-      height: 352,
-      compactHeight: 152,
       note: "Every song here was played on repeat while thinking about you",
-      tracks: [
-        { title: "Adore You", artist: "Harry Styles", url: "https://open.spotify.com/track/6UelhqQWMukV91IHlMPWkZ" },
-        { title: "Crush", artist: "Tessa Violet", url: "https://open.spotify.com/track/5CQ3hWbIkA0ZoQb0JmUHJW" },
-        { title: "Mine", artist: "Taylor Swift", url: "https://open.spotify.com/track/1JbJkBTk4p0sMN2f9YmM0P" },
-        { title: "Just the Way You Are", artist: "Bruno Mars", url: "https://open.spotify.com/track/0bYg9bo5kfgSfHsLBS9Rvf" },
-        { title: "What Makes You Beautiful", artist: "One Direction", url: "https://open.spotify.com/track/55iguSn8hQq8DMo6F09Bz" },
-        { title: "Beautiful Things", artist: "Benson Boone", url: "https://open.spotify.com/track/01bQw8Bs10RHVcLhSM1j5N" },
-        { title: "Birds of a Feather", artist: "Billie Eilish", url: "https://open.spotify.com/track/62LkHUWYQXoZP3q2aJn9mP" },
-        { title: "Roses", artist: "The Chainsmokers", url: "https://open.spotify.com/track/4TUGhCrHV85sH66bVb1l3b" },
+      languages: [
+        {
+          code: "en",
+          label: "English",
+          flag: "🇬🇧",
+          playlistName: "Love Ballads",
+          spotifyUrl: "https://open.spotify.com/playlist/37i9dQZF1DWYMvTygsLWlG",
+          highlights: [
+            { title: "Perfect", artist: "Ed Sheeran" },
+            { title: "All of Me", artist: "John Legend" },
+            { title: "Thinking Out Loud", artist: "Ed Sheeran" },
+          ],
+        },
+        {
+          code: "sw",
+          label: "Swahili",
+          flag: "🇰🇪",
+          playlistName: "Swahili Love",
+          spotifyUrl: "https://open.spotify.com/playlist/37i9dQZF1DX1YGbV4eeC1J",
+          highlights: [
+            { title: "Natulizana", artist: "Diamond Platnumz" },
+            { title: "Bhuju", artist: "Alikiba & Mbosso" },
+            { title: "Wivu", artist: "Vanillah & Otile Brown" },
+          ],
+        },
       ],
     },
   },

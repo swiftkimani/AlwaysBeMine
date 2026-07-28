@@ -1,7 +1,9 @@
 import { useState, useEffect } from "react";
+import { useRomance } from "../RomanceFX.jsx";
 
 export default function PromiseBuilder({ data, title, subtitle, onProgress }) {
   const [flippedCards, setFlippedCards] = useState(new Set());
+  const { burstFromEvent } = useRomance();
 
   const pct = Math.round((flippedCards.size / data.length) * 100);
 
@@ -9,11 +11,15 @@ export default function PromiseBuilder({ data, title, subtitle, onProgress }) {
     onProgress?.({ completed: flippedCards.size, total: data.length });
   }, [flippedCards.size, data.length, onProgress]);
 
-  const toggleCard = (idx) => {
+  const toggleCard = (idx, e) => {
     setFlippedCards((prev) => {
       const next = new Set(prev);
-      if (next.has(idx)) next.delete(idx);
-      else next.add(idx);
+      if (next.has(idx)) {
+        next.delete(idx);
+      } else {
+        next.add(idx);
+        burstFromEvent(e, "💝");
+      }
       return next;
     });
   };
@@ -21,9 +27,9 @@ export default function PromiseBuilder({ data, title, subtitle, onProgress }) {
   const allFlipped = flippedCards.size === data.length;
 
   return (
-    <div className="w-full mx-auto">
+    <div className="w-full max-w-4xl mx-auto px-2">
       {/* Title */}
-      <div className="text-center mb-5">
+      <div className="text-center mb-6 md:mb-8">
         <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-zinc-900 mb-1" style={{ fontFamily: "Charm, serif" }}>
           {title}
         </h2>
@@ -31,7 +37,7 @@ export default function PromiseBuilder({ data, title, subtitle, onProgress }) {
       </div>
 
       {/* Progress */}
-      <div className="liquid p-4 sm:p-5 mb-5 flex items-center gap-3.5">
+      <div className="liquid p-4 sm:p-5 mb-6 flex items-center gap-3.5">
         <div className="w-9 h-9 rounded-xl bg-rose-500/15 flex items-center justify-center text-base shrink-0">🤝</div>
         <div className="flex-1">
           <p className="text-xs font-bold text-zinc-700">Promises Sealed</p>
@@ -50,8 +56,8 @@ export default function PromiseBuilder({ data, title, subtitle, onProgress }) {
           return (
             <div
               key={idx}
-              onClick={() => toggleCard(idx)}
-              onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); toggleCard(idx); } }}
+              onClick={(e) => toggleCard(idx, e)}
+              onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); toggleCard(idx, e); } }}
               className="cursor-pointer group"
               style={{ perspective: "1000px" }}
               role="button"
@@ -60,7 +66,7 @@ export default function PromiseBuilder({ data, title, subtitle, onProgress }) {
               aria-expanded={isFlipped}
             >
               <div
-                className={`relative w-full h-44 sm:h-48 transition-transform duration-500`}
+                className={`relative w-full h-52 sm:h-56 transition-transform duration-500`}
                 style={{
                   transformStyle: "preserve-3d",
                   transform: isFlipped ? "rotateY(180deg)" : "rotateY(0deg)",
@@ -68,7 +74,7 @@ export default function PromiseBuilder({ data, title, subtitle, onProgress }) {
               >
                 {/* Front */}
                 <div
-                  className="absolute inset-0 rounded-2xl flex items-center justify-center p-5 border border-zinc-200/80 shadow-lg group-hover:shadow-xl"
+                  className="absolute inset-0 rounded-2xl flex items-center justify-center p-6 sm:p-7 border border-zinc-200/80 shadow-lg group-hover:shadow-xl"
                   style={{
                     backfaceVisibility: "hidden",
                     background: "linear-gradient(135deg, rgba(255,255,255,0.95), rgba(255,250,245,0.95))",
@@ -76,11 +82,11 @@ export default function PromiseBuilder({ data, title, subtitle, onProgress }) {
                   }}
                 >
                   <div className="text-center">
-                    <span className="text-3xl mb-2 block group-hover:scale-110 transition-transform duration-300">
+                    <span className="text-3xl mb-3 block group-hover:scale-110 transition-transform duration-300">
                       💝
                     </span>
                     <p className="text-xs sm:text-sm text-zinc-700 font-bold">Promise #{idx + 1}</p>
-                    <p className="text-[10px] text-zinc-400 mt-2 bg-zinc-100/80 px-3 py-1 rounded-full inline-block border border-zinc-200">
+                    <p className="text-[10px] text-zinc-400 mt-3 bg-zinc-100/80 px-3 py-1 rounded-full inline-block border border-zinc-200">
                       Tap to reveal ✨
                     </p>
                   </div>
@@ -88,7 +94,7 @@ export default function PromiseBuilder({ data, title, subtitle, onProgress }) {
 
                 {/* Back */}
                 <div
-                  className="absolute inset-0 rounded-2xl flex items-center justify-center p-5 border border-rose-200/80 shadow-xl"
+                  className="absolute inset-0 rounded-2xl flex items-center justify-center p-6 sm:p-7 border border-rose-200/80 shadow-xl"
                   style={{
                     backfaceVisibility: "hidden",
                     transform: "rotateY(180deg)",
@@ -97,7 +103,7 @@ export default function PromiseBuilder({ data, title, subtitle, onProgress }) {
                   }}
                 >
                   <div className="text-center flex flex-col items-center justify-center h-full">
-                    <p className="text-zinc-800 text-xs sm:text-sm md:text-base font-medium leading-relaxed mb-2" style={{ fontFamily: "Charm, serif" }}>
+                    <p className="text-zinc-800 text-xs sm:text-sm md:text-base font-medium mb-3" style={{ fontFamily: "Charm, serif", lineHeight: 1.75 }}>
                       {promise}
                     </p>
                     <span className="text-[10px] text-rose-500 font-bold bg-rose-50 px-2.5 py-0.5 rounded-full border border-rose-200">Sealed with love 💕</span>

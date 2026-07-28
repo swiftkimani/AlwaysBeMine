@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { createRoot } from "react-dom/client";
 import App from "./App.jsx";
 import Preloader from "./Preloaders/preloader1.jsx";
+import { RomanceFXProvider } from "./RomanceFX.jsx";
 import config from "./config.js";
 import "./index.css";
 
@@ -20,8 +21,10 @@ function Root() {
 
   return (
     <>
-      <div className="animate-fade-in w-full h-full">
-        <App />
+      <div className="app-mount w-full h-full">
+        <RomanceFXProvider>
+          <App />
+        </RomanceFXProvider>
       </div>
       {loading && (
         <div

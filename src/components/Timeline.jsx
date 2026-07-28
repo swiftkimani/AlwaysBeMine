@@ -1,10 +1,12 @@
 import { useState, useEffect, useRef, useCallback } from "react";
+import { useRomance } from "../RomanceFX.jsx";
 
 export default function Timeline({ data, onProgress }) {
   const [visibleItems, setVisibleItems] = useState(new Set());
   const [lovedItems, setLovedItems] = useState(new Set());
   const timelineRef = useRef(null);
   const observedRef = useRef(new Set());
+  const { burstFromEvent } = useRomance();
 
   const reportProgress = useCallback(
     (vis) => {
@@ -49,8 +51,12 @@ export default function Timeline({ data, onProgress }) {
     e.stopPropagation();
     setLovedItems((prev) => {
       const next = new Set(prev);
-      if (next.has(idx)) next.delete(idx);
-      else next.add(idx);
+      if (next.has(idx)) {
+        next.delete(idx);
+      } else {
+        next.add(idx);
+        burstFromEvent(e, "❤️");
+      }
       return next;
     });
   };
@@ -101,14 +107,14 @@ export default function Timeline({ data, onProgress }) {
                 }`}
               >
                 <div
-                  className={`inline-block w-full liquid p-6 sm:p-7 rounded-3xl border border-white/80 transition-all duration-300 ${
+                  className={`inline-block w-full liquid p-7 sm:p-8 rounded-3xl border border-white/80 transition-all duration-300 ${
                     isVisible
                       ? "hover:shadow-2xl hover:-translate-y-1 hover:scale-[1.02]"
                       : ""
                   }`}
                 >
                   <div
-                    className="flex items-center gap-2 mb-2"
+                    className="flex items-center gap-2 mb-3"
                     style={{
                       justifyContent: isEven ? "flex-end" : "flex-start",
                     }}
@@ -118,18 +124,18 @@ export default function Timeline({ data, onProgress }) {
                       {item.date}
                     </span>
                   </div>
-                  <h3 className="text-base sm:text-lg font-black text-zinc-900 mb-2 flex items-center gap-2 justify-inherit">
+                  <h3 className="text-base sm:text-lg font-black text-zinc-900 mb-3 flex items-center gap-2 justify-inherit">
                     <span className="text-2xl">{item.emoji}</span>
                     <span>{item.title}</span>
                   </h3>
                   <p
-                    className="text-xs sm:text-sm text-zinc-600 leading-relaxed font-medium"
-                    style={{ fontFamily: "Charm, serif" }}
+                    className="text-xs sm:text-sm text-zinc-600 font-medium"
+                    style={{ fontFamily: "Charm, serif", lineHeight: 1.85 }}
                   >
                     {item.description}
                   </p>
                   <div
-                    className="mt-4 pt-3 border-t border-rose-100/60 flex items-center gap-2"
+                    className="mt-5 pt-4 border-t border-rose-100/60 flex items-center gap-2"
                     style={{
                       justifyContent: isEven ? "flex-end" : "flex-start",
                     }}
@@ -163,27 +169,27 @@ export default function Timeline({ data, onProgress }) {
               {/* Mobile view card */}
               <div className="ml-14 md:hidden w-full">
                 <div
-                  className={`liquid p-5 sm:p-6 rounded-3xl border border-white/80 transition-all duration-300 ${
+                  className={`liquid p-6 sm:p-7 rounded-3xl border border-white/80 transition-all duration-300 ${
                     isVisible ? "hover:shadow-xl" : ""
                   }`}
                 >
-                  <div className="flex items-center gap-2 mb-2">
+                  <div className="flex items-center gap-2 mb-3">
                     {isVisible && <span className="xp-badge">+15 XP</span>}
                     <span className="text-xs font-black text-rose-500 bg-rose-50 px-2.5 py-0.5 rounded-full border border-rose-200/80">
                       {item.date}
                     </span>
                   </div>
-                  <h3 className="text-base font-black text-zinc-900 mb-1.5 flex items-center gap-2">
+                  <h3 className="text-base font-black text-zinc-900 mb-2.5 flex items-center gap-2">
                     <span className="text-xl">{item.emoji}</span>
                     <span>{item.title}</span>
                   </h3>
                   <p
-                    className="text-xs sm:text-sm text-zinc-600 leading-relaxed font-medium"
-                    style={{ fontFamily: "Charm, serif" }}
+                    className="text-xs sm:text-sm text-zinc-600 font-medium"
+                    style={{ fontFamily: "Charm, serif", lineHeight: 1.85 }}
                   >
                     {item.description}
                   </p>
-                  <div className="mt-3 pt-2.5 border-t border-rose-100/60 flex items-center justify-between">
+                  <div className="mt-4 pt-3 border-t border-rose-100/60 flex items-center justify-between">
                     <button
                       onClick={(e) => toggleLove(idx, e)}
                       className={`flex items-center gap-1.5 text-xs font-bold px-3 py-1 rounded-full transition-all cursor-pointer ${

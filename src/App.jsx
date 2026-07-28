@@ -4,6 +4,7 @@ import Swal from "sweetalert2";
 import config from "./config.js";
 import MouseStealing from "./MouseStealer.jsx";
 import WordMarquee from "./MarqueeProposal.jsx";
+import { RomanceFXProvider, useRomance } from "./RomanceFX.jsx";
 import Timeline from "./components/Timeline.jsx";
 import LoveLetter from "./components/LoveLetter.jsx";
 import QuizGame from "./components/QuizGame.jsx";
@@ -48,8 +49,8 @@ import nogif8 from "./assets/GifData/No/breakRej7.gif";
 
 import yesmusic1 from "./assets/AudioTracks/Love_LoveMeLikeYouDo.mp3";
 import yesmusic2 from "./assets/AudioTracks/Love_EDPerfect.mp3";
-import yesmusic3 from "./assets/AudioTracks/Love_Nadaaniyan.mp3";
-import yesmusic4 from "./assets/AudioTracks/Love_JoTumMereHo.mp3";
+import yesmusic3 from "./assets/AudioTracks/Love_TheWalters.mp3";
+import yesmusic4 from "./assets/AudioTracks/Love_UntilIFoundYou.mp3";
 
 const YesGifs = [yesgif0, yesgif1, yesgif2, yesgif3, yesgif4, yesgif5, yesgif6, yesgif7, yesgif8, yesgif9, yesgif10, yesgif11];
 const NoGifs = [nogif0, nogif0_1, nogif1, nogif2, nogif3, nogif4, nogif5, nogif6, nogif7, nogif8];
@@ -57,8 +58,8 @@ const NoGifs = [nogif0, nogif0_1, nogif1, nogif2, nogif3, nogif4, nogif5, nogif6
 const loveTracks = [
   { title: "Love Me Like You Do", artist: "Ellie Goulding", src: yesmusic1 },
   { title: "Perfect", artist: "Ed Sheeran", src: yesmusic2 },
-  { title: "Nadaaniyan", artist: "Armaan Malik", src: yesmusic3 },
-  { title: "Jo Tum Mere Ho", artist: "Anuv Jain", src: yesmusic4 },
+  { title: "I Love You So", artist: "The Walters", src: yesmusic3 },
+  { title: "Until I Found You", artist: "Stephen Sanchez", src: yesmusic4 },
 ];
 
 const modeLabels = {
@@ -227,7 +228,7 @@ function ThinkingToast() {
 
 function AmbientHearts() {
   const hearts = useMemo(() => {
-    return Array.from({ length: 8 }, (_, i) => ({
+    return Array.from({ length: 6 }, (_, i) => ({
       id: i,
       left: `${8 + Math.random() * 84}%`,
       size: 12 + Math.random() * 14,
@@ -436,61 +437,74 @@ function Nav({ activeMode, setActiveMode, visitedModes, onNavClick }) {
         transform: "translateY(-50%)",
         zIndex: 50,
       }}
-      className="flex flex-col items-center gap-3 pointer-events-none"
+      className="pointer-events-none"
       role="navigation"
       aria-label="Main navigation"
     >
-      {/* Top Toggle Button */}
-      <button 
-        onClick={() => setIsOpen(!isOpen)}
-        className="pointer-events-auto bg-zinc-900 text-white rounded-full p-2.5 shadow-[0_8px_20px_-4px_rgba(0,0,0,0.4)] hover:scale-110 active:scale-95 transition-all cursor-pointer flex items-center justify-center group relative border border-white/20"
-        aria-label="Toggle navigation"
-      >
-        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" className={`transition-transform duration-500 ${isOpen ? "" : "rotate-180"}`}>
-          <path d="M18 15l-6-6-6 6"/>
-        </svg>
-        {/* Tooltip */}
-        <span className="absolute left-full ml-3 px-2.5 py-1.5 bg-zinc-800 text-white text-[11px] font-bold rounded-md opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap shadow-lg tracking-wide pointer-events-none">
-          {isOpen ? "Hide" : "Show"}
-        </span>
-      </button>
+      {/* Anchor wrapper — its box is sized ONLY by the toggle button below, since
+          the panel is absolutely positioned. That keeps this height constant across
+          open/close and page switches, so the translateY(-50%) centering above never
+          recomputes and the toggle never visibly jumps. */}
+      <div className="relative flex flex-col items-center">
+        {/* Top Toggle Button */}
+        <button
+          onClick={() => setIsOpen(!isOpen)}
+          className="nav-toggle-btn pointer-events-auto text-white rounded-full p-3 shadow-[0_8px_24px_-4px_rgba(225,29,72,0.55)] hover:scale-110 active:scale-95 transition-transform duration-300 cursor-pointer flex items-center justify-center group relative border border-white/40"
+          aria-label="Toggle navigation"
+        >
+          <span className="nav-toggle-glow" aria-hidden="true" />
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" className={`relative z-10 transition-transform duration-500 ${isOpen ? "" : "rotate-180"}`}>
+            <path d="M18 15l-6-6-6 6"/>
+          </svg>
+          {/* Tooltip */}
+          <span className="absolute left-full ml-3 px-2.5 py-1.5 bg-zinc-800 text-white text-[11px] font-bold rounded-md opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap shadow-lg tracking-wide pointer-events-none">
+            {isOpen ? "Hide" : "Show"} 💕
+          </span>
+        </button>
 
-      {/* The actual menu */}
-      <div className={`liquid rounded-2xl border border-white/80 shadow-[0_12px_40px_-8px_rgba(225,29,72,0.25)] backdrop-blur-2xl pointer-events-auto transition-all duration-400 origin-top ${isOpen ? "opacity-100 scale-y-100 p-2" : "opacity-0 scale-y-0 h-0 overflow-hidden p-0 border-0 shadow-none"}`}>
-        <div className="flex flex-col gap-1.5">
-          {config.modes.map((mode) => {
-            const isActive = activeMode === mode;
-            const isVisited = visitedModes.has(mode);
-            const icon = (modeLabels[mode] || mode).split(" ")[0];
+        {/* The actual menu — absolutely positioned below the toggle so its size never
+            affects the wrapper above. */}
+        <div
+          className={`absolute top-full left-1/2 -translate-x-1/2 mt-3 liquid rounded-2xl border border-white/80 shadow-[0_16px_44px_-8px_rgba(225,29,72,0.3)] backdrop-blur-2xl p-2 transition-all duration-300 origin-top ${
+            isOpen ? "opacity-100 scale-y-100 pointer-events-auto" : "opacity-0 scale-y-0 pointer-events-none"
+          }`}
+        >
+          <div className="nav-panel-accent" aria-hidden="true" />
+          <div className="flex flex-col gap-1.5">
+            {config.modes.map((mode) => {
+              const isActive = activeMode === mode;
+              const isVisited = visitedModes.has(mode);
+              const icon = (modeLabels[mode] || mode).split(" ")[0];
 
-            return (
-              <button
-                key={mode}
-                onClick={() => {
-                  if (mode !== activeMode) {
-                    onNavClick?.();
-                    setTimeout(() => {
-                      setActiveMode(mode);
-                      window.location.hash = mode;
-                    }, 150);
-                  }
-                }}
-                aria-label={modeLabels[mode] || mode}
-                title={modeLabels[mode] || mode}
-                aria-current={isActive ? "page" : undefined}
-                className={`relative flex items-center justify-center w-10 h-10 rounded-xl text-xl transition-all duration-200 cursor-pointer ${
-                  isActive
-                    ? "bg-gradient-to-br from-rose-500 via-pink-500 to-rose-600 text-white shadow-lg shadow-rose-500/40 scale-105"
-                    : "bg-white/60 hover:bg-white/90 text-zinc-600 hover:text-rose-500 border border-white/70 hover:scale-105"
-                }`}
-              >
-                <span className="leading-none select-none">{icon}</span>
-                {isVisited && !isActive && (
-                  <span className="absolute top-1 right-1 w-1.5 h-1.5 rounded-full bg-rose-400 shadow-sm" />
-                )}
-              </button>
-            );
-          })}
+              return (
+                <button
+                  key={mode}
+                  onClick={() => {
+                    if (mode !== activeMode) {
+                      onNavClick?.();
+                      setTimeout(() => {
+                        setActiveMode(mode);
+                        window.location.hash = mode;
+                      }, 150);
+                    }
+                  }}
+                  aria-label={modeLabels[mode] || mode}
+                  title={modeLabels[mode] || mode}
+                  aria-current={isActive ? "page" : undefined}
+                  className={`relative flex items-center justify-center w-10 h-10 rounded-xl text-xl transition-all duration-200 cursor-pointer ${
+                    isActive
+                      ? "bg-gradient-to-br from-rose-500 via-pink-500 to-rose-600 text-white shadow-lg shadow-rose-500/40 scale-105"
+                      : "bg-white/60 hover:bg-white/90 text-zinc-600 hover:text-rose-500 border border-white/70 hover:scale-105"
+                  }`}
+                >
+                  <span className="leading-none select-none">{icon}</span>
+                  {isVisited && !isActive && (
+                    <span className="absolute top-1 right-1 w-1.5 h-1.5 rounded-full bg-rose-400 shadow-sm" />
+                  )}
+                </button>
+              );
+            })}
+          </div>
         </div>
       </div>
     </nav>
@@ -522,8 +536,8 @@ export default function Page() {
   const [showAchievementHistory, setShowAchievementHistory] = useState(false);
   const [showConfetti, setShowConfetti] = useState(false);
   const [tapHearts, setTapHearts] = useState([]);
-  const [lovePopups, setLovePopups] = useState([]);
   const tapTimerRef = useRef(null);
+  const { burst } = useRomance();
 
   const gifRef = useRef(null);
   const mainRef = useRef(null);
@@ -549,17 +563,20 @@ export default function Page() {
   }, [activeMode]);
 
   // Scroll progress + back-to-top
+  // Note: .page-scroll has no bounded height/overflow-y of its own, so the
+  // document (window) is what actually scrolls — not the <main> element.
   useEffect(() => {
-    const main = mainRef.current;
-    if (!main) return;
     const handleScroll = () => {
-      const { scrollTop, scrollHeight, clientHeight } = main;
+      const scrollTop = window.scrollY;
+      const scrollHeight = document.documentElement.scrollHeight;
+      const clientHeight = window.innerHeight;
       const pct = scrollHeight > clientHeight ? (scrollTop / (scrollHeight - clientHeight)) * 100 : 0;
       setScrollProgress(Math.min(100, pct));
       setShowBackToTop(scrollTop > 300);
     };
-    main.addEventListener("scroll", handleScroll, { passive: true });
-    return () => main.removeEventListener("scroll", handleScroll);
+    handleScroll();
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    return () => window.removeEventListener("scroll", handleScroll);
   }, [activeMode]);
 
   // Dismiss onboarding
@@ -702,14 +719,12 @@ export default function Page() {
   }, []);
 
   const triggerLovePopup = useCallback((emoji) => {
-    const id = `${Date.now()}-${Math.random()}`;
     const angle = Math.random() * Math.PI * 2;
     const dist = 40 + Math.random() * 100;
     const x = window.innerWidth / 2 + Math.cos(angle) * dist;
     const y = window.innerHeight / 2 + Math.sin(angle) * dist;
-    setLovePopups((prev) => [...prev.slice(-8), { id, emoji, x, y }]);
-    setTimeout(() => setLovePopups((prev) => prev.filter((p) => p.id !== id)), 2200);
-  }, []);
+    burst(emoji, x, y);
+  }, [burst]);
 
   const handleModeProgress = useCallback((mode, progress) => {
     setTotalXP((prev) => {
@@ -829,11 +844,6 @@ export default function Page() {
       {/* Thinking of You Toasts — only on proposal */}
       {activeMode === "proposal" && <ThinkingToast />}
 
-      {/* Love Popups from Send Love buttons */}
-      {lovePopups.map((p) => (
-        <span key={p.id} className="love-popup" style={{ left: p.x - 32, top: p.y - 32 }} aria-hidden="true">{p.emoji}</span>
-      ))}
-
       {/* Spline Background with Fallback */}
       <div className="fixed inset-0 -z-10">
         <div className={`absolute inset-0 bg-gradient-to-br from-rose-100 via-pink-50 to-purple-100 ${splineLoaded && !splineError ? "opacity-0" : "opacity-100"} transition-opacity duration-1000`} />
@@ -912,7 +922,7 @@ export default function Page() {
 
         {showBackToTop && (
           <button
-            onClick={() => mainRef.current?.scrollTo({ top: 0, behavior: "smooth" })}
+            onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
             className="w-9 h-9 rounded-full flex items-center justify-center bg-white/70 hover:bg-white/95 text-zinc-600 hover:text-zinc-900 transition-all cursor-pointer border border-white/80 shadow-md backdrop-blur-md"
             aria-label="Back to top"
             title="Back to top"

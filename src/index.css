@@ -10,7 +10,7 @@
 
 :root {
   font-family: "Protest Riot", system-ui, Avenir, Helvetica, Arial, sans-serif;
-  line-height: 1.5;
+  line-height: 1.65;
   font-weight: 400;
   font-synthesis: none;
   text-rendering: optimizeLegibility;
@@ -50,13 +50,13 @@ html {
    ============================================================ */
 .liquid {
   background: var(--liquid-bg);
-  backdrop-filter: blur(12px) saturate(200%) brightness(1.05);
-  -webkit-backdrop-filter: blur(12px) saturate(200%) brightness(1.05);
+  backdrop-filter: blur(10px) saturate(180%) brightness(1.03);
+  -webkit-backdrop-filter: blur(10px) saturate(180%) brightness(1.03);
   border: 1px solid rgba(255, 255, 255, 0.65);
   border-radius: 1.5rem;
   box-shadow:
-    0 8px 32px rgba(244, 63, 94, 0.07),
-    0 2px 8px rgba(0, 0, 0, 0.04),
+    0 6px 24px rgba(244, 63, 94, 0.06),
+    0 2px 6px rgba(0, 0, 0, 0.03),
     inset 0 1px 0 rgba(255, 255, 255, 0.8),
     inset 0 -1px 0 rgba(255, 255, 255, 0.25);
   position: relative;
@@ -189,26 +189,26 @@ p, h1, h2, h3, h4, h5, h6, span, li, td, th {
   max-width: 54rem;
   margin-left: auto;
   margin-right: auto;
-  padding: 1rem 1rem 5rem;
+  padding: 1.25rem 1.25rem 5rem;
   overflow-x: hidden;
   word-break: break-word;
   overflow-wrap: break-word;
 }
 
 @media (min-width: 480px) {
-  .page-scroll > .page-content { padding: 1rem 1.25rem 5rem; }
+  .page-scroll > .page-content { padding: 1.5rem 1.75rem 5rem; }
 }
 
 @media (min-width: 640px) {
-  .page-scroll > .page-content { padding: 1.25rem 1.5rem 4.5rem; }
+  .page-scroll > .page-content { padding: 1.75rem 2.25rem 4.5rem; }
 }
 
 @media (min-width: 768px) {
-  .page-scroll > .page-content { padding: 1.5rem 2rem 4rem; }
+  .page-scroll > .page-content { padding: 2rem 2.75rem 4rem; }
 }
 
 @media (min-width: 1024px) {
-  .page-scroll > .page-content { padding: 1.75rem 2.5rem 3.5rem; }
+  .page-scroll > .page-content { padding: 2.25rem 3.25rem 3.5rem; }
 }
 
 /* Proposal: true viewport-centered layout */
@@ -346,6 +346,21 @@ p, h1, h2, h3, h4, h5, h6, span, li, td, th {
   to { opacity: 1; transform: translateY(0); }
 }
 .animate-fade-in { animation: fade-in 0.6s ease-out forwards; }
+
+/* App root mount animation — deliberately does NOT declare `transform` in its
+   end state. `animate-fade-in` ends on `transform: translateY(0)`, and with
+   `animation-fill-mode: forwards` that non-none transform value lingers on the
+   element forever. A lingering transform on an ancestor creates a new
+   containing block for `position: fixed` descendants, so every fixed element
+   in the app (sidebar, floating music button, toasts) would end up fixed
+   relative to this wrapper — which itself scrolls with the page — instead of
+   the real viewport. This variant fixes that at the one place it matters: the
+   top-level wrapper in main.jsx that contains the entire app. */
+@keyframes app-mount-fade {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; }
+}
+.app-mount { animation: app-mount-fade 0.6s ease-out forwards; }
 
 @keyframes fade-in-up {
   from { opacity: 0; transform: translateY(40px) scale(0.95); }
@@ -754,6 +769,58 @@ a:focus-visible {
 .mode-dot.visited {
   background: linear-gradient(135deg, #f43f5e, #ec4899);
   box-shadow: 0 0 6px rgba(244, 63, 94, 0.4);
+}
+
+/* ============================================================
+   SIDEBAR NAV TOGGLE — premium romantic gradient with soft glow
+   ============================================================ */
+.nav-toggle-btn {
+  background: linear-gradient(135deg, #f43f5e, #ec4899, #a855f7);
+  background-size: 200% 200%;
+  animation: nav-toggle-shift 6s ease infinite;
+}
+
+@keyframes nav-toggle-shift {
+  0%, 100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+}
+
+.nav-toggle-glow {
+  position: absolute;
+  inset: -7px;
+  border-radius: 9999px;
+  background: linear-gradient(135deg, #f43f5e, #ec4899, #a855f7);
+  z-index: -1;
+  filter: blur(11px);
+  animation: nav-toggle-pulse 2.6s ease-in-out infinite;
+  pointer-events: none;
+}
+
+@keyframes nav-toggle-pulse {
+  0%, 100% { transform: scale(1); opacity: 0.45; }
+  50% { transform: scale(1.2); opacity: 0.15; }
+}
+
+.nav-panel-accent {
+  height: 3px;
+  width: 100%;
+  border-radius: 9999px;
+  margin-bottom: 6px;
+  background: linear-gradient(90deg, #f43f5e, #ec4899, #a855f7, #f43f5e);
+  background-size: 200% 100%;
+  animation: nav-gradient-shift 3s linear infinite;
+}
+
+@keyframes nav-gradient-shift {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .nav-toggle-btn, .nav-toggle-glow, .nav-panel-accent {
+    animation: none !important;
+  }
 }
 
 /* ============================================================

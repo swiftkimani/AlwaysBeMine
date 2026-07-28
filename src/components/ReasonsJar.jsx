@@ -1,9 +1,13 @@
 import { useState, useEffect } from "react";
+import { useRomance } from "../RomanceFX.jsx";
+
+const pullBurst = ["💝", "💕", "✨", "💖"];
 
 export default function ReasonsJar({ data, onProgress }) {
   const [revealedReasons, setRevealedReasons] = useState([]);
   const [isShaking, setIsShaking] = useState(false);
   const [currentReason, setCurrentReason] = useState(null);
+  const { burstFromEvent } = useRomance();
 
   const unrevealedCount = data.length - revealedReasons.length;
   const allRevealed = unrevealedCount === 0;
@@ -13,7 +17,7 @@ export default function ReasonsJar({ data, onProgress }) {
     onProgress?.({ completed: revealedReasons.length, total: data.length });
   }, [revealedReasons.length, data.length, onProgress]);
 
-  const pullReason = () => {
+  const pullReason = (e) => {
     if (allRevealed || isShaking) return;
     setIsShaking(true);
     setTimeout(() => {
@@ -23,6 +27,7 @@ export default function ReasonsJar({ data, onProgress }) {
       setRevealedReasons((prev) => [...prev, idx]);
       setCurrentReason(idx);
       setIsShaking(false);
+      burstFromEvent(e, pullBurst[Math.floor(Math.random() * pullBurst.length)]);
     }, 600);
   };
 
@@ -157,16 +162,16 @@ export default function ReasonsJar({ data, onProgress }) {
 
       {/* Current Reason Popup */}
       {currentReason !== null && !isShaking && (
-        <div className="liquid mt-4 p-6 sm:p-7 animate-bounce-in border-l-4 border-rose-500 shadow-xl rounded-3xl">
-          <div className="flex items-center justify-between mb-2">
+        <div className="liquid mt-5 p-7 sm:p-8 animate-bounce-in border-l-4 border-rose-500 shadow-xl rounded-3xl">
+          <div className="flex items-center justify-between mb-3">
             <span className="text-xs font-black text-rose-500 uppercase tracking-widest bg-rose-50 px-3 py-1 rounded-full border border-rose-200/80">
               Reason #{revealedReasons.length}
             </span>
             <span className="text-xs text-rose-400 font-bold">💕 From the Heart</span>
           </div>
           <p
-            className="text-base sm:text-lg text-zinc-900 font-semibold leading-relaxed break-words"
-            style={{ fontFamily: "Charm, serif" }}
+            className="text-base sm:text-lg text-zinc-900 font-semibold break-words"
+            style={{ fontFamily: "Charm, serif", lineHeight: 1.8 }}
           >
             {data[currentReason]} 💝
           </p>
@@ -175,22 +180,22 @@ export default function ReasonsJar({ data, onProgress }) {
 
       {/* Revealed Reasons History List */}
       {revealedReasons.length > 1 && (
-        <div className="mt-4 space-y-2.5 max-h-[40vh] overflow-y-auto no-scrollbar">
+        <div className="mt-5 space-y-3 max-h-[40vh] overflow-y-auto no-scrollbar">
           {revealedReasons
             .slice()
             .reverse()
             .map((idx, i) => (
               <div
                 key={idx}
-                className="liquid p-4 sm:p-5 flex items-center gap-4 animate-slide-in rounded-2xl border border-white/80 shadow-sm hover:shadow-md transition-all"
+                className="liquid p-5 sm:p-6 flex items-center gap-4 animate-slide-in rounded-2xl border border-white/80 shadow-sm hover:shadow-md transition-all"
                 style={{ animationDelay: `${i * 40}ms` }}
               >
                 <span className="w-7 h-7 rounded-full bg-rose-500/15 flex items-center justify-center text-xs font-black text-rose-600 shrink-0">
                   {revealedReasons.indexOf(idx) + 1}
                 </span>
                 <p
-                  className="text-xs sm:text-sm text-zinc-800 font-medium leading-relaxed min-w-0 flex-1 break-words"
-                  style={{ fontFamily: "Charm, serif" }}
+                  className="text-xs sm:text-sm text-zinc-800 font-medium min-w-0 flex-1 break-words"
+                  style={{ fontFamily: "Charm, serif", lineHeight: 1.75 }}
                 >
                   {data[idx]}
                 </p>

@@ -12,43 +12,57 @@ export default function MarqueeProposal({ messages = [] }) {
 
   return (
     <div
-      className="liquid"
+      className="liquid marquee-proposal"
       style={{
-        width: "100vw",
-        height: "72px",
-        margin: "32px auto",
+        width: "100%",
+        maxWidth: "100%",
+        height: "64px",
+        margin: "1.5rem auto 0",
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
-        borderLeft: "none",
-        borderRight: "none",
-        overflow: "hidden"
+        overflow: "hidden",
+        position: "relative",
       }}
     >
-      <div
-        style={{
-          whiteSpace: "nowrap",
-          position: "absolute",
-          animation: "marquee 10s linear infinite",
-        }}
-        key={currentIndex}
-      >
+      <span className="marquee-heart" aria-hidden="true">💗</span>
+      <div className="marquee-track" key={currentIndex}>
         <span
           style={{
-            fontSize: "clamp(1rem, 3vw, 2rem)",
+            fontSize: "clamp(0.9rem, 2.6vw, 1.6rem)",
             fontFamily: "Charm, serif",
             fontWeight: 700,
-            color: "#191a19",
-            textShadow: "0 2px 8px rgba(0, 0, 0, 0.4)",
+            color: "#9f1239",
+            textShadow: "0 1px 2px rgba(255,255,255,0.6)",
+            padding: "0 1.5rem",
           }}
         >
           {messages[currentIndex]}
         </span>
       </div>
       <style>{`
+        .marquee-track {
+          white-space: nowrap;
+          position: absolute;
+          animation: marquee 10s linear infinite;
+        }
         @keyframes marquee {
           0% { transform: translateX(100%); }
           100% { transform: translateX(-100%); }
+        }
+        .marquee-heart {
+          position: absolute;
+          left: 14px;
+          font-size: 1.1rem;
+          animation: marquee-heart-beat 1.4s ease-in-out infinite;
+          z-index: 1;
+        }
+        @keyframes marquee-heart-beat {
+          0%, 100% { transform: scale(1); }
+          50% { transform: scale(1.25); }
+        }
+        @media (max-width: 480px) {
+          .marquee-heart { display: none; }
         }
       `}</style>
     </div>

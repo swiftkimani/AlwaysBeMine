@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
+import { useRomance } from "../RomanceFX.jsx";
 
 const humanFeedback = {
   correct: [
@@ -25,6 +26,7 @@ export default function QuizGame({ data, results, onProgress }) {
   const [bestStreak, setBestStreak] = useState(0);
   const [totalXP, setTotalXP] = useState(0);
   const [feedbackMsg, setFeedbackMsg] = useState("");
+  const { burstFromEvent } = useRomance();
 
   const question = data[currentQ];
   const total = data.length;
@@ -35,7 +37,7 @@ export default function QuizGame({ data, results, onProgress }) {
   }, [currentQ, total, score, streak, finished, onProgress]);
 
   const handleAnswer = useCallback(
-    (idx) => {
+    (idx, e) => {
       if (showResult) return;
       setSelected(idx);
       setShowResult(true);
@@ -52,11 +54,12 @@ export default function QuizGame({ data, results, onProgress }) {
           return next;
         });
         setTotalXP((p) => p + 25 + streak * 5);
+        burstFromEvent(e, "💖");
       } else {
         setStreak(0);
       }
     },
-    [showResult, question.answer, bestStreak, streak]
+    [showResult, question.answer, bestStreak, streak, burstFromEvent]
   );
 
   const handleNext = useCallback(() => {
@@ -126,7 +129,7 @@ export default function QuizGame({ data, results, onProgress }) {
   if (finished) {
     return (
       <div className="w-full max-w-2xl mx-auto text-center px-2">
-        <div className="liquid p-8 sm:p-10 md:p-12 rounded-3xl border border-white/80 shadow-2xl animate-fade-in">
+        <div className="liquid p-6 sm:p-8 md:p-10 rounded-3xl border border-white/80 shadow-2xl animate-fade-in">
           <div className="text-6xl sm:text-7xl mb-4">
             {percentage === 100
               ? "🏆"
@@ -163,8 +166,8 @@ export default function QuizGame({ data, results, onProgress }) {
           </div>
 
           <p
-            className="text-zinc-800 text-base sm:text-lg mb-8 leading-relaxed font-medium bg-rose-50/50 p-4 rounded-2xl border border-rose-100"
-            style={{ fontFamily: "Charm, serif" }}
+            className="text-zinc-800 text-base sm:text-lg mb-8 font-medium bg-rose-50/50 p-6 rounded-2xl border border-rose-100"
+            style={{ fontFamily: "Charm, serif", lineHeight: 1.8 }}
           >
             {getResultMessage()}
           </p>
@@ -208,14 +211,14 @@ export default function QuizGame({ data, results, onProgress }) {
 
         {/* Question */}
         <h3
-          className="text-lg sm:text-xl md:text-2xl font-black text-zinc-900 mb-6 leading-relaxed"
-          style={{ fontFamily: "Charm, serif" }}
+          className="text-lg sm:text-xl md:text-2xl font-black text-zinc-900 mb-7"
+          style={{ fontFamily: "Charm, serif", lineHeight: 1.7 }}
         >
           {question.q}
         </h3>
 
         {/* Options */}
-        <div className="space-y-3.5" role="radiogroup" aria-label={question.q}>
+        <div className="space-y-4" role="radiogroup" aria-label={question.q}>
           {question.options.map((opt, idx) => {
             let styles =
               "bg-white/80 hover:bg-white text-zinc-800 border-white/90 shadow-sm";
@@ -234,12 +237,12 @@ export default function QuizGame({ data, results, onProgress }) {
             return (
               <button
                 key={idx}
-                onClick={() => handleAnswer(idx)}
+                onClick={(e) => handleAnswer(idx, e)}
                 role="radio"
                 aria-checked={selected === idx}
                 aria-label={`Option ${String.fromCharCode(65 + idx)}: ${opt}`}
                 tabIndex={showResult ? -1 : 0}
-                className={`w-full flex items-center justify-between p-4 sm:p-5 rounded-2xl transition-all duration-300 border text-sm sm:text-base cursor-pointer text-left ${styles} ${
+                className={`w-full flex items-center justify-between p-5 sm:p-6 rounded-2xl transition-all duration-300 border text-sm sm:text-base cursor-pointer text-left ${styles} ${
                   !showResult
                     ? "hover:scale-[1.01] hover:border-rose-300 active:scale-[0.99]"
                     : ""
@@ -276,10 +279,10 @@ export default function QuizGame({ data, results, onProgress }) {
 
         {/* Human Touch Feedback Toast */}
         {showResult && feedbackMsg && (
-          <div className="mt-5 p-4 rounded-2xl bg-rose-50/90 border border-rose-200 text-center animate-bounce-in">
+          <div className="mt-6 p-5 rounded-2xl bg-rose-50/90 border border-rose-200 text-center animate-bounce-in">
             <p
-              className="text-sm sm:text-base font-bold text-rose-700 leading-snug"
-              style={{ fontFamily: "Charm, serif" }}
+              className="text-sm sm:text-base font-bold text-rose-700"
+              style={{ fontFamily: "Charm, serif", lineHeight: 1.7 }}
             >
               {feedbackMsg}
             </p>

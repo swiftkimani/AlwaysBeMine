@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from "react";
+import { useRomance } from "../RomanceFX.jsx";
 
 export default function LoveLetter({ data, onProgress }) {
   const [revealedParagraphs, setRevealedParagraphs] = useState(0);
@@ -7,6 +8,7 @@ export default function LoveLetter({ data, onProgress }) {
   const [sealed, setSealed] = useState(false);
   const containerRef = useRef(null);
   const intervalRef = useRef(null);
+  const { burstFromEvent } = useRomance();
 
   useEffect(() => {
     if (!isTyping || revealedParagraphs >= data.paragraphs.length) return;
@@ -90,30 +92,30 @@ export default function LoveLetter({ data, onProgress }) {
           💌
         </div>
 
-        <div className="relative p-8 sm:p-12 md:p-16">
+        <div className="relative p-7 sm:p-11 md:p-14">
           {/* Greeting */}
           <p
-            className="text-3xl sm:text-4xl md:text-5xl font-bold text-amber-950 mb-8 tracking-wide"
+            className="text-3xl sm:text-4xl md:text-5xl font-bold text-amber-950 mb-9 sm:mb-10 tracking-wide"
             style={{ fontFamily: "Great Vibes, cursive" }}
           >
             {data.greeting}
           </p>
 
           {/* Paragraphs */}
-          <div className="space-y-6 mb-8">
+          <div className="space-y-7 sm:space-y-8 mb-9">
             {data.paragraphs.slice(0, revealedParagraphs).map((p, i) => (
               <p
                 key={i}
-                className="text-zinc-800 leading-relaxed text-sm sm:text-base md:text-lg font-medium tracking-wide"
-                style={{ fontFamily: "Charm, serif" }}
+                className="text-zinc-800 text-sm sm:text-base md:text-lg font-medium tracking-wide"
+                style={{ fontFamily: "Charm, serif", lineHeight: 1.85 }}
               >
                 {p}
               </p>
             ))}
             {revealedParagraphs < data.paragraphs.length && (
               <p
-                className="text-zinc-800 leading-relaxed text-sm sm:text-base md:text-lg font-medium tracking-wide"
-                style={{ fontFamily: "Charm, serif" }}
+                className="text-zinc-800 text-sm sm:text-base md:text-lg font-medium tracking-wide"
+                style={{ fontFamily: "Charm, serif", lineHeight: 1.85 }}
               >
                 {typedText}
                 {isTyping && (
@@ -127,7 +129,7 @@ export default function LoveLetter({ data, onProgress }) {
 
           {/* Closing & Signature */}
           {allDone && (
-            <div className="text-right space-y-2 animate-fade-in mt-8 pt-6 border-t border-amber-200/80">
+            <div className="text-right space-y-3 animate-fade-in mt-10 pt-8 border-t border-amber-200/80">
               <p
                 className="text-2xl sm:text-3xl text-amber-800"
                 style={{ fontFamily: "Great Vibes, cursive" }}
@@ -144,7 +146,7 @@ export default function LoveLetter({ data, onProgress }) {
               {/* Seal with Love Button */}
               <div className="mt-6 flex justify-end">
                 <button
-                  onClick={() => setSealed(true)}
+                  onClick={(e) => { setSealed(true); burstFromEvent(e, "💌"); }}
                   className={`flex items-center gap-2 px-6 py-2.5 rounded-full text-xs sm:text-sm font-bold transition-all cursor-pointer ${
                     sealed
                       ? "bg-rose-500 text-white shadow-lg shadow-rose-500/30 scale-105"
@@ -159,7 +161,7 @@ export default function LoveLetter({ data, onProgress }) {
 
           {/* Controls */}
           {!allDone && (
-            <div className="flex items-center justify-between mt-8 gap-4 pt-4 border-t border-amber-200/50">
+            <div className="flex items-center justify-between mt-9 gap-4 pt-5 border-t border-amber-200/50">
               {!isTyping && (
                 <button
                   onClick={handleContinue}

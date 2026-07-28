@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { BsX, BsChevronLeft, BsChevronRight, BsHeartFill } from "react-icons/bs";
 import { createPortal } from "react-dom";
+import { useRomance } from "../RomanceFX.jsx";
 
 const memoryLabels = [
   "📸 First Date",
@@ -15,6 +16,7 @@ export default function PhotoGallery({ data, onProgress }) {
   const [activeIdx, setActiveIdx] = useState(null);
   const [viewed, setViewed] = useState(new Set());
   const [reactions, setReactions] = useState({});
+  const { burstFromEvent } = useRomance();
 
   const handleView = (idx) => {
     setActiveIdx(idx);
@@ -40,12 +42,13 @@ export default function PhotoGallery({ data, onProgress }) {
     handleView(nextIdx);
   };
 
-  const handleReaction = (emoji) => {
+  const handleReaction = (emoji, e) => {
     if (activeIdx === null) return;
     setReactions((prev) => ({
       ...prev,
       [activeIdx]: emoji,
     }));
+    burstFromEvent(e, emoji);
   };
 
   const pct = Math.round((viewed.size / data.length) * 100);
@@ -76,13 +79,13 @@ export default function PhotoGallery({ data, onProgress }) {
       </div>
 
       {/* Polaroid Grid */}
-      <div className="grid grid-cols-2 sm:grid-cols-3 gap-6 sm:gap-8 md:gap-10 p-2 sm:p-4">
+      <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 sm:gap-7 md:gap-9 p-1 sm:p-4">
         {data.map((item, idx) => (
           <div
             key={idx}
             onClick={() => handleView(idx)}
-            className={`gallery-item relative p-2 sm:p-3 pb-10 sm:pb-12 cursor-pointer group transition-all duration-500 shadow-[0_8px_20px_-4px_rgba(0,0,0,0.15)] hover:shadow-[0_20px_40px_-5px_rgba(0,0,0,0.25)] hover:-translate-y-3 hover:scale-105 hover:z-20 bg-[#fdfbf9] border border-zinc-200 aspect-[4/5] flex flex-col ${
-              ["-rotate-2", "rotate-2", "-rotate-1", "rotate-1", "-rotate-3", "rotate-3"][idx % 6]
+            className={`gallery-item relative p-2 sm:p-3 pb-10 sm:pb-12 cursor-pointer group transition-all duration-500 shadow-[0_8px_20px_-4px_rgba(0,0,0,0.15)] hover:shadow-[0_20px_40px_-5px_rgba(0,0,0,0.25)] hover:-translate-y-3 hover:scale-105 hover:z-20 bg-[#fdfbf9] border border-zinc-200 aspect-[4/5] flex flex-col rotate-0 ${
+              ["sm:-rotate-2", "sm:rotate-2", "sm:-rotate-1", "sm:rotate-1", "sm:-rotate-3", "sm:rotate-3"][idx % 6]
             }`}
           >
             {/* Washi Tape */}
@@ -221,7 +224,7 @@ export default function PhotoGallery({ data, onProgress }) {
                   {["💕", "🥰", "😍", "💖", "🔥"].map((emoji) => (
                     <button
                       key={emoji}
-                      onClick={(e) => { e.stopPropagation(); handleReaction(emoji); }}
+                      onClick={(e) => { e.stopPropagation(); handleReaction(emoji, e); }}
                       className={`w-10 h-10 sm:w-12 sm:h-12 rounded-full text-xl sm:text-2xl flex items-center justify-center transition-all cursor-pointer ${
                         reactions[activeIdx] === emoji
                           ? "bg-rose-500 text-white scale-125 shadow-[0_0_20px_rgba(225,29,72,0.6)]"
