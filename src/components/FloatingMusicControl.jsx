@@ -186,7 +186,17 @@ export default function FloatingMusicControl({ tracks }) {
   return (
     <div
       ref={panelRef}
-      style={{ position: "fixed", top: "75%", transform: "translateY(-50%)", right: "max(16px, 2dvw)", zIndex: 60 }}
+      style={{
+        position: "fixed",
+        top: "75%",
+        // translateZ(0) promotes this to its own GPU layer so it doesn't
+        // repaint on every scroll frame on mobile browsers.
+        transform: "translateY(-50%) translateZ(0)",
+        willChange: "transform",
+        backfaceVisibility: "hidden",
+        right: "max(16px, 2dvw)",
+        zIndex: 60,
+      }}
     >
       {/* ── Expanded music panel (chatbot tooltip style) ── */}
       {isOpen && (
@@ -199,8 +209,8 @@ export default function FloatingMusicControl({ tracks }) {
             className="relative rounded-3xl overflow-hidden shadow-[0_20px_60px_-10px_rgba(225,29,72,0.35)]"
             style={{
               background:
-                "linear-gradient(145deg,rgba(255,255,255,0.95),rgba(255,240,248,0.97))",
-              backdropFilter: "blur(28px)",
+                "linear-gradient(145deg,rgba(255,255,255,0.96),rgba(255,240,248,0.98))",
+              backdropFilter: "blur(16px)",
               border: "1.5px solid rgba(255,255,255,0.8)",
             }}
           >

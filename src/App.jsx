@@ -406,11 +406,11 @@ function AchievementToast({ achievement, onDone }) {
       role="alert"
       aria-live="polite"
     >
-      <div className="bg-white/95 backdrop-blur-md px-6 py-4 flex items-center gap-4 shadow-[0_15px_40px_-5px_rgba(251,191,36,0.5)] border-2 border-amber-300 rounded-[2rem] w-[90vw] max-w-sm">
+      <div className="bg-white/95 backdrop-blur-md px-7 py-5 flex items-center gap-4 shadow-[0_15px_40px_-5px_rgba(251,191,36,0.5)] border-2 border-amber-300 rounded-[2rem] w-[90vw] max-w-sm">
         <span className="text-4xl drop-shadow-md" aria-hidden="true">{achievement.icon}</span>
         <div className="flex-1">
-          <p className="text-[11px] font-black text-amber-500 uppercase tracking-widest mb-0.5">Achievement Unlocked!</p>
-          <p className="text-lg font-bold text-zinc-900 leading-tight">{achievement.label}</p>
+          <p className="text-[11px] font-black text-amber-500 uppercase tracking-widest mb-1.5">Achievement Unlocked!</p>
+          <p className="text-lg font-bold text-zinc-900" style={{ lineHeight: 1.4 }}>{achievement.label}</p>
         </div>
         <button
           onClick={handleDismiss}
@@ -434,7 +434,13 @@ function Nav({ activeMode, setActiveMode, visitedModes, onNavClick }) {
         position: "fixed",
         left: "12px",
         top: "50%",
-        transform: "translateY(-50%)",
+        // translateZ(0) forces this onto its own GPU compositing layer so
+        // mobile browsers (Safari especially) don't repaint it on every
+        // scroll frame — that repaint lag is what reads as "the sidebar
+        // moves during scroll" even though position:fixed is correct.
+        transform: "translateY(-50%) translateZ(0)",
+        willChange: "transform",
+        backfaceVisibility: "hidden",
         zIndex: 50,
       }}
       className="pointer-events-none"
@@ -742,8 +748,10 @@ export default function Page() {
             {yesPressed && noCount > 3 ? (
               <div className="animate-fade-in">
                 <img ref={gifRef} className="h-[200px] md:h-[240px] rounded-3xl drop-shadow-[0_15px_30px_rgba(225,29,72,0.35)] mx-auto hover:scale-105 transition-all duration-500" src={YesGifs[currentGifIndex]} alt="Yes Response" />
-                <div className="text-3xl md:text-5xl font-bold my-3 bg-gradient-to-r from-rose-600 via-pink-500 to-rose-600 bg-clip-text text-transparent" style={{ fontFamily: "Charm, serif" }}>{config.yesTitle}</div>
-                <div className="text-xl md:text-3xl font-bold my-1" style={{ fontFamily: "Beau Rivage, serif", fontWeight: 500 }}>{config.yesSubtitle}</div>
+                <div className="text-3xl md:text-5xl font-bold mt-4 mb-3" style={{ fontFamily: "Charm, serif", lineHeight: 1.5 }}>
+                  <span className="bg-gradient-to-r from-rose-600 via-pink-500 to-rose-600 bg-clip-text text-transparent">{config.yesTitle}</span>
+                </div>
+                <div className="text-xl md:text-3xl font-bold mb-4" style={{ fontFamily: "Beau Rivage, serif", fontWeight: 500, lineHeight: 1.6 }}>{config.yesSubtitle}</div>
                 <WordMarquee messages={config.marqueeMessages} />
               </div>
             ) : (
@@ -866,6 +874,11 @@ export default function Page() {
       {tapHearts.map((h) => (
         <span key={h.id} className="tap-heart" style={{ left: h.x - 16, top: h.y - 16 }} aria-hidden="true">❤️</span>
       ))}
+
+      {/* Soft scrim so scrolling content fades behind the fixed sidebar / music FAB
+          instead of clipping abruptly under them */}
+      <div className="nav-scrim" aria-hidden="true" />
+      <div className="fab-scrim" aria-hidden="true" />
 
       <Nav activeMode={activeMode} setActiveMode={setActiveMode} visitedModes={visitedModes} onNavClick={triggerRipple} />
 

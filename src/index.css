@@ -137,6 +137,23 @@ html {
   animation: modal-slide-out-right 0.4s cubic-bezier(0.7, 0, 0.84, 0) forwards !important;
 }
 
+/* SweetAlert2's default .swal2-title is tuned for a short heading
+   (line-height: 1.2), but these popups hold full romantic paragraphs. Give
+   the prose real breathing room and match the app's romantic type. */
+.swal2-title {
+  font-family: "Charm", serif !important;
+  font-weight: 700 !important;
+  line-height: 1.7 !important;
+  max-width: 42rem;
+  margin: 0 auto !important;
+  padding: 0 !important;
+}
+
+@media (max-width: 640px) {
+  .swal2-popup { width: 92vw !important; max-width: 92vw !important; }
+  .swal2-title { font-size: 1.15em !important; }
+}
+
 /* ============================================================
    GLOBAL OVERFLOW & MOBILE TEXT FIX
    ============================================================ */
@@ -772,6 +789,35 @@ a:focus-visible {
 }
 
 /* ============================================================
+   SCRIM LAYERS — soft edge glow so page content visually fades as it
+   scrolls behind the persistently-fixed sidebar / music FAB, instead of
+   abruptly clipping under them.
+   ============================================================ */
+.nav-scrim {
+  position: fixed;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  width: 96px;
+  pointer-events: none;
+  z-index: 40;
+  background: linear-gradient(to right, rgba(255, 241, 246, 0.6), rgba(255, 241, 246, 0));
+  transform: translateZ(0);
+}
+
+.fab-scrim {
+  position: fixed;
+  right: 0;
+  bottom: 0;
+  width: 260px;
+  height: 260px;
+  pointer-events: none;
+  z-index: 55;
+  background: radial-gradient(circle at bottom right, rgba(244, 63, 94, 0.16), rgba(244, 63, 94, 0) 70%);
+  transform: translateZ(0);
+}
+
+/* ============================================================
    SIDEBAR NAV TOGGLE — premium romantic gradient with soft glow
    ============================================================ */
 .nav-toggle-btn {
@@ -997,6 +1043,9 @@ a:focus-visible {
   top: 12px;
   right: 16px;
   z-index: 55;
+  transform: translateZ(0);
+  will-change: transform;
+  backface-visibility: hidden;
   display: flex;
   align-items: center;
   gap: 8px;
