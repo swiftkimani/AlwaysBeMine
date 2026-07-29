@@ -1,121 +1,83 @@
-import { useState, useEffect, useRef, useCallback } from "react";
+import { useState, useEffect, useRef } from "react";
 import {
   BsPlayFill,
   BsPauseFill,
   BsSkipForwardFill,
   BsSkipBackwardFill,
-  BsVolumeUpFill,
-  BsVolumeMuteFill,
   BsHeartFill,
   BsMusicNoteBeamed,
+  BsSpotify,
   BsX,
 } from "react-icons/bs";
+import { useSpotifyEmbed } from "../useSpotifyEmbed.js";
 
-export default function FloatingMusicControl({ tracks }) {
+export default function FloatingMusicControl({ tracks, fallbackUrl }) {
   const [currentIdx, setCurrentIdx] = useState(0);
-  const [isPlaying, setIsPlaying] = useState(false);
-  const [progress, setProgress] = useState(0);
-  const [currentTime, setCurrentTime] = useState(0);
-  const [duration, setDuration] = useState(0);
-  const [isMuted, setIsMuted] = useState(false);
-  const [volume, setVolume] = useState(50);
   const [isOpen, setIsOpen] = useState(false);
   const [liked, setLiked] = useState(new Set());
 
-  const audioRef = useRef(null);
-  const animRef = useRef(null);
   const panelRef = useRef(null);
-
   const track = tracks?.[currentIdx];
+  const embed = useSpotifyEmbed(tracks?.[0]?.spotifyUri);
 
+  // Load whichever track is current into the (already-mounted) embed —
+  // skip the very first render since the controller already boots with
+  // tracks[0].
+  const didMountRef = useRef(false);
   useEffect(() => {
-    if (!track?.src) return;
-    if (!audioRef.current) {
-      audioRef.current = new Audio();
-      audioRef.current.volume = 1.0;
+    if (!didMountRef.current) {
+      didMountRef.current = true;
+      return;
     }
-    const audio = audioRef.current;
-    audio.src = track.src;
-    audio.load();
-    if (isPlaying) {
-      audio.play().catch(() => {});
-      document.body.classList.add('music-playing');
-    } else {
-      document.body.classList.remove('music-playing');
-    }
-  }, [track, isPlaying]);
+    if (!track?.spotifyUri) return;
+    embed.loadTrack(track.spotifyUri);
+    embed.play();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentIdx]);
 
-  const updateProgress = useCallback(() => {
-    if (audioRef.current) {
-      setCurrentTime(audioRef.current.currentTime);
-      setDuration(audioRef.current.duration);
-      setProgress(
-        audioRef.current.duration
-          ? (audioRef.current.currentTime / audioRef.current.duration) * 100
-          : 0
-      );
-    }
-    animRef.current = requestAnimationFrame(updateProgress);
-  }, []);
-
+  // Real playback needs a user gesture before Spotify's iframe will play —
+  // start on the visitor's first tap/click anywhere, same as before.
+  const autoPlayedRef = useRef(false);
   useEffect(() => {
-    if (isPlaying) animRef.current = requestAnimationFrame(updateProgress);
+    if (autoPlayedRef.current || !embed.ready) return;
+    const tryAutoplay = () => {
+      if (autoPlayedRef.current) return;
+      autoPlayedRef.current = true;
+      embed.play();
+      document.removeEventListener("click", tryAutoplay);
+      document.removeEventListener("touchstart", tryAutoplay);
+    };
+    document.addEventListener("click", tryAutoplay);
+    document.addEventListener("touchstart", tryAutoplay);
     return () => {
-      if (animRef.current) cancelAnimationFrame(animRef.current);
+      document.removeEventListener("click", tryAutoplay);
+      document.removeEventListener("touchstart", tryAutoplay);
     };
-  }, [isPlaying, updateProgress]);
-
-  // Volume synchronization
-  useEffect(() => {
-    if (audioRef.current) {
-      audioRef.current.volume = isMuted ? 0 : volume / 100;
-    }
-  }, [volume, isMuted]);
-
-  // Autoplay on first interaction with fade in
-  const hasAutoPlayed = useRef(false);
-  useEffect(() => {
-    const startAudio = () => {
-      if (!hasAutoPlayed.current) {
-        hasAutoPlayed.current = true;
-        setIsPlaying(true);
-        // Start volume at 5 and smoothly increase to 100
-        setVolume(5);
-        let vol = 5;
-        const fadeInterval = setInterval(() => {
-          vol += 5;
-          if (vol > 100) vol = 100;
-          setVolume(vol);
-          if (vol >= 100) clearInterval(fadeInterval);
-        }, 150);
-      }
-      document.removeEventListener("click", startAudio);
-      document.removeEventListener("touchstart", startAudio);
-    };
-
-    document.addEventListener("click", startAudio);
-    document.addEventListener("touchstart", startAudio);
-
-    return () => {
-      document.removeEventListener("click", startAudio);
-      document.removeEventListener("touchstart", startAudio);
-    };
-  }, []);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [embed.ready]);
 
   // Auto-open panel when playing starts
   useEffect(() => {
-    if (isPlaying) {
-      setIsOpen(true);
-    }
-  }, [isPlaying]);
+    if (embed.isPlaying) setIsOpen(true);
+  }, [embed.isPlaying]);
 
   useEffect(() => {
-    const audio = audioRef.current;
-    if (!audio) return;
-    const onEnd = () => setCurrentIdx((p) => (p + 1) % tracks.length);
-    audio.addEventListener("ended", onEnd);
-    return () => audio.removeEventListener("ended", onEnd);
-  }, [tracks.length]);
+    document.body.classList.toggle("music-playing", embed.isPlaying);
+    return () => document.body.classList.remove("music-playing");
+  }, [embed.isPlaying]);
+
+  // Best-effort "track ended" detection — the iFrame API doesn't expose an
+  // explicit ended event, but playback settling at/near the very end is a
+  // reliable enough signal to auto-advance.
+  const lastPositionRef = useRef(0);
+  useEffect(() => {
+    const nearEnd = embed.duration > 0 && embed.position >= embed.duration - 0.4;
+    const wasAdvancing = lastPositionRef.current < embed.duration - 0.4;
+    if (nearEnd && !embed.isPlaying && wasAdvancing && tracks?.length) {
+      setCurrentIdx((p) => (p + 1) % tracks.length);
+    }
+    lastPositionRef.current = embed.position;
+  }, [embed.position, embed.duration, embed.isPlaying, tracks?.length]);
 
   // close panel on outside click
   useEffect(() => {
@@ -129,40 +91,20 @@ export default function FloatingMusicControl({ tracks }) {
     return () => window.removeEventListener("pointerdown", onDown);
   }, [isOpen]);
 
-  const togglePlay = (e) => {
-    e?.stopPropagation();
-    if (!audioRef.current) return;
-    if (isPlaying) {
-      audioRef.current.pause();
-      document.body.classList.remove('music-playing');
-    } else {
-      audioRef.current.play().catch(() => {});
-      document.body.classList.add('music-playing');
-    }
-    setIsPlaying(!isPlaying);
-  };
-
   const skipNext = () => {
     setCurrentIdx((p) => (p + 1) % tracks.length);
-    setProgress(0);
   };
   const skipPrev = () => {
-    if (audioRef.current?.currentTime > 3) audioRef.current.currentTime = 0;
-    else setCurrentIdx((p) => (p - 1 + tracks.length) % tracks.length);
-    setProgress(0);
-  };
-
-  const toggleMute = () => {
-    const next = !isMuted;
-    if (audioRef.current) audioRef.current.muted = next;
-    setIsMuted(next);
+    if (embed.position > 3) {
+      embed.seek(0);
+    } else {
+      setCurrentIdx((p) => (p - 1 + tracks.length) % tracks.length);
+    }
   };
 
   const seek = (e) => {
     const val = Number(e.target.value);
-    if (audioRef.current)
-      audioRef.current.currentTime = (val / 100) * (audioRef.current.duration || 0);
-    setProgress(val);
+    embed.seek((val / 100) * (embed.duration || 0));
   };
 
   const toggleLike = (e) => {
@@ -183,6 +125,8 @@ export default function FloatingMusicControl({ tracks }) {
 
   if (!track) return null;
 
+  const progress = embed.duration ? (embed.position / embed.duration) * 100 : 0;
+
   return (
     <div
       ref={panelRef}
@@ -198,6 +142,14 @@ export default function FloatingMusicControl({ tracks }) {
         zIndex: 60,
       }}
     >
+      {/* Hidden mount point for the real Spotify embed — sized to
+          effectively nothing since our own bubble/panel is the UI. */}
+      <div
+        ref={embed.containerRef}
+        aria-hidden="true"
+        style={{ position: "absolute", width: 1, height: 1, overflow: "hidden", opacity: 0, pointerEvents: "none" }}
+      />
+
       {/* ── Expanded music panel (chatbot tooltip style) ── */}
       {isOpen && (
         <div
@@ -225,197 +177,201 @@ export default function FloatingMusicControl({ tracks }) {
               }}
             />
 
-            {/* Header: now playing */}
-            <div className="px-4 pt-3 pb-2 flex items-center gap-3">
-              {/* Animated equaliser or note */}
-              <div
-                className={`w-10 h-10 rounded-2xl flex items-center justify-center shrink-0 transition-all duration-300 ${
-                  isPlaying
-                    ? "bg-gradient-to-br from-rose-500 to-pink-500 shadow-md shadow-rose-400/50"
-                    : "bg-gradient-to-br from-rose-100 to-pink-100"
-                }`}
-              >
-                {isPlaying ? (
-                  <div className="flex gap-[3px] items-end h-4">
-                    {[0, 150, 300].map((delay) => (
-                      <span
-                        key={delay}
-                        className="w-[3px] rounded-full bg-white"
-                        style={{
-                          height: "100%",
-                          animation: `eqBar 0.6s ease-in-out ${delay}ms infinite alternate`,
-                        }}
-                      />
-                    ))}
-                  </div>
-                ) : (
-                  <BsMusicNoteBeamed size={16} className="text-rose-500" />
+            {embed.failed ? (
+              <div className="p-5 text-center">
+                <p className="text-xs font-bold text-zinc-700 mb-1">Couldn't load Spotify here 🎵</p>
+                <p className="text-[11px] text-zinc-400 mb-3">
+                  Listen to the real tracks directly instead.
+                </p>
+                {fallbackUrl && (
+                  <a
+                    href={fallbackUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-2 px-4 py-2 rounded-full text-xs font-bold text-white bg-gradient-to-r from-[#1DB954] to-[#1ed760] shadow-md shadow-[#1DB954]/30"
+                  >
+                    <BsSpotify size={14} />
+                    Open on Spotify
+                  </a>
                 )}
               </div>
-
-              <div className="min-w-0 flex-1">
-                <p className="text-xs font-black text-zinc-800 truncate leading-tight">
-                  {track.title}
-                </p>
-                <p className="text-[10px] text-zinc-400 truncate leading-tight mt-0.5">
-                  {track.artist}
-                </p>
-              </div>
-
-              <button
-                onClick={(e) => { e.stopPropagation(); toggleLike(e); }}
-                className={`w-7 h-7 rounded-full flex items-center justify-center transition-all cursor-pointer ${
-                  liked.has(currentIdx)
-                    ? "text-rose-500 bg-rose-50"
-                    : "text-zinc-300 hover:text-rose-400 hover:bg-rose-50"
-                }`}
-                aria-label="Like track"
-              >
-                <BsHeartFill size={12} />
-              </button>
-
-              <button
-                onClick={(e) => { e.stopPropagation(); setIsOpen(false); }}
-                className="w-7 h-7 rounded-full flex items-center justify-center text-zinc-400 hover:text-zinc-700 hover:bg-zinc-100 transition-all cursor-pointer"
-                aria-label="Close music player"
-              >
-                <BsX size={16} />
-              </button>
-            </div>
-
-            {/* Progress bar */}
-            <div className="px-4 pb-2">
-              <input
-                type="range"
-                min="0"
-                max="100"
-                value={progress}
-                onChange={seek}
-                className="audio-progress w-full"
-              />
-              <div className="flex justify-between text-[9px] font-semibold text-zinc-400 mt-1">
-                <span>{fmt(currentTime)}</span>
-                <span>{fmt(duration)}</span>
-              </div>
-            </div>
-
-            {/* Controls */}
-            <div className="px-4 pb-3 flex items-center justify-center gap-3">
-              <button
-                onClick={(e) => { e.stopPropagation(); skipPrev(); }}
-                className="w-9 h-9 rounded-full flex items-center justify-center text-zinc-500 hover:text-zinc-800 hover:bg-zinc-100 transition-all cursor-pointer"
-                aria-label="Previous"
-              >
-                <BsSkipBackwardFill size={15} />
-              </button>
-
-              <button
-                onClick={togglePlay}
-                className="w-12 h-12 rounded-full flex items-center justify-center bg-gradient-to-br from-rose-500 to-pink-500 text-white shadow-lg shadow-rose-400/50 hover:shadow-xl hover:scale-105 active:scale-95 transition-all cursor-pointer"
-                aria-label={isPlaying ? "Pause" : "Play"}
-              >
-                {isPlaying ? (
-                  <BsPauseFill size={22} />
-                ) : (
-                  <BsPlayFill size={22} className="ml-0.5" />
-                )}
-              </button>
-
-              <button
-                onClick={(e) => { e.stopPropagation(); skipNext(); }}
-                className="w-9 h-9 rounded-full flex items-center justify-center text-zinc-500 hover:text-zinc-800 hover:bg-zinc-100 transition-all cursor-pointer"
-                aria-label="Next"
-              >
-                <BsSkipForwardFill size={15} />
-              </button>
-
-              <div className="flex items-center group/vol hover:bg-zinc-50 rounded-full transition-all pr-2 cursor-default">
-                <button
-                  onClick={(e) => { e.stopPropagation(); toggleMute(); }}
-                  className="w-8 h-8 rounded-full flex items-center justify-center text-zinc-400 hover:text-zinc-700 hover:bg-zinc-100 transition-all cursor-pointer"
-                  aria-label={isMuted ? "Unmute" : "Mute"}
-                >
-                  {isMuted ? (
-                    <BsVolumeMuteFill size={13} />
-                  ) : (
-                    <BsVolumeUpFill size={13} />
-                  )}
-                </button>
-                <input
-                  type="range"
-                  min="0"
-                  max="100"
-                  value={volume}
-                  onChange={(e) => {
-                    e.stopPropagation();
-                    setVolume(Number(e.target.value));
-                    if (isMuted) setIsMuted(false);
-                  }}
-                  className="w-0 opacity-0 group-hover/vol:w-16 group-hover/vol:opacity-100 transition-all duration-300 origin-left h-1 accent-rose-500 cursor-pointer"
-                  title="Volume"
-                  aria-label="Volume"
-                />
-              </div>
-            </div>
-
-            {/* Track list */}
-            <div className="border-t border-zinc-100/80 px-3 pb-3 pt-2 space-y-1 max-h-[156px] overflow-y-auto no-scrollbar">
-              <p className="text-[9px] font-black uppercase tracking-widest text-zinc-400 px-1 mb-2">
-                ♫ Playlist
-              </p>
-              {tracks.map((t, idx) => (
-                <button
-                  key={idx}
-                  onClick={() => {
-                    setCurrentIdx(idx);
-                    setProgress(0);
-                    setIsPlaying(true);
-                  }}
-                  className={`w-full flex items-center gap-2.5 px-2 py-2 rounded-xl transition-all cursor-pointer text-left group ${
-                    idx === currentIdx
-                      ? "bg-gradient-to-r from-rose-50 to-pink-50 border border-rose-200/80"
-                      : "hover:bg-zinc-50 border border-transparent"
-                  }`}
-                >
-                  <span
-                    className={`w-5 h-5 rounded-lg flex items-center justify-center text-[9px] font-black shrink-0 transition-all ${
-                      idx === currentIdx
-                        ? "bg-gradient-to-br from-rose-500 to-pink-500 text-white shadow-sm"
-                        : "bg-zinc-200/70 text-zinc-500 group-hover:bg-zinc-300/70"
+            ) : (
+              <>
+                {/* Header: now playing */}
+                <div className="px-4 pt-3 pb-2 flex items-center gap-3">
+                  {/* Animated equaliser or note */}
+                  <div
+                    className={`w-10 h-10 rounded-2xl flex items-center justify-center shrink-0 transition-all duration-300 ${
+                      embed.isPlaying
+                        ? "bg-gradient-to-br from-rose-500 to-pink-500 shadow-md shadow-rose-400/50"
+                        : "bg-gradient-to-br from-rose-100 to-pink-100"
                     }`}
                   >
-                    {idx === currentIdx && isPlaying ? "▶" : idx + 1}
-                  </span>
+                    {embed.isPlaying ? (
+                      <div className="flex gap-[3px] items-end h-4">
+                        {[0, 150, 300].map((delay) => (
+                          <span
+                            key={delay}
+                            className="w-[3px] rounded-full bg-white"
+                            style={{
+                              height: "100%",
+                              animation: `eqBar 0.6s ease-in-out ${delay}ms infinite alternate`,
+                            }}
+                          />
+                        ))}
+                      </div>
+                    ) : (
+                      <BsMusicNoteBeamed size={16} className="text-rose-500" />
+                    )}
+                  </div>
+
                   <div className="min-w-0 flex-1">
-                    <p
-                      className={`text-[10px] font-bold truncate ${
-                        idx === currentIdx ? "text-rose-600" : "text-zinc-700"
-                      }`}
-                    >
-                      {t.title}
+                    <p className="text-xs font-black text-zinc-800 truncate leading-tight">
+                      {track.title}
                     </p>
-                    <p className="text-[9px] text-zinc-400 truncate">
-                      {t.artist}
+                    <p className="text-[10px] text-zinc-400 truncate leading-tight mt-0.5">
+                      {track.artist}
                     </p>
                   </div>
-                </button>
-              ))}
-            </div>
 
-            {/* Inspired by footer */}
-            <div className="border-t border-zinc-100/80 px-4 py-2 flex items-center justify-between">
-              <a
-                href="https://github.com/swiftkimani/AlwaysBeMine"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-[9px] font-semibold text-zinc-400 hover:text-rose-500 transition-colors"
-              >
-                Inspired by Swift ✨
-              </a>
-              <span className="text-[9px] text-zinc-300">
-                {tracks.length} songs
-              </span>
-            </div>
+                  <button
+                    onClick={(e) => { e.stopPropagation(); toggleLike(e); }}
+                    className={`w-7 h-7 rounded-full flex items-center justify-center transition-all cursor-pointer ${
+                      liked.has(currentIdx)
+                        ? "text-rose-500 bg-rose-50"
+                        : "text-zinc-300 hover:text-rose-400 hover:bg-rose-50"
+                    }`}
+                    aria-label="Like track"
+                  >
+                    <BsHeartFill size={12} />
+                  </button>
+
+                  <button
+                    onClick={(e) => { e.stopPropagation(); setIsOpen(false); }}
+                    className="w-7 h-7 rounded-full flex items-center justify-center text-zinc-400 hover:text-zinc-700 hover:bg-zinc-100 transition-all cursor-pointer"
+                    aria-label="Close music player"
+                  >
+                    <BsX size={16} />
+                  </button>
+                </div>
+
+                {/* Progress bar */}
+                <div className="px-4 pb-2">
+                  <input
+                    type="range"
+                    min="0"
+                    max="100"
+                    value={progress}
+                    onChange={seek}
+                    className="audio-progress w-full"
+                  />
+                  <div className="flex justify-between text-[9px] font-semibold text-zinc-400 mt-1">
+                    <span>{fmt(embed.position)}</span>
+                    <span>{fmt(embed.duration)}</span>
+                  </div>
+                </div>
+
+                {/* Controls */}
+                <div className="px-4 pb-3 flex items-center justify-center gap-3">
+                  <button
+                    onClick={(e) => { e.stopPropagation(); skipPrev(); }}
+                    className="w-9 h-9 rounded-full flex items-center justify-center text-zinc-500 hover:text-zinc-800 hover:bg-zinc-100 transition-all cursor-pointer"
+                    aria-label="Previous"
+                  >
+                    <BsSkipBackwardFill size={15} />
+                  </button>
+
+                  <button
+                    onClick={(e) => { e.stopPropagation(); embed.togglePlay(); }}
+                    disabled={!embed.ready}
+                    className="w-12 h-12 rounded-full flex items-center justify-center bg-gradient-to-br from-rose-500 to-pink-500 text-white shadow-lg shadow-rose-400/50 hover:shadow-xl hover:scale-105 active:scale-95 transition-all cursor-pointer disabled:opacity-50 disabled:cursor-wait"
+                    aria-label={embed.isPlaying ? "Pause" : "Play"}
+                  >
+                    {embed.isPlaying ? (
+                      <BsPauseFill size={22} />
+                    ) : (
+                      <BsPlayFill size={22} className="ml-0.5" />
+                    )}
+                  </button>
+
+                  <button
+                    onClick={(e) => { e.stopPropagation(); skipNext(); }}
+                    className="w-9 h-9 rounded-full flex items-center justify-center text-zinc-500 hover:text-zinc-800 hover:bg-zinc-100 transition-all cursor-pointer"
+                    aria-label="Next"
+                  >
+                    <BsSkipForwardFill size={15} />
+                  </button>
+
+                  <a
+                    href={fallbackUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="w-8 h-8 rounded-full flex items-center justify-center text-[#1DB954] hover:bg-[#1DB954]/10 transition-all cursor-pointer ml-1"
+                    aria-label="Open on Spotify"
+                    title="Open on Spotify"
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    <BsSpotify size={16} />
+                  </a>
+                </div>
+
+                {/* Track list */}
+                <div className="border-t border-zinc-100/80 px-3 pb-3 pt-2 space-y-1 max-h-[156px] overflow-y-auto no-scrollbar">
+                  <p className="text-[9px] font-black uppercase tracking-widest text-zinc-400 px-1 mb-2">
+                    ♫ Playlist
+                  </p>
+                  {tracks.map((t, idx) => (
+                    <button
+                      key={idx}
+                      onClick={() => setCurrentIdx(idx)}
+                      className={`w-full flex items-center gap-2.5 px-2 py-2 rounded-xl transition-all cursor-pointer text-left group ${
+                        idx === currentIdx
+                          ? "bg-gradient-to-r from-rose-50 to-pink-50 border border-rose-200/80"
+                          : "hover:bg-zinc-50 border border-transparent"
+                      }`}
+                    >
+                      <span
+                        className={`w-5 h-5 rounded-lg flex items-center justify-center text-[9px] font-black shrink-0 transition-all ${
+                          idx === currentIdx
+                            ? "bg-gradient-to-br from-rose-500 to-pink-500 text-white shadow-sm"
+                            : "bg-zinc-200/70 text-zinc-500 group-hover:bg-zinc-300/70"
+                        }`}
+                      >
+                        {idx === currentIdx && embed.isPlaying ? "▶" : idx + 1}
+                      </span>
+                      <div className="min-w-0 flex-1">
+                        <p
+                          className={`text-[10px] font-bold truncate ${
+                            idx === currentIdx ? "text-rose-600" : "text-zinc-700"
+                          }`}
+                        >
+                          {t.title}
+                        </p>
+                        <p className="text-[9px] text-zinc-400 truncate">
+                          {t.artist}
+                        </p>
+                      </div>
+                    </button>
+                  ))}
+                </div>
+
+                {/* Inspired by footer */}
+                <div className="border-t border-zinc-100/80 px-4 py-2 flex items-center justify-between">
+                  <a
+                    href="https://github.com/swiftkimani/AlwaysBeMine"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-[9px] font-semibold text-zinc-400 hover:text-rose-500 transition-colors"
+                  >
+                    Inspired by Swift ✨
+                  </a>
+                  <span className="text-[9px] text-zinc-300 flex items-center gap-1">
+                    <BsSpotify size={10} className="text-[#1DB954]" />
+                    via Spotify
+                  </span>
+                </div>
+              </>
+            )}
           </div>
 
           {/* Tail / caret pointing down to FAB */}
@@ -443,15 +399,15 @@ export default function FloatingMusicControl({ tracks }) {
             : "shadow-[0_8px_30px_-4px_rgba(225,29,72,0.4)] hover:scale-105 hover:shadow-[0_12px_40px_-4px_rgba(225,29,72,0.55)] active:scale-95"
         }`}
         style={{
-          background: isPlaying
+          background: embed.isPlaying
             ? "linear-gradient(135deg,#f43f5e,#ec4899,#a855f7)"
             : "linear-gradient(135deg,#f43f5e,#be123c)",
           backgroundSize: "200% 200%",
-          animation: isPlaying ? "gradientShift 2s linear infinite" : "none",
+          animation: embed.isPlaying ? "gradientShift 2s linear infinite" : "none",
         }}
       >
         {/* Pulsing ring when playing */}
-        {isPlaying && (
+        {embed.isPlaying && (
           <span
             className="absolute inset-0 rounded-full"
             style={{
@@ -463,7 +419,7 @@ export default function FloatingMusicControl({ tracks }) {
         )}
 
         <span className="relative z-10 text-white">
-          {isPlaying ? (
+          {embed.isPlaying ? (
             <BsMusicNoteBeamed size={22} className="animate-bounce" />
           ) : (
             <BsMusicNoteBeamed size={22} />
@@ -471,7 +427,7 @@ export default function FloatingMusicControl({ tracks }) {
         </span>
 
         {/* Playing indicator dot */}
-        {isPlaying && (
+        {embed.isPlaying && (
           <span className="absolute top-1 right-1 w-2.5 h-2.5 bg-white rounded-full shadow-sm" />
         )}
       </button>

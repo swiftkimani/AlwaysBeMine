@@ -37,7 +37,7 @@ export default function PromiseBuilder({ data, title, subtitle, onProgress }) {
       </div>
 
       {/* Progress */}
-      <div className="liquid p-4 sm:p-5 mb-6 flex items-center gap-3.5">
+      <div className="liquid card-pad-sm mb-6 flex items-center gap-3.5">
         <div className="w-9 h-9 rounded-xl bg-rose-500/15 flex items-center justify-center text-base shrink-0">🤝</div>
         <div className="flex-1">
           <p className="text-xs font-bold text-zinc-700">Promises Sealed</p>
@@ -86,7 +86,7 @@ export default function PromiseBuilder({ data, title, subtitle, onProgress }) {
                       💝
                     </span>
                     <p className="text-xs sm:text-sm text-zinc-700 font-bold">Promise #{idx + 1}</p>
-                    <p className="text-[10px] text-zinc-400 mt-3 bg-zinc-100/80 px-3 py-1 rounded-full inline-block border border-zinc-200">
+                    <p className="text-[10px] text-zinc-400 mt-3 bg-zinc-100/80 pill-pad rounded-full inline-block border border-zinc-200">
                       Tap to reveal ✨
                     </p>
                   </div>
@@ -106,7 +106,7 @@ export default function PromiseBuilder({ data, title, subtitle, onProgress }) {
                     <p className="text-zinc-800 text-xs sm:text-sm md:text-base font-medium mb-3" style={{ fontFamily: "Charm, serif", lineHeight: 1.75 }}>
                       {promise}
                     </p>
-                    <span className="text-[10px] text-rose-500 font-bold bg-rose-50 px-2.5 py-0.5 rounded-full border border-rose-200">Sealed with love 💕</span>
+                    <span className="text-[10px] text-rose-500 font-bold bg-rose-50 pill-pad rounded-full border border-rose-200">Sealed with love 💕</span>
                   </div>
                 </div>
               </div>
@@ -117,7 +117,7 @@ export default function PromiseBuilder({ data, title, subtitle, onProgress }) {
 
       {/* All done */}
       {allFlipped && (
-        <div className="liquid mt-5 p-4 sm:p-5 text-center animate-bounce-in border-l-4 border-rose-500 shadow-md">
+        <div className="liquid mt-5 card-pad-sm text-center animate-bounce-in border-l-4 border-rose-500 shadow-md">
           <p className="text-sm sm:text-base text-zinc-800 font-bold" style={{ fontFamily: "Charm, serif" }}>
             All {data.length} promises revealed! Every single one is from the heart. 🥰
           </p>

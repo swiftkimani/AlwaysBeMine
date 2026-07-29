@@ -1,5 +1,4 @@
-import { useState, useRef, useEffect, useCallback, useMemo } from "react";
-import Spline from "@splinetool/react-spline";
+import { useState, useRef, useEffect, useCallback, useMemo, lazy, Suspense } from "react";
 import Swal from "sweetalert2";
 import config from "./config.js";
 import MouseStealing from "./MouseStealer.jsx";
@@ -47,19 +46,22 @@ import nogif6 from "./assets/GifData/No/breakRej6.gif";
 import nogif7 from "./assets/GifData/No/RejectNo.gif";
 import nogif8 from "./assets/GifData/No/breakRej7.gif";
 
-import yesmusic1 from "./assets/AudioTracks/Love_LoveMeLikeYouDo.mp3";
-import yesmusic2 from "./assets/AudioTracks/Love_EDPerfect.mp3";
-import yesmusic3 from "./assets/AudioTracks/Love_TheWalters.mp3";
-import yesmusic4 from "./assets/AudioTracks/Love_UntilIFoundYou.mp3";
+// The original 3D swirl background, lazy-loaded so its multi-MB runtime
+// only ever downloads if someone actually picks it in the bg picker —
+// everyone else keeps the lightweight, pure-CSS default.
+const Spline = lazy(() => import("@splinetool/react-spline"));
+const SPLINE_SCENE = "https://prod.spline.design/oSxVDduGPlsuUIvT/scene.splinecode";
 
 const YesGifs = [yesgif0, yesgif1, yesgif2, yesgif3, yesgif4, yesgif5, yesgif6, yesgif7, yesgif8, yesgif9, yesgif10, yesgif11];
 const NoGifs = [nogif0, nogif0_1, nogif1, nogif2, nogif3, nogif4, nogif5, nogif6, nogif7, nogif8];
 
+// Real, actual recordings — streamed via Spotify's licensed embed player
+// (see useSpotifyEmbed.js) instead of bundling audio files locally.
 const loveTracks = [
-  { title: "Love Me Like You Do", artist: "Ellie Goulding", src: yesmusic1 },
-  { title: "Perfect", artist: "Ed Sheeran", src: yesmusic2 },
-  { title: "I Love You So", artist: "The Walters", src: yesmusic3 },
-  { title: "Until I Found You", artist: "Stephen Sanchez", src: yesmusic4 },
+  { title: "Love Me Like You Do", artist: "Ellie Goulding", spotifyUri: "spotify:track:4fnIzIPlnq6bmV96NqJdGF" },
+  { title: "Perfect", artist: "Ed Sheeran", spotifyUri: "spotify:track:0RqHgwssXvp8y56PbHGp72" },
+  { title: "I Love You So", artist: "The Walters", spotifyUri: "spotify:track:4SqWKzw0CbA05TGszDgMlc" },
+  { title: "Until I Found You", artist: "Stephen Sanchez", spotifyUri: "spotify:track:1GOsqtDkX9iFwdTYhaCu54" },
 ];
 
 const modeLabels = {
@@ -72,6 +74,47 @@ const modeLabels = {
   promises: "🤝 Promises",
   playlist: "🎵 Music",
 };
+
+const BG_THEMES = [
+  {
+    id: "classic",
+    label: "Classic Blush",
+    emoji: "🌸",
+    swatch: "linear-gradient(160deg, #fff6f8 0%, #ffeef2 35%, #fdf2f8 70%, #f6f1ff 100%)",
+  },
+  {
+    id: "spiral",
+    label: "Spiral Bloom",
+    emoji: "🌀",
+    swatch: "conic-gradient(from 0deg, #f43f5e, #a855f7, #ec4899, #fbbf24, #f43f5e)",
+  },
+  {
+    id: "aurora",
+    label: "Aurora Dream",
+    emoji: "🌌",
+    swatch: "linear-gradient(120deg, #f43f5e, #a855f7 45%, #38bdf8 100%)",
+  },
+  {
+    id: "swirl",
+    label: "Dream Swirl",
+    emoji: "🔮",
+    swatch: "linear-gradient(135deg, #5eead4 0%, #7dd3fc 40%, #c4b5fd 75%, #a855f7 100%)",
+  },
+  {
+    id: "auto",
+    label: "Auto Mix",
+    emoji: "🎲",
+    // No static swatch — this one gets its own animated CSS class
+    // (.bg-swatch-auto) so the picker itself hints that it's alive.
+    swatch: null,
+  },
+];
+
+// Auto Mix cycles through the lightweight CSS themes only — the 3D swirl
+// stays opt-in-only since re-mounting/unmounting it on a timer would mean
+// repeatedly paying its load cost in the background.
+const AUTO_ROTATE_THEMES = ["classic", "spiral", "aurora"];
+const AUTO_ROTATE_INTERVAL_MS = 25000;
 
 function getInitialMode() {
   const hash = window.location.hash.replace("#", "");
@@ -341,11 +384,11 @@ function SendLoveBar({ onLovePopup }) {
   const [counts, setCounts] = useState({ kiss: 0, hug: 0, heartbeat: 0, rose: 0, magic: 0 });
 
   const items = [
-    { emoji: "💋", label: "Kiss", id: "kiss", burst: ["💋", "😘", "💕", "💗"] },
-    { emoji: "🤗", label: "Hug", id: "hug", burst: ["🤗", "🫂", "💞", "💖"] },
-    { emoji: "💓", label: "Heartbeat", id: "heartbeat", burst: ["💓", "💗", "❤️‍🔥", "💝"] },
-    { emoji: "🌹", label: "Rose", id: "rose", burst: ["🌹", "🌷", "🌸", "🌺"] },
-    { emoji: "✨", label: "Magic", id: "magic", burst: ["✨", "💫", "⭐", "🌟"] },
+    { emoji: "💋", label: "Kiss", id: "kiss", burst: ["💋", "😘", "💕", "💗"], accent: "#f43f5e" },
+    { emoji: "🤗", label: "Hug", id: "hug", burst: ["🤗", "🫂", "💞", "💖"], accent: "#f59e0b" },
+    { emoji: "💓", label: "Heartbeat", id: "heartbeat", burst: ["💓", "💗", "❤️‍🔥", "💝"], accent: "#e11d48" },
+    { emoji: "🌹", label: "Rose", id: "rose", burst: ["🌹", "🌷", "🌸", "🌺"], accent: "#ec4899" },
+    { emoji: "✨", label: "Magic", id: "magic", burst: ["✨", "💫", "⭐", "🌟"], accent: "#a855f7" },
   ];
 
   const handleClick = (item) => {
@@ -361,8 +404,8 @@ function SendLoveBar({ onLovePopup }) {
   return (
     <div className="mt-3">
       {total > 0 && (
-        <div className="text-center mb-2">
-          <span className="text-[10px] font-bold text-rose-400 bg-rose-50/80 px-3 py-1 rounded-full border border-rose-200/50 backdrop-blur-sm">
+        <div className="text-center mb-2.5">
+          <span className="send-love-total">
             💕 {total} love{total !== 1 ? "s" : ""} sent
           </span>
         </div>
@@ -372,13 +415,14 @@ function SendLoveBar({ onLovePopup }) {
           <button
             key={item.id}
             className="send-love-btn"
+            style={{ "--accent": item.accent }}
             onClick={() => handleClick(item)}
             aria-label={`Send ${item.label}`}
           >
             <span className="emoji">{item.emoji}</span>
             <span className="label">{item.label}</span>
             {counts[item.id] > 0 && (
-              <span className="text-[9px] font-bold text-rose-400">{counts[item.id]}</span>
+              <span className="send-love-count">{counts[item.id]}</span>
             )}
           </button>
         ))}
@@ -426,6 +470,126 @@ function AchievementToast({ achievement, onDone }) {
 
 
 
+/* The original 3D swirl, restored as an opt-in background. It fades in
+   over a matching teal/purple gradient once loaded, and falls back to
+   that same gradient permanently if the scene fails to load (offline,
+   blocked request, etc.) — same defensive pattern the app used before
+   this was replaced with pure CSS. */
+function SwirlBackground() {
+  const [loaded, setLoaded] = useState(false);
+  const [errored, setErrored] = useState(false);
+
+  return (
+    <>
+      <div
+        className={`absolute inset-0 bg-gradient-to-br from-teal-100 via-cyan-50 to-purple-100 transition-opacity duration-1000 ${
+          loaded && !errored ? "opacity-0" : "opacity-100"
+        }`}
+      />
+      {!errored && (
+        <Suspense fallback={null}>
+          <Spline
+            scene={SPLINE_SCENE}
+            onLoad={() => setLoaded(true)}
+            onError={() => setErrored(true)}
+          />
+        </Suspense>
+      )}
+    </>
+  );
+}
+
+/* Background theme picker — a top-left twin to the rose-toned nav toggle
+   on the right, in its own teal/purple/rose gradient so it reads as "the
+   background control" at a glance. Panel opens downward since the button
+   lives in the top corner. */
+function BackgroundPicker({ bgTheme, setBgTheme }) {
+  const [open, setOpen] = useState(false);
+  const wrapRef = useRef(null);
+
+  useEffect(() => {
+    if (!open) return;
+    const onDown = (e) => {
+      if (wrapRef.current && !wrapRef.current.contains(e.target)) setOpen(false);
+    };
+    window.addEventListener("pointerdown", onDown);
+    return () => window.removeEventListener("pointerdown", onDown);
+  }, [open]);
+
+  const activeLabel = BG_THEMES.find((t) => t.id === bgTheme)?.label;
+
+  return (
+    <div
+      ref={wrapRef}
+      className="fixed top-3 left-3 sm:top-4 sm:left-4 z-[70]"
+      style={{ transform: "translateZ(0)", willChange: "transform" }}
+    >
+      <button
+        onClick={() => setOpen((p) => !p)}
+        className={`bg-picker-fab relative w-11 h-11 rounded-full cursor-pointer ${
+          open ? "bg-picker-fab-active" : ""
+        }`}
+        aria-label="Change background"
+        aria-expanded={open}
+        title="Change background"
+      >
+        <span className="bg-picker-fab-glow" aria-hidden="true" />
+        <span className="relative z-10 text-lg">🎨</span>
+      </button>
+
+      {open && (
+        <div
+          className="absolute top-[calc(100%+12px)] left-0 w-72 animate-fade-in-up"
+          style={{ transformOrigin: "top left" }}
+        >
+          {/* Tail pointing up to the palette button */}
+          <div
+            className="absolute -top-1.5 left-5 w-3.5 h-3.5 rotate-45 z-10"
+            style={{
+              background: "rgba(255,255,255,0.97)",
+              borderLeft: "1px solid rgba(255,255,255,0.8)",
+              borderTop: "1px solid rgba(255,255,255,0.8)",
+              boxShadow: "-2px -2px 6px rgba(94,234,212,0.15)",
+            }}
+          />
+          <div className="liquid relative rounded-3xl p-4 shadow-[0_20px_50px_-10px_rgba(94,234,212,0.35)] border border-white/80">
+            <div className="bg-picker-accent" />
+            <p className="text-xs font-black text-zinc-700 mb-3 flex items-center gap-1.5">
+              <span aria-hidden="true">🎨</span> Pick your vibe
+            </p>
+            <div className="flex flex-wrap items-center justify-center gap-3">
+              {BG_THEMES.map((t) => (
+                <button
+                  key={t.id}
+                  onClick={() => setBgTheme(t.id)}
+                  className={`bg-swatch ${t.id === "auto" ? "bg-swatch-auto" : ""} ${
+                    bgTheme === t.id ? "bg-swatch-active" : ""
+                  }`}
+                  style={t.swatch ? { background: t.swatch } : undefined}
+                  aria-label={`Use ${t.label} background`}
+                  aria-pressed={bgTheme === t.id}
+                  title={t.label}
+                >
+                  <span className="bg-swatch-emoji" aria-hidden="true">{t.emoji}</span>
+                  <span className="bg-swatch-check" aria-hidden="true">✓</span>
+                </button>
+              ))}
+            </div>
+            <p className="text-[11px] font-bold text-rose-500 mt-3 text-center">
+              {activeLabel}
+              {bgTheme === "auto" && (
+                <span className="block text-[10px] font-semibold text-zinc-400 mt-0.5">
+                  drifts to a new look every 25s ✨
+                </span>
+              )}
+            </p>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
 function Nav({ activeMode, setActiveMode, visitedModes, onNavClick }) {
   const [isOpen, setIsOpen] = useState(true);
   return (
@@ -455,7 +619,7 @@ function Nav({ activeMode, setActiveMode, visitedModes, onNavClick }) {
         {/* Top Toggle Button */}
         <button
           onClick={() => setIsOpen(!isOpen)}
-          className="nav-toggle-btn pointer-events-auto text-white rounded-full p-3 shadow-[0_8px_24px_-4px_rgba(225,29,72,0.55)] hover:scale-110 active:scale-95 transition-transform duration-300 cursor-pointer flex items-center justify-center group relative border border-white/40"
+          className="nav-toggle-btn pointer-events-auto text-white rounded-full w-11 h-11 shadow-[0_8px_24px_-4px_rgba(225,29,72,0.55)] hover:scale-110 active:scale-90 transition-transform duration-500 ease-[cubic-bezier(0.34,1.56,0.64,1)] cursor-pointer flex items-center justify-center group relative border border-white/40"
           aria-label="Toggle navigation"
         >
           <span className="nav-toggle-glow" aria-hidden="true" />
@@ -471,12 +635,12 @@ function Nav({ activeMode, setActiveMode, visitedModes, onNavClick }) {
         {/* The actual menu — absolutely positioned below the toggle so its size never
             affects the wrapper above. */}
         <div
-          className={`absolute top-full left-1/2 -translate-x-1/2 mt-3 liquid rounded-2xl border border-white/80 shadow-[0_16px_44px_-8px_rgba(225,29,72,0.3)] backdrop-blur-2xl p-2 transition-all duration-300 origin-top ${
+          className={`absolute top-full left-1/2 -translate-x-1/2 mt-3 liquid rounded-2xl border border-white/80 shadow-[0_16px_44px_-8px_rgba(225,29,72,0.3)] backdrop-blur-2xl p-2.5 transition-all duration-300 origin-top ${
             isOpen ? "opacity-100 scale-y-100 pointer-events-auto" : "opacity-0 scale-y-0 pointer-events-none"
           }`}
         >
           <div className="nav-panel-accent" aria-hidden="true" />
-          <div className="flex flex-col gap-1.5">
+          <div className="flex flex-col gap-2.5">
             {config.modes.map((mode) => {
               const isActive = activeMode === mode;
               const isVisited = visitedModes.has(mode);
@@ -497,10 +661,8 @@ function Nav({ activeMode, setActiveMode, visitedModes, onNavClick }) {
                   aria-label={modeLabels[mode] || mode}
                   title={modeLabels[mode] || mode}
                   aria-current={isActive ? "page" : undefined}
-                  className={`relative flex items-center justify-center w-10 h-10 rounded-xl text-xl transition-all duration-200 cursor-pointer ${
-                    isActive
-                      ? "bg-gradient-to-br from-rose-500 via-pink-500 to-rose-600 text-white shadow-lg shadow-rose-500/40 scale-105"
-                      : "bg-white/60 hover:bg-white/90 text-zinc-600 hover:text-rose-500 border border-white/70 hover:scale-105"
+                  className={`side-btn w-11 h-11 rounded-2xl text-xl ${
+                    isActive ? "side-btn-active" : ""
                   }`}
                 >
                   <span className="leading-none select-none">{icon}</span>
@@ -530,8 +692,6 @@ export default function Page() {
   const [totalXP, setTotalXP] = useState(0);
   const [achievements, setAchievements] = useState([]);
   const [pendingAchievement, setPendingAchievement] = useState(null);
-  const [splineLoaded, setSplineLoaded] = useState(false);
-  const [splineError, setSplineError] = useState(false);
   const [showOnboarding, setShowOnboarding] = useState(() => !localStorage.getItem("abm_onboarded"));
   const [visitedModes, setVisitedModes] = useState(() => {
     const saved = localStorage.getItem("abm_visited");
@@ -541,6 +701,8 @@ export default function Page() {
   const [showBackToTop, setShowBackToTop] = useState(false);
   const [showAchievementHistory, setShowAchievementHistory] = useState(false);
   const [showConfetti, setShowConfetti] = useState(false);
+  const [bgTheme, setBgTheme] = useState(() => localStorage.getItem("abm_bg_theme") || "spiral");
+  const [autoIdx, setAutoIdx] = useState(0);
   const [tapHearts, setTapHearts] = useState([]);
   const tapTimerRef = useRef(null);
   const { burst } = useRomance();
@@ -584,6 +746,23 @@ export default function Page() {
     window.addEventListener("scroll", handleScroll, { passive: true });
     return () => window.removeEventListener("scroll", handleScroll);
   }, [activeMode]);
+
+  // Persist chosen background theme
+  useEffect(() => {
+    localStorage.setItem("abm_bg_theme", bgTheme);
+  }, [bgTheme]);
+
+  // Auto Mix: quietly cycle through the CSS-only themes on a timer,
+  // reusing the same crossfade the manual picker uses.
+  useEffect(() => {
+    if (bgTheme !== "auto") return;
+    const id = setInterval(() => {
+      setAutoIdx((i) => (i + 1) % AUTO_ROTATE_THEMES.length);
+    }, AUTO_ROTATE_INTERVAL_MS);
+    return () => clearInterval(id);
+  }, [bgTheme]);
+
+  const effectiveBgTheme = bgTheme === "auto" ? AUTO_ROTATE_THEMES[autoIdx] : bgTheme;
 
   // Dismiss onboarding
   const dismissOnboarding = () => {
@@ -852,15 +1031,33 @@ export default function Page() {
       {/* Thinking of You Toasts — only on proposal */}
       {activeMode === "proposal" && <ThinkingToast />}
 
-      {/* Spline Background with Fallback */}
-      <div className="fixed inset-0 -z-10">
-        <div className={`absolute inset-0 bg-gradient-to-br from-rose-100 via-pink-50 to-purple-100 ${splineLoaded && !splineError ? "opacity-0" : "opacity-100"} transition-opacity duration-1000`} />
-        <Spline
-          scene="https://prod.spline.design/oSxVDduGPlsuUIvT/scene.splinecode"
-          onLoad={() => setSplineLoaded(true)}
-          onError={() => setSplineError(true)}
-        />
+      {/* Romantic Background — five selectable themes (Classic, Spiral
+          Bloom, Aurora Dream, the original Dream Swirl 3D scene, and Auto
+          Mix) stacked as crossfading layers so switching in the picker —
+          manually or on Auto Mix's own timer — dissolves smoothly instead
+          of cutting. The swirl only mounts its heavy 3D runtime while
+          actually selected, and Auto Mix never rotates into it. */}
+      <div className="fixed inset-0 -z-10 overflow-hidden" aria-hidden="true">
+        <div className={`bg-layer bg-theme-classic ${effectiveBgTheme === "classic" ? "bg-layer-active" : ""}`} />
+        <div className={`bg-layer bg-theme-spiral ${effectiveBgTheme === "spiral" ? "bg-layer-active" : ""}`}>
+          <div className="romantic-blob romantic-blob-a" />
+          <div className="romantic-blob romantic-blob-b" />
+          <div className="spiral-swirl" />
+        </div>
+        <div className={`bg-layer bg-theme-aurora ${effectiveBgTheme === "aurora" ? "bg-layer-active" : ""}`}>
+          <div className="aurora-ribbon aurora-ribbon-a" />
+          <div className="aurora-ribbon aurora-ribbon-b" />
+          <div className="aurora-ribbon aurora-ribbon-c" />
+          <div className="aurora-sparkles" />
+        </div>
+        {bgTheme === "swirl" && (
+          <div className="bg-layer bg-layer-active bg-theme-swirl">
+            <SwirlBackground />
+          </div>
+        )}
       </div>
+
+      <BackgroundPicker bgTheme={bgTheme} setBgTheme={setBgTheme} />
 
       {/* Scroll Progress Bar */}
       {activeMode !== "proposal" && (
@@ -915,19 +1112,21 @@ export default function Page() {
       </main>
 
       {/* Music FAB — chatbot-style, bottom right */}
-      <FloatingMusicControl tracks={loveTracks} />
+      <FloatingMusicControl tracks={loveTracks} fallbackUrl={config.playlist?.languages?.[0]?.spotifyUrl} />
 
-      {/* Utility rail — slim buttons stacked above music FAB */}
-      <div className="fixed bottom-24 right-4 sm:right-5 z-40 flex flex-col items-center gap-2">
+      {/* Utility rail — liquid glass buttons stacked above music FAB. Sized
+          and spaced to a 44px touch target with generous gaps, same rule
+          the nav rail and bg picker follow. */}
+      <div className="fixed bottom-24 right-4 sm:right-5 z-40 flex flex-col items-center gap-3">
         {achievements.length > 0 && (
           <button
             onClick={() => setShowAchievementHistory(!showAchievementHistory)}
-            className="w-9 h-9 rounded-full flex items-center justify-center bg-white/70 hover:bg-white/95 text-zinc-700 hover:text-amber-500 transition-all cursor-pointer border border-white/80 shadow-md backdrop-blur-md relative"
+            className={`side-btn relative w-11 h-11 rounded-full ${showAchievementHistory ? "side-btn-active" : ""}`}
             aria-label={`View ${achievements.length} achievements`}
             title={`${achievements.length} achievements`}
           >
-            <span className="text-base">🏆</span>
-            <span className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-amber-400 text-white text-[9px] font-bold flex items-center justify-center shadow-sm">
+            <span className="relative z-10 text-lg">🏆</span>
+            <span className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-amber-400 text-white text-[9px] font-bold flex items-center justify-center shadow-sm z-10">
               {achievements.length}
             </span>
           </button>
@@ -936,11 +1135,11 @@ export default function Page() {
         {showBackToTop && (
           <button
             onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
-            className="w-9 h-9 rounded-full flex items-center justify-center bg-white/70 hover:bg-white/95 text-zinc-600 hover:text-zinc-900 transition-all cursor-pointer border border-white/80 shadow-md backdrop-blur-md"
+            className="side-btn w-11 h-11 rounded-full"
             aria-label="Back to top"
             title="Back to top"
           >
-            <BsArrowUp size={14} />
+            <BsArrowUp size={16} className="relative z-10" />
           </button>
         )}
       </div>

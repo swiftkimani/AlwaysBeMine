@@ -64,23 +64,23 @@ export default function LoveLetter({ data, onProgress }) {
   const pct = Math.round((revealedParagraphs / data.paragraphs.length) * 100);
 
   return (
-    <div className="w-full max-w-4xl mx-auto px-2 sm:px-4">
+    <div className="w-full max-w-4xl mx-auto px-3 sm:px-5">
       {/* Letter Card */}
       <div
         ref={containerRef}
-        className="liquid relative overflow-hidden max-h-[70vh] overflow-y-auto no-scrollbar shadow-2xl rounded-3xl"
+        className="liquid relative overflow-hidden max-h-[75vh] overflow-y-auto no-scrollbar shadow-2xl rounded-3xl"
         style={{
           background:
             "linear-gradient(135deg, rgba(255,251,235,0.97), rgba(255,243,224,0.97))",
           border: "1.5px solid rgba(217,119,6,0.3)",
         }}
       >
-        {/* Decorative line pattern */}
+        {/* Decorative line pattern — kept faint so it never competes with the text */}
         <div
-          className="absolute inset-0 pointer-events-none opacity-50"
+          className="absolute inset-0 pointer-events-none opacity-25"
           style={{
             backgroundImage:
-              "repeating-linear-gradient(transparent, transparent 31px, rgba(217,119,6,0.12) 31px, rgba(217,119,6,0.12) 32px)",
+              "repeating-linear-gradient(transparent, transparent 39px, rgba(217,119,6,0.12) 39px, rgba(217,119,6,0.12) 40px)",
           }}
         />
 
@@ -88,34 +88,41 @@ export default function LoveLetter({ data, onProgress }) {
         <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-amber-400 via-rose-500 to-purple-500" />
 
         {/* Wax seal watermark in top-right */}
-        <div className="absolute top-6 right-6 opacity-20 pointer-events-none text-6xl">
+        <div className="absolute top-10 right-8 opacity-20 pointer-events-none text-6xl">
           💌
         </div>
 
-        <div className="relative p-7 sm:p-11 md:p-14">
-          {/* Greeting */}
+        <div className="relative px-6 sm:px-12 md:px-16 lg:px-20 pt-16 sm:pt-20 md:pt-24 pb-10 sm:pb-14 md:pb-16">
+          {/* Greeting — sized down from a billboard-scale script to something that
+              actually reads as an opening line, with real air above and below it
+              so the cursive swashes never crowd the accent bar or the prose. */}
           <p
-            className="text-3xl sm:text-4xl md:text-5xl font-bold text-amber-950 mb-9 sm:mb-10 tracking-wide"
-            style={{ fontFamily: "Great Vibes, cursive" }}
+            className="text-2xl sm:text-3xl md:text-4xl font-bold text-amber-950 mb-14 sm:mb-16 md:mb-20 tracking-wide"
+            style={{ fontFamily: "Great Vibes, cursive", lineHeight: 1.5 }}
           >
             {data.greeting}
           </p>
 
-          {/* Paragraphs */}
-          <div className="space-y-7 sm:space-y-8 mb-9">
+          {/* Paragraphs — generous vertical rhythm so each thought gets its own
+              pocket of air instead of reading as one dense block. */}
+          <div className="space-y-8 sm:space-y-10 md:space-y-12 mb-16">
             {data.paragraphs.slice(0, revealedParagraphs).map((p, i) => (
               <p
                 key={i}
-                className="text-zinc-800 text-sm sm:text-base md:text-lg font-medium tracking-wide"
-                style={{ fontFamily: "Charm, serif", lineHeight: 1.85 }}
+                className={`letter-paragraph text-zinc-800 text-[15px] sm:text-base md:text-lg font-medium tracking-wide ${
+                  i === 0 ? "letter-dropcap" : ""
+                }`}
+                style={{ fontFamily: "Charm, serif", lineHeight: 2.05 }}
               >
                 {p}
               </p>
             ))}
             {revealedParagraphs < data.paragraphs.length && (
               <p
-                className="text-zinc-800 text-sm sm:text-base md:text-lg font-medium tracking-wide"
-                style={{ fontFamily: "Charm, serif", lineHeight: 1.85 }}
+                className={`text-zinc-800 text-[15px] sm:text-base md:text-lg font-medium tracking-wide ${
+                  revealedParagraphs === 0 ? "letter-dropcap" : ""
+                }`}
+                style={{ fontFamily: "Charm, serif", lineHeight: 2.05 }}
               >
                 {typedText}
                 {isTyping && (
@@ -129,7 +136,7 @@ export default function LoveLetter({ data, onProgress }) {
 
           {/* Closing & Signature */}
           {allDone && (
-            <div className="text-right space-y-3 animate-fade-in mt-10 pt-8 border-t border-amber-200/80">
+            <div className="text-right space-y-4 animate-fade-in mt-6 pt-12 border-t border-amber-200/80">
               <p
                 className="text-2xl sm:text-3xl text-amber-800"
                 style={{ fontFamily: "Great Vibes, cursive" }}
@@ -144,7 +151,7 @@ export default function LoveLetter({ data, onProgress }) {
               </p>
 
               {/* Seal with Love Button */}
-              <div className="mt-6 flex justify-end">
+              <div className="mt-8 flex justify-end">
                 <button
                   onClick={(e) => { setSealed(true); burstFromEvent(e, "💌"); }}
                   className={`flex items-center gap-2 px-6 py-2.5 rounded-full text-xs sm:text-sm font-bold transition-all cursor-pointer ${
@@ -161,7 +168,7 @@ export default function LoveLetter({ data, onProgress }) {
 
           {/* Controls */}
           {!allDone && (
-            <div className="flex items-center justify-between mt-9 gap-4 pt-5 border-t border-amber-200/50">
+            <div className="flex items-center justify-between mt-4 gap-4 pt-10 border-t border-amber-200/50">
               {!isTyping && (
                 <button
                   onClick={handleContinue}
@@ -184,7 +191,7 @@ export default function LoveLetter({ data, onProgress }) {
       </div>
 
       {/* Gamification footer */}
-      <div className="liquid mt-5 p-4 sm:p-5 flex items-center gap-4 rounded-2xl border border-white/80">
+      <div className="liquid mt-6 p-4 sm:p-5 flex items-center gap-4 rounded-2xl border border-white/80">
         <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center text-white text-lg shrink-0 shadow-md">
           ✉️
         </div>
@@ -199,7 +206,7 @@ export default function LoveLetter({ data, onProgress }) {
             <div className="progress-bar-fill" style={{ width: `${pct}%` }} />
           </div>
         </div>
-        <span className="xp-badge shrink-0 px-3 py-1 text-xs">
+        <span className="xp-badge shrink-0 text-xs">
           +{revealedParagraphs * 20} XP
         </span>
       </div>

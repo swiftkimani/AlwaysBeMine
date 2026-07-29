@@ -1,107 +1,69 @@
-import { useState, useRef, useEffect, useCallback } from "react";
+import { useState, useRef, useEffect } from "react";
 import {
   BsPlayFill,
   BsPauseFill,
   BsSkipForwardFill,
   BsSkipBackwardFill,
-  BsVolumeUpFill,
-  BsVolumeMuteFill,
   BsHeartFill,
   BsMusicNoteBeamed,
   BsSpotify,
 } from "react-icons/bs";
 import { useRomance } from "../RomanceFX.jsx";
+import { useSpotifyEmbed } from "../useSpotifyEmbed.js";
 
 export default function Playlist({ data }) {
   const languages = data?.languages || [];
   const [activeCode, setActiveCode] = useState(languages[0]?.code);
   const [activeIdx, setActiveIdx] = useState(0);
-  const [isPlaying, setIsPlaying] = useState(false);
-  const [progress, setProgress] = useState(0);
-  const [currentTime, setCurrentTime] = useState(0);
-  const [duration, setDuration] = useState(0);
-  const [isMuted, setIsMuted] = useState(false);
   const [liked, setLiked] = useState(new Set());
 
-  const audioRef = useRef(null);
-  const animRef = useRef(null);
   const { burstFromEvent } = useRomance();
+  // Seeded from whichever language ships local tracks first (English) —
+  // language switches after that go through loadTrack(), same controller.
+  const embed = useSpotifyEmbed(languages[0]?.tracks?.[0]?.spotifyUri);
+  const wasPlayingRef = useRef(false);
+  const didMountRef = useRef(false);
 
   const lang = languages.find((l) => l.code === activeCode) || languages[0];
   const tracks = lang?.tracks || [];
   const track = tracks[activeIdx];
 
-  const switchLanguage = (l, e) => {
-    if (l.code === activeCode) return;
-    setActiveCode(l.code);
-    setActiveIdx(0);
-    setIsPlaying(false);
-    setProgress(0);
-    burstFromEvent(e, "🎵");
-  };
+  useEffect(() => {
+    wasPlayingRef.current = embed.isPlaying;
+  }, [embed.isPlaying]);
 
   useEffect(() => {
-    if (!track?.src) return;
-    if (!audioRef.current) {
-      audioRef.current = new Audio();
-      audioRef.current.volume = 0.85;
+    if (!didMountRef.current) {
+      didMountRef.current = true;
+      return;
     }
-    const audio = audioRef.current;
-    audio.src = track.src;
-    audio.load();
-    if (isPlaying) audio.play().catch(() => {});
+    if (!track?.spotifyUri) return;
+    embed.loadTrack(track.spotifyUri);
+    if (wasPlayingRef.current) embed.play();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [track]);
 
-  useEffect(() => {
-    if (!audioRef.current) return;
-    if (isPlaying) audioRef.current.play().catch(() => {});
-    else audioRef.current.pause();
-  }, [isPlaying]);
-
-  const updateProgress = useCallback(() => {
-    if (audioRef.current) {
-      setCurrentTime(audioRef.current.currentTime);
-      setDuration(audioRef.current.duration);
-      setProgress(
-        audioRef.current.duration
-          ? (audioRef.current.currentTime / audioRef.current.duration) * 100
-          : 0
-      );
-    }
-    animRef.current = requestAnimationFrame(updateProgress);
-  }, []);
-
-  useEffect(() => {
-    if (isPlaying) animRef.current = requestAnimationFrame(updateProgress);
-    return () => {
-      if (animRef.current) cancelAnimationFrame(animRef.current);
-    };
-  }, [isPlaying, updateProgress]);
-
-  useEffect(() => {
-    const audio = audioRef.current;
-    if (!audio) return;
-    const onEnd = () => setActiveIdx((p) => (p + 1) % tracks.length);
-    audio.addEventListener("ended", onEnd);
-    return () => audio.removeEventListener("ended", onEnd);
-  }, [tracks.length]);
-
-  const skipNext = () => { setActiveIdx((p) => (p + 1) % tracks.length); setProgress(0); };
-  const skipPrev = () => {
-    if (audioRef.current?.currentTime > 3) audioRef.current.currentTime = 0;
-    else setActiveIdx((p) => (p - 1 + tracks.length) % tracks.length);
-    setProgress(0);
+  const switchLanguage = (l, e) => {
+    if (l.code === activeCode) return;
+    wasPlayingRef.current = false;
+    embed.pause();
+    setActiveCode(l.code);
+    setActiveIdx(0);
+    burstFromEvent(e, "🎵");
   };
-  const toggleMute = () => {
-    const next = !isMuted;
-    if (audioRef.current) audioRef.current.muted = next;
-    setIsMuted(next);
+
+  const skipNext = () => setActiveIdx((p) => (p + 1) % tracks.length);
+  const skipPrev = () => {
+    if (embed.position > 3) embed.seek(0);
+    else setActiveIdx((p) => (p - 1 + tracks.length) % tracks.length);
+  };
+  const playTrack = (idx) => {
+    wasPlayingRef.current = true;
+    setActiveIdx(idx);
   };
   const seek = (e) => {
     const val = Number(e.target.value);
-    if (audioRef.current) audioRef.current.currentTime = (val / 100) * (audioRef.current.duration || 0);
-    setProgress(val);
+    embed.seek((val / 100) * (embed.duration || 0));
   };
   const toggleLike = (idx, e) => {
     e.stopPropagation();
@@ -118,9 +80,18 @@ export default function Playlist({ data }) {
 
   if (!lang) return null;
 
+  const progress = embed.duration ? (embed.position / embed.duration) * 100 : 0;
+
   return (
     <div className="w-full max-w-3xl mx-auto px-2">
       <div className="liquid p-5 sm:p-7 md:p-8 rounded-3xl border border-white/80 shadow-xl">
+        {/* Hidden mount point for the real Spotify embed */}
+        <div
+          ref={embed.containerRef}
+          aria-hidden="true"
+          style={{ position: "absolute", width: 1, height: 1, overflow: "hidden", opacity: 0, pointerEvents: "none" }}
+        />
+
         {/* Header */}
         <div className="text-center mb-5">
           <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-rose-500 via-pink-500 to-purple-600 flex items-center justify-center text-white text-2xl mx-auto mb-3 shadow-lg shadow-rose-500/30">
@@ -157,6 +128,12 @@ export default function Playlist({ data }) {
           })}
         </div>
 
+        {track && embed.failed && (
+          <div className="text-center py-3 mb-4 rounded-2xl bg-amber-50/80 border border-amber-200">
+            <p className="text-xs font-bold text-amber-700">Couldn't load Spotify here — use the link below instead 🎵</p>
+          </div>
+        )}
+
         {track ? (
           <div key={lang.code} className="animate-fade-in">
             {/* Hero player */}
@@ -165,12 +142,12 @@ export default function Playlist({ data }) {
               <div className="flex flex-col sm:flex-row items-center gap-5 relative z-10">
                 <div
                   className={`w-20 h-20 sm:w-24 sm:h-24 rounded-3xl flex items-center justify-center shrink-0 transition-all duration-500 shadow-lg ${
-                    isPlaying
+                    embed.isPlaying
                       ? "bg-gradient-to-br from-rose-500 via-pink-500 to-rose-600 scale-105 shadow-rose-500/40"
                       : "bg-gradient-to-br from-zinc-100 to-zinc-200"
                   }`}
                 >
-                  {isPlaying ? (
+                  {embed.isPlaying ? (
                     <div className="flex gap-1 items-end h-7">
                       {[0, 150, 300, 450].map((delay) => (
                         <span key={delay} className="w-1 bg-white rounded-full" style={{ height: "100%", animation: `eqBar 0.6s ease-in-out ${delay}ms infinite alternate` }} />
@@ -183,7 +160,7 @@ export default function Playlist({ data }) {
 
                 <div className="flex-1 min-w-0 text-center sm:text-left w-full">
                   <div className="flex items-center justify-between gap-2 mb-1">
-                    <span className="text-[10px] font-black uppercase tracking-widest text-rose-500 bg-rose-100/80 px-3 py-1 rounded-full border border-rose-200">
+                    <span className="text-[10px] font-black uppercase tracking-widest text-rose-500 bg-rose-100/80 pill-pad rounded-full border border-rose-200">
                       Track {activeIdx + 1}/{tracks.length}
                     </span>
                     <button
@@ -202,8 +179,8 @@ export default function Playlist({ data }) {
 
                   <input type="range" min="0" max="100" value={progress} onChange={seek} className="audio-progress w-full" />
                   <div className="flex justify-between text-[10px] font-bold text-zinc-400 mt-1 mb-3">
-                    <span>{fmt(currentTime)}</span>
-                    <span>{fmt(duration)}</span>
+                    <span>{fmt(embed.position)}</span>
+                    <span>{fmt(embed.duration)}</span>
                   </div>
 
                   <div className="flex items-center justify-center sm:justify-start gap-3">
@@ -211,18 +188,28 @@ export default function Playlist({ data }) {
                       <BsSkipBackwardFill size={15} />
                     </button>
                     <button
-                      onClick={() => setIsPlaying((p) => !p)}
-                      className="w-12 h-12 rounded-full flex items-center justify-center bg-gradient-to-br from-rose-500 to-pink-500 text-white shadow-lg shadow-rose-500/30 hover:scale-105 active:scale-95 transition-all cursor-pointer"
-                      aria-label={isPlaying ? "Pause" : "Play"}
+                      onClick={() => { wasPlayingRef.current = true; embed.togglePlay(); }}
+                      disabled={!embed.ready}
+                      className="w-12 h-12 rounded-full flex items-center justify-center bg-gradient-to-br from-rose-500 to-pink-500 text-white shadow-lg shadow-rose-500/30 hover:scale-105 active:scale-95 transition-all cursor-pointer disabled:opacity-50 disabled:cursor-wait"
+                      aria-label={embed.isPlaying ? "Pause" : "Play"}
                     >
-                      {isPlaying ? <BsPauseFill size={22} /> : <BsPlayFill size={22} className="ml-0.5" />}
+                      {embed.isPlaying ? <BsPauseFill size={22} /> : <BsPlayFill size={22} className="ml-0.5" />}
                     </button>
                     <button onClick={skipNext} className="w-9 h-9 rounded-full flex items-center justify-center text-zinc-600 hover:text-zinc-900 hover:bg-white transition-all cursor-pointer" aria-label="Next track">
                       <BsSkipForwardFill size={15} />
                     </button>
-                    <button onClick={toggleMute} className="w-8 h-8 rounded-full flex items-center justify-center text-zinc-400 hover:text-zinc-700 hover:bg-white transition-all cursor-pointer ml-auto" aria-label={isMuted ? "Unmute" : "Mute"}>
-                      {isMuted ? <BsVolumeMuteFill size={14} /> : <BsVolumeUpFill size={14} />}
-                    </button>
+                    {lang.spotifyUrl && (
+                      <a
+                        href={lang.spotifyUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="w-8 h-8 rounded-full flex items-center justify-center text-[#1DB954] hover:bg-[#1DB954]/10 transition-all cursor-pointer ml-auto"
+                        aria-label="Open on Spotify"
+                        title="Open on Spotify"
+                      >
+                        <BsSpotify size={15} />
+                      </a>
+                    )}
                   </div>
                 </div>
               </div>
@@ -233,15 +220,15 @@ export default function Playlist({ data }) {
               {tracks.map((t, idx) => (
                 <div
                   key={idx}
-                  onClick={() => { setActiveIdx(idx); setIsPlaying(true); setProgress(0); }}
-                  className={`flex items-center gap-3 rounded-2xl p-3 transition-all duration-300 cursor-pointer border ${
+                  onClick={() => playTrack(idx)}
+                  className={`flex items-center gap-3 rounded-2xl row-pad transition-all duration-300 cursor-pointer border ${
                     idx === activeIdx ? "bg-gradient-to-r from-rose-50 to-pink-50 border-rose-200/90 shadow-sm" : "bg-white/60 hover:bg-white border-white/80"
                   }`}
                 >
                   <span className={`w-8 h-8 rounded-xl flex items-center justify-center text-xs font-black shrink-0 ${
                     idx === activeIdx ? "bg-gradient-to-br from-rose-500 to-pink-500 text-white" : "bg-zinc-100 text-zinc-600"
                   }`}>
-                    {idx === activeIdx && isPlaying ? "▶" : idx + 1}
+                    {idx === activeIdx && embed.isPlaying ? "▶" : idx + 1}
                   </span>
                   <div className="flex-1 min-w-0">
                     <p className={`text-sm font-black truncate ${idx === activeIdx ? "text-rose-600" : "text-zinc-800"}`}>{t.title}</p>
@@ -270,7 +257,7 @@ export default function Playlist({ data }) {
             </p>
             <div className="flex flex-wrap gap-2">
               {lang.highlights.map((h, i) => (
-                <span key={i} className="flex items-center gap-1.5 text-[11px] font-semibold text-rose-600 bg-rose-50/90 border border-rose-200/80 rounded-full px-3 py-1.5">
+                <span key={i} className="flex items-center gap-1.5 text-[11px] font-semibold text-rose-600 bg-rose-50/90 border border-rose-200/80 rounded-full pill-pad">
                   <BsMusicNoteBeamed size={10} className="shrink-0 text-rose-400" />
                   <span className="truncate max-w-[9rem]">{h.title}</span>
                   <span className="text-rose-300">·</span>

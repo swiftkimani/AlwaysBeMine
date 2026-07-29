@@ -56,7 +56,7 @@ export default function PhotoGallery({ data, onProgress }) {
   return (
     <div className="w-full max-w-4xl mx-auto px-2">
       {/* Gallery Header */}
-      <div className="liquid p-5 sm:p-7 mb-6 md:mb-8 flex items-center gap-4 rounded-3xl border border-white/80 shadow-xl">
+      <div className="liquid card-pad-sm mb-6 md:mb-8 flex items-center gap-4 rounded-3xl border border-white/80 shadow-xl">
         <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-purple-500 to-indigo-600 flex items-center justify-center text-white text-xl shrink-0 shadow-md">
           📸
         </div>
@@ -73,7 +73,7 @@ export default function PhotoGallery({ data, onProgress }) {
             <div className="progress-bar-fill" style={{ width: `${pct}%` }} />
           </div>
         </div>
-        <span className="xp-badge shrink-0 px-3 py-1 font-bold">
+        <span className="xp-badge shrink-0 font-bold">
           +{viewed.size * 10} XP
         </span>
       </div>
@@ -84,7 +84,7 @@ export default function PhotoGallery({ data, onProgress }) {
           <div
             key={idx}
             onClick={() => handleView(idx)}
-            className={`gallery-item relative p-2 sm:p-3 pb-10 sm:pb-12 cursor-pointer group transition-all duration-500 shadow-[0_8px_20px_-4px_rgba(0,0,0,0.15)] hover:shadow-[0_20px_40px_-5px_rgba(0,0,0,0.25)] hover:-translate-y-3 hover:scale-105 hover:z-20 bg-[#fdfbf9] border border-zinc-200 aspect-[4/5] flex flex-col rotate-0 ${
+            className={`gallery-item relative p-2.5 sm:p-3.5 pb-10 sm:pb-12 cursor-pointer group transition-all duration-500 shadow-[0_8px_20px_-4px_rgba(0,0,0,0.15)] hover:shadow-[0_20px_40px_-5px_rgba(0,0,0,0.25)] hover:-translate-y-3 hover:scale-105 hover:z-20 bg-[#fdfbf9] border border-zinc-200 aspect-[4/5] flex flex-col rotate-0 ${
               ["sm:-rotate-2", "sm:rotate-2", "sm:-rotate-1", "sm:rotate-1", "sm:-rotate-3", "sm:rotate-3"][idx % 6]
             }`}
           >
@@ -202,11 +202,11 @@ export default function PhotoGallery({ data, onProgress }) {
 
             {/* Sidebar / Info panel */}
             <div
-              className="w-full md:w-[35%] max-w-md flex flex-col items-center md:items-start justify-center gap-4 sm:gap-6 bg-white/5 backdrop-blur-xl p-6 sm:p-8 rounded-3xl sm:rounded-[2rem] border border-white/10 shadow-2xl cursor-auto"
+              className="w-full md:w-[35%] max-w-md flex flex-col items-center md:items-start justify-center gap-4 sm:gap-6 bg-white/5 backdrop-blur-xl card-pad rounded-3xl sm:rounded-[2rem] border border-white/10 shadow-2xl cursor-auto"
               style={{ animation: "modal-slide-left 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards" }}
               onClick={(e) => e.stopPropagation()}
             >
-              <span className="text-[10px] font-black text-rose-400 uppercase tracking-[0.2em] border border-rose-400/30 px-3 py-1 rounded-full">
+              <span className="text-[10px] font-black text-rose-400 uppercase tracking-[0.2em] border border-rose-400/30 pill-pad rounded-full">
                 Memory {activeIdx + 1} of {data.length}
               </span>
               

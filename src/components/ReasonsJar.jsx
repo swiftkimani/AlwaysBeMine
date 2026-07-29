@@ -138,7 +138,7 @@ export default function ReasonsJar({ data, onProgress }) {
                 : `Pull a Reason 💝 (${unrevealedCount} left)`}
             </button>
           ) : (
-            <div className="animate-bounce-in mt-4 bg-rose-50/80 p-4 rounded-2xl border border-rose-200">
+            <div className="animate-bounce-in mt-4 bg-rose-50/80 card-pad-sm rounded-2xl border border-rose-200">
               <p
                 className="text-base sm:text-lg text-rose-700 font-bold"
                 style={{ fontFamily: "Charm, serif" }}
@@ -154,7 +154,7 @@ export default function ReasonsJar({ data, onProgress }) {
           <div className="flex-1 progress-bar h-2.5">
             <div className="progress-bar-fill" style={{ width: `${pct}%` }} />
           </div>
-          <span className="xp-badge shrink-0 px-3 py-1 font-bold">
+          <span className="xp-badge shrink-0 font-bold">
             +{revealedReasons.length * 10} XP
           </span>
         </div>
@@ -162,9 +162,9 @@ export default function ReasonsJar({ data, onProgress }) {
 
       {/* Current Reason Popup */}
       {currentReason !== null && !isShaking && (
-        <div className="liquid mt-5 p-7 sm:p-8 animate-bounce-in border-l-4 border-rose-500 shadow-xl rounded-3xl">
+        <div className="liquid mt-5 card-pad animate-bounce-in border-l-4 border-rose-500 shadow-xl rounded-3xl">
           <div className="flex items-center justify-between mb-3">
-            <span className="text-xs font-black text-rose-500 uppercase tracking-widest bg-rose-50 px-3 py-1 rounded-full border border-rose-200/80">
+            <span className="text-xs font-black text-rose-500 uppercase tracking-widest bg-rose-50 pill-pad rounded-full border border-rose-200/80">
               Reason #{revealedReasons.length}
             </span>
             <span className="text-xs text-rose-400 font-bold">💕 From the Heart</span>
@@ -187,7 +187,7 @@ export default function ReasonsJar({ data, onProgress }) {
             .map((idx, i) => (
               <div
                 key={idx}
-                className="liquid p-5 sm:p-6 flex items-center gap-4 animate-slide-in rounded-2xl border border-white/80 shadow-sm hover:shadow-md transition-all"
+                className="liquid card-pad-sm flex items-center gap-4 animate-slide-in rounded-2xl border border-white/80 shadow-sm hover:shadow-md transition-all"
                 style={{ animationDelay: `${i * 40}ms` }}
               >
                 <span className="w-7 h-7 rounded-full bg-rose-500/15 flex items-center justify-center text-xs font-black text-rose-600 shrink-0">

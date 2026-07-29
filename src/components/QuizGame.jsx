@@ -151,15 +151,15 @@ export default function QuizGame({ data, results, onProgress }) {
 
           {/* Stats Grid */}
           <div className="grid grid-cols-3 gap-3 sm:gap-4 mb-6">
-            <div className="bg-rose-50/90 rounded-2xl p-4 border border-rose-200/80 shadow-sm">
+            <div className="bg-rose-50/90 rounded-2xl card-pad-sm border border-rose-200/80 shadow-sm">
               <p className="text-2xl font-black text-rose-500">{score}</p>
               <p className="text-xs font-bold text-zinc-500">Correct</p>
             </div>
-            <div className="bg-amber-50/90 rounded-2xl p-4 border border-amber-200/80 shadow-sm">
+            <div className="bg-amber-50/90 rounded-2xl card-pad-sm border border-amber-200/80 shadow-sm">
               <p className="text-2xl font-black text-amber-500">{bestStreak}</p>
               <p className="text-xs font-bold text-zinc-500">Best Streak</p>
             </div>
-            <div className="bg-purple-50/90 rounded-2xl p-4 border border-purple-200/80 shadow-sm">
+            <div className="bg-purple-50/90 rounded-2xl card-pad-sm border border-purple-200/80 shadow-sm">
               <p className="text-2xl font-black text-purple-500">{totalXP}</p>
               <p className="text-xs font-bold text-zinc-500">XP Earned</p>
             </div>
@@ -188,7 +188,7 @@ export default function QuizGame({ data, results, onProgress }) {
       <div className="liquid p-6 sm:p-8 md:p-10 rounded-3xl border border-white/80 shadow-2xl">
         {/* Header */}
         <div className="flex justify-between items-center mb-4">
-          <span className="text-xs font-black text-rose-600 bg-rose-50 px-3 py-1.5 rounded-full border border-rose-200 shadow-sm">
+          <span className="text-xs font-black text-rose-600 bg-rose-50 pill-pad rounded-full border border-rose-200 shadow-sm">
             Question {currentQ + 1} of {total}
           </span>
           <div className="flex items-center gap-2">
@@ -242,7 +242,7 @@ export default function QuizGame({ data, results, onProgress }) {
                 aria-checked={selected === idx}
                 aria-label={`Option ${String.fromCharCode(65 + idx)}: ${opt}`}
                 tabIndex={showResult ? -1 : 0}
-                className={`w-full flex items-center justify-between p-5 sm:p-6 rounded-2xl transition-all duration-300 border text-sm sm:text-base cursor-pointer text-left ${styles} ${
+                className={`w-full flex items-center justify-between card-pad-sm rounded-2xl transition-all duration-300 border text-sm sm:text-base cursor-pointer text-left ${styles} ${
                   !showResult
                     ? "hover:scale-[1.01] hover:border-rose-300 active:scale-[0.99]"
                     : ""
@@ -279,7 +279,7 @@ export default function QuizGame({ data, results, onProgress }) {
 
         {/* Human Touch Feedback Toast */}
         {showResult && feedbackMsg && (
-          <div className="mt-6 p-5 rounded-2xl bg-rose-50/90 border border-rose-200 text-center animate-bounce-in">
+          <div className="mt-6 card-pad-sm rounded-2xl bg-rose-50/90 border border-rose-200 text-center animate-bounce-in">
             <p
               className="text-sm sm:text-base font-bold text-rose-700"
               style={{ fontFamily: "Charm, serif", lineHeight: 1.7 }}

@@ -16,11 +16,6 @@
  * ============================================================
  */
 
-import enTrack1 from "./assets/AudioTracks/Love_LoveMeLikeYouDo.mp3";
-import enTrack2 from "./assets/AudioTracks/Love_EDPerfect.mp3";
-import enTrack3 from "./assets/AudioTracks/Love_TheWalters.mp3";
-import enTrack4 from "./assets/AudioTracks/Love_UntilIFoundYou.mp3";
-
 const theme = "valentine";
 
 const themes = {
@@ -194,10 +189,10 @@ const themes = {
           playlistName: "Love Ballads",
           spotifyUrl: "https://open.spotify.com/playlist/37i9dQZF1DWYMvTygsLWlG",
           tracks: [
-            { title: "Love Me Like You Do", artist: "Ellie Goulding", src: enTrack1 },
-            { title: "Perfect", artist: "Ed Sheeran", src: enTrack2 },
-            { title: "I Love You So", artist: "The Walters", src: enTrack3 },
-            { title: "Until I Found You", artist: "Stephen Sanchez", src: enTrack4 },
+            { title: "Love Me Like You Do", artist: "Ellie Goulding", spotifyUri: "spotify:track:4fnIzIPlnq6bmV96NqJdGF" },
+            { title: "Perfect", artist: "Ed Sheeran", spotifyUri: "spotify:track:0RqHgwssXvp8y56PbHGp72" },
+            { title: "I Love You So", artist: "The Walters", spotifyUri: "spotify:track:4SqWKzw0CbA05TGszDgMlc" },
+            { title: "Until I Found You", artist: "Stephen Sanchez", spotifyUri: "spotify:track:1GOsqtDkX9iFwdTYhaCu54" },
           ],
           highlights: [
             { title: "All of Me", artist: "John Legend" },

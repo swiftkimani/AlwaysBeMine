@@ -66,7 +66,7 @@ export default function Timeline({ data, onProgress }) {
   return (
     <div className="w-full max-w-4xl mx-auto px-2 sm:px-4">
       {/* Progress Header Card */}
-      <div className="liquid p-6 sm:p-8 mb-8 md:mb-10 flex items-center gap-4 sm:gap-6 rounded-3xl border border-white/80 shadow-xl">
+      <div className="liquid card-pad-sm mb-8 md:mb-10 flex items-center gap-4 sm:gap-6 rounded-3xl border border-white/80 shadow-xl">
         <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-gradient-to-br from-rose-500 to-pink-500 flex items-center justify-center text-white font-black text-sm sm:text-base shrink-0 shadow-lg shadow-rose-500/30">
           {visibleItems.size}/{data.length}
         </div>
@@ -79,7 +79,7 @@ export default function Timeline({ data, onProgress }) {
             <div className="progress-bar-fill" style={{ width: `${pct}%` }} />
           </div>
         </div>
-        <span className="xp-badge shrink-0 px-3 py-1 text-xs">+{visibleItems.size * 15} XP</span>
+        <span className="xp-badge shrink-0 text-xs">+{visibleItems.size * 15} XP</span>
       </div>
 
       {/* Timeline Tree */}
@@ -107,7 +107,7 @@ export default function Timeline({ data, onProgress }) {
                 }`}
               >
                 <div
-                  className={`inline-block w-full liquid p-7 sm:p-8 rounded-3xl border border-white/80 transition-all duration-300 ${
+                  className={`inline-block w-full liquid card-pad rounded-3xl border border-white/80 transition-all duration-300 ${
                     isVisible
                       ? "hover:shadow-2xl hover:-translate-y-1 hover:scale-[1.02]"
                       : ""
@@ -120,7 +120,7 @@ export default function Timeline({ data, onProgress }) {
                     }}
                   >
                     {isVisible && <span className="xp-badge">+15 XP</span>}
-                    <span className="text-xs font-black text-rose-500 bg-rose-50 px-3 py-1 rounded-full border border-rose-200/80">
+                    <span className="text-xs font-black text-rose-500 bg-rose-50 pill-pad rounded-full border border-rose-200/80">
                       {item.date}
                     </span>
                   </div>
@@ -142,7 +142,7 @@ export default function Timeline({ data, onProgress }) {
                   >
                     <button
                       onClick={(e) => toggleLove(idx, e)}
-                      className={`flex items-center gap-1.5 text-xs font-bold px-3 py-1.5 rounded-full transition-all cursor-pointer ${
+                      className={`flex items-center gap-1.5 text-xs font-bold pill-pad rounded-full transition-all cursor-pointer ${
                         isLoved
                           ? "bg-rose-500 text-white shadow-sm"
                           : "bg-rose-50 text-rose-600 hover:bg-rose-100"
@@ -169,13 +169,13 @@ export default function Timeline({ data, onProgress }) {
               {/* Mobile view card */}
               <div className="ml-14 md:hidden w-full">
                 <div
-                  className={`liquid p-6 sm:p-7 rounded-3xl border border-white/80 transition-all duration-300 ${
+                  className={`liquid card-pad rounded-3xl border border-white/80 transition-all duration-300 ${
                     isVisible ? "hover:shadow-xl" : ""
                   }`}
                 >
                   <div className="flex items-center gap-2 mb-3">
                     {isVisible && <span className="xp-badge">+15 XP</span>}
-                    <span className="text-xs font-black text-rose-500 bg-rose-50 px-2.5 py-0.5 rounded-full border border-rose-200/80">
+                    <span className="text-xs font-black text-rose-500 bg-rose-50 pill-pad rounded-full border border-rose-200/80">
                       {item.date}
                     </span>
                   </div>
@@ -192,7 +192,7 @@ export default function Timeline({ data, onProgress }) {
                   <div className="mt-4 pt-3 border-t border-rose-100/60 flex items-center justify-between">
                     <button
                       onClick={(e) => toggleLove(idx, e)}
-                      className={`flex items-center gap-1.5 text-xs font-bold px-3 py-1 rounded-full transition-all cursor-pointer ${
+                      className={`flex items-center gap-1.5 text-xs font-bold pill-pad rounded-full transition-all cursor-pointer ${
                         isLoved
                           ? "bg-rose-500 text-white shadow-sm"
                           : "bg-rose-50 text-rose-600 hover:bg-rose-100"
