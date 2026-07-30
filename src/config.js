@@ -168,6 +168,11 @@ const themes = {
       { caption: "Ice cream on a sunny day", src: "/gallery_icecream.png", color: "from-teal-400 to-cyan-500" },
       { caption: "Our sci-fi adventure", src: "/gallery_scifi.png", color: "from-indigo-400 to-purple-500" },
       { caption: "Winter wonderland", src: "/gallery_winter.png", color: "from-blue-200 to-blue-400" },
+      { caption: "Painting our masterpiece", src: "/gallery_cartoon_15.png", color: "from-pink-400 to-yellow-500" },
+      { caption: "Tandem ride through town", src: "/gallery_cartoon_16.png", color: "from-amber-400 to-green-500" },
+      { caption: "Starlit campfire", src: "/gallery_cartoon_17.png", color: "from-indigo-400 to-blue-600" },
+      { caption: "Winter wonderland skating", src: "/gallery_cartoon_18.png", color: "from-cyan-300 to-blue-500" },
+      { caption: "Sunset city views", src: "/gallery_cartoon_19.png", color: "from-orange-400 to-red-500" },
     ],
 
     // --- Promises Mode ---
@@ -337,6 +342,11 @@ const themes = {
       { caption: "Ice cream on a sunny day", src: "/gallery_icecream.png", color: "from-teal-400 to-cyan-500" },
       { caption: "Our sci-fi adventure", src: "/gallery_scifi.png", color: "from-indigo-400 to-purple-500" },
       { caption: "Winter wonderland", src: "/gallery_winter.png", color: "from-blue-200 to-blue-400" },
+      { caption: "Painting our masterpiece", src: "/gallery_cartoon_15.png", color: "from-pink-400 to-yellow-500" },
+      { caption: "Tandem ride through town", src: "/gallery_cartoon_16.png", color: "from-amber-400 to-green-500" },
+      { caption: "Starlit campfire", src: "/gallery_cartoon_17.png", color: "from-indigo-400 to-blue-600" },
+      { caption: "Winter wonderland skating", src: "/gallery_cartoon_18.png", color: "from-cyan-300 to-blue-500" },
+      { caption: "Sunset city views", src: "/gallery_cartoon_19.png", color: "from-orange-400 to-red-500" },
     ],
     promises: [
       "I promise to make your birthday as special as you make every day for me.",
@@ -491,6 +501,11 @@ const themes = {
       { caption: "Ice cream on a sunny day", src: "/gallery_icecream.png", color: "from-teal-400 to-cyan-500" },
       { caption: "Our sci-fi adventure", src: "/gallery_scifi.png", color: "from-indigo-400 to-purple-500" },
       { caption: "Winter wonderland", src: "/gallery_winter.png", color: "from-blue-200 to-blue-400" },
+      { caption: "Painting our masterpiece", src: "/gallery_cartoon_15.png", color: "from-pink-400 to-yellow-500" },
+      { caption: "Tandem ride through town", src: "/gallery_cartoon_16.png", color: "from-amber-400 to-green-500" },
+      { caption: "Starlit campfire", src: "/gallery_cartoon_17.png", color: "from-indigo-400 to-blue-600" },
+      { caption: "Winter wonderland skating", src: "/gallery_cartoon_18.png", color: "from-cyan-300 to-blue-500" },
+      { caption: "Sunset city views", src: "/gallery_cartoon_19.png", color: "from-orange-400 to-red-500" },
     ],
     promises: [
       "I promise to always hold your hand, even when our hands are old and wrinkled.",
