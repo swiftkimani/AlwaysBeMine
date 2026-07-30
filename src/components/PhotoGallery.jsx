@@ -84,9 +84,10 @@ export default function PhotoGallery({ data, onProgress }) {
           <div
             key={idx}
             onClick={() => handleView(idx)}
-            className={`gallery-item relative p-2.5 sm:p-3.5 pb-10 sm:pb-12 cursor-pointer group transition-all duration-500 shadow-[0_8px_20px_-4px_rgba(0,0,0,0.15)] hover:shadow-[0_20px_40px_-5px_rgba(0,0,0,0.25)] hover:-translate-y-3 hover:scale-105 hover:z-20 bg-[#fdfbf9] border border-zinc-200 aspect-[4/5] flex flex-col rotate-0 ${
-              ["sm:-rotate-2", "sm:rotate-2", "sm:-rotate-1", "sm:rotate-1", "sm:-rotate-3", "sm:rotate-3"][idx % 6]
-            }`}
+            className={`gallery-item relative p-2.5 sm:p-3.5 pb-10 sm:pb-12 cursor-pointer group transition-all duration-500 shadow-[0_8px_20px_-4px_rgba(0,0,0,0.15)] hover:shadow-[0_20px_40px_-5px_rgba(225,29,72,0.3)] hover:-translate-y-4 hover:scale-[1.15] hover:z-30 bg-[#fdfbf9] border-2 border-white aspect-[4/5] flex flex-col rotate-0 animate-fade-in-up opacity-0 ${
+              ["sm:-rotate-2", "sm:rotate-3", "sm:-rotate-1", "sm:rotate-2", "sm:-rotate-3", "sm:rotate-1"][idx % 6]
+            } ${["hover:rotate-2", "hover:-rotate-2", "hover:rotate-1", "hover:-rotate-3"][idx % 4]}`}
+            style={{ animationDelay: `${idx * 120}ms`, transformOrigin: "bottom center" }}
           >
             {/* Washi Tape */}
             <div className={`absolute -top-3 left-1/2 -translate-x-1/2 w-12 sm:w-16 h-6 bg-white/40 backdrop-blur-sm shadow-sm border border-white/50 z-20 ${["-rotate-3", "rotate-2", "rotate-4", "-rotate-2", "rotate-1", "-rotate-4"][idx % 6]}`} />
