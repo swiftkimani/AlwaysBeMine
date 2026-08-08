@@ -84,7 +84,7 @@ export default function Playlist({ data }) {
 
   return (
     <div className="w-full max-w-3xl mx-auto px-2">
-      <div className="liquid p-5 sm:p-7 md:p-8 rounded-3xl border border-white/80 shadow-xl">
+      <div className="liquid card-pad rounded-3xl border border-white/80 shadow-xl">
         {/* Hidden mount point for the real Spotify embed */}
         <div
           ref={embed.containerRef}
@@ -97,7 +97,7 @@ export default function Playlist({ data }) {
           <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-rose-500 via-pink-500 to-purple-600 flex items-center justify-center text-white text-2xl mx-auto mb-3 shadow-lg shadow-rose-500/30">
             🎵
           </div>
-          <h2 className="text-xl sm:text-2xl font-black text-zinc-900 mb-1" style={{ fontFamily: "Charm, serif" }}>
+          <h2 className="text-xl sm:text-2xl font-black text-zinc-900 mb-1" style={{ fontFamily: "var(--font-script)" }}>
             {data.title || "Our Love Songs"}
           </h2>
           <p className="text-xs sm:text-sm text-zinc-500 font-semibold">

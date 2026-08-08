@@ -30,7 +30,7 @@ export default function PromiseBuilder({ data, title, subtitle, onProgress }) {
     <div className="w-full max-w-4xl mx-auto px-2">
       {/* Title */}
       <div className="text-center mb-6 md:mb-8">
-        <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-zinc-900 mb-1" style={{ fontFamily: "Charm, serif" }}>
+        <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-zinc-900 mb-1" style={{ fontFamily: "var(--font-script)" }}>
           {title}
         </h2>
         <p className="text-xs text-zinc-500">{subtitle}</p>
@@ -103,7 +103,7 @@ export default function PromiseBuilder({ data, title, subtitle, onProgress }) {
                   }}
                 >
                   <div className="text-center flex flex-col items-center justify-center h-full">
-                    <p className="text-zinc-800 text-xs sm:text-sm md:text-base font-medium mb-3" style={{ fontFamily: "Charm, serif", lineHeight: 1.75 }}>
+                    <p className="text-zinc-800 text-xs sm:text-sm md:text-base font-medium mb-3" style={{ fontFamily: "var(--font-script)", lineHeight: 1.75 }}>
                       {promise}
                     </p>
                     <span className="text-[10px] text-rose-500 font-bold bg-rose-50 pill-pad rounded-full border border-rose-200">Sealed with love 💕</span>
@@ -118,7 +118,7 @@ export default function PromiseBuilder({ data, title, subtitle, onProgress }) {
       {/* All done */}
       {allFlipped && (
         <div className="liquid mt-5 card-pad-sm text-center animate-bounce-in border-l-4 border-rose-500 shadow-md">
-          <p className="text-sm sm:text-base text-zinc-800 font-bold" style={{ fontFamily: "Charm, serif" }}>
+          <p className="text-sm sm:text-base text-zinc-800 font-bold" style={{ fontFamily: "var(--font-script)" }}>
             All {data.length} promises revealed! Every single one is from the heart. 🥰
           </p>
         </div>

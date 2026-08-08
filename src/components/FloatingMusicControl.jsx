@@ -153,25 +153,17 @@ export default function FloatingMusicControl({ tracks, fallbackUrl }) {
       {/* ── Expanded music panel (chatbot tooltip style) ── */}
       {isOpen && (
         <div
-          className="absolute bottom-[calc(100%+12px)] right-0 w-80 animate-fade-in-up"
+          className="absolute bottom-[calc(100%+12px)] right-0 w-80 max-w-[calc(100vw-2rem)] animate-fade-in-up"
           style={{ transformOrigin: "bottom right" }}
         >
-          {/* Panel card */}
-          <div
-            className="relative rounded-3xl overflow-hidden shadow-[0_20px_60px_-10px_rgba(225,29,72,0.35)]"
-            style={{
-              background:
-                "linear-gradient(145deg,rgba(255,255,255,0.96),rgba(255,240,248,0.98))",
-              backdropFilter: "blur(16px)",
-              border: "1.5px solid rgba(255,255,255,0.8)",
-            }}
-          >
+          {/* Panel card — real glass; the animated bg glows through */}
+          <div className="music-panel relative rounded-[1.75rem] overflow-hidden">
             {/* Decorative header gradient */}
             <div
               className="h-1.5 w-full"
               style={{
                 background:
-                  "linear-gradient(90deg,#f43f5e,#ec4899,#a855f7,#f43f5e)",
+                  "linear-gradient(90deg,var(--color-love-bright),var(--color-pink),var(--color-purple),var(--color-love-bright))",
                 backgroundSize: "200% 100%",
                 animation: "gradientShift 3s linear infinite",
               }}
@@ -180,7 +172,7 @@ export default function FloatingMusicControl({ tracks, fallbackUrl }) {
             {embed.failed ? (
               <div className="p-5 text-center">
                 <p className="text-xs font-bold text-zinc-700 mb-1">Couldn't load Spotify here 🎵</p>
-                <p className="text-[11px] text-zinc-400 mb-3">
+                <p className="text-2xs text-zinc-400 mb-3">
                   Listen to the real tracks directly instead.
                 </p>
                 {fallbackUrl && (
@@ -199,20 +191,24 @@ export default function FloatingMusicControl({ tracks, fallbackUrl }) {
               <>
                 {/* Header: now playing */}
                 <div className="px-4 pt-3 pb-2 flex items-center gap-3">
-                  {/* Animated equaliser or note */}
-                  <div
-                    className={`w-10 h-10 rounded-2xl flex items-center justify-center shrink-0 transition-all duration-300 ${
-                      embed.isPlaying
-                        ? "bg-gradient-to-br from-rose-500 to-pink-500 shadow-md shadow-rose-400/50"
-                        : "bg-gradient-to-br from-rose-100 to-pink-100"
-                    }`}
-                  >
-                    {embed.isPlaying ? (
-                      <div className="flex gap-[3px] items-end h-4">
-                        {[0, 150, 300].map((delay) => (
+                  {/* Spinning vinyl heart — turns while the song plays */}
+                  <div className={`music-vinyl ${embed.isPlaying ? "music-vinyl-playing" : ""}`}>
+                    <span className="vinyl-heart" aria-hidden="true">💗</span>
+                  </div>
+
+                  <div className="min-w-0 flex-1">
+                    <p className="text-xs font-black text-zinc-800 truncate leading-tight">
+                      {track.title}
+                    </p>
+                    <p className="text-3xs text-zinc-400 truncate leading-tight mt-0.5">
+                      {track.artist}
+                    </p>
+                    {embed.isPlaying && (
+                      <div className="flex gap-[3px] items-end h-2 mt-1" aria-hidden="true">
+                        {[0, 150, 300, 450].map((delay) => (
                           <span
                             key={delay}
-                            className="w-[3px] rounded-full bg-white"
+                            className="w-[3px] rounded-full bg-gradient-to-t from-rose-500 to-purple-400"
                             style={{
                               height: "100%",
                               animation: `eqBar 0.6s ease-in-out ${delay}ms infinite alternate`,
@@ -220,18 +216,7 @@ export default function FloatingMusicControl({ tracks, fallbackUrl }) {
                           />
                         ))}
                       </div>
-                    ) : (
-                      <BsMusicNoteBeamed size={16} className="text-rose-500" />
                     )}
-                  </div>
-
-                  <div className="min-w-0 flex-1">
-                    <p className="text-xs font-black text-zinc-800 truncate leading-tight">
-                      {track.title}
-                    </p>
-                    <p className="text-[10px] text-zinc-400 truncate leading-tight mt-0.5">
-                      {track.artist}
-                    </p>
                   </div>
 
                   <button
@@ -255,7 +240,7 @@ export default function FloatingMusicControl({ tracks, fallbackUrl }) {
                   </button>
                 </div>
 
-                {/* Progress bar */}
+                {/* Progress bar — filled with the love gradient */}
                 <div className="px-4 pb-2">
                   <input
                     type="range"
@@ -264,8 +249,10 @@ export default function FloatingMusicControl({ tracks, fallbackUrl }) {
                     value={progress}
                     onChange={seek}
                     className="audio-progress w-full"
+                    style={{ "--progress": `${progress}%` }}
+                    aria-label="Seek position"
                   />
-                  <div className="flex justify-between text-[9px] font-semibold text-zinc-400 mt-1">
+                  <div className="flex justify-between text-4xs font-semibold text-zinc-400 mt-1">
                     <span>{fmt(embed.position)}</span>
                     <span>{fmt(embed.duration)}</span>
                   </div>
@@ -316,47 +303,48 @@ export default function FloatingMusicControl({ tracks, fallbackUrl }) {
                 </div>
 
                 {/* Track list */}
-                <div className="border-t border-zinc-100/80 px-3 pb-3 pt-2 space-y-1 max-h-[156px] overflow-y-auto no-scrollbar">
-                  <p className="text-[9px] font-black uppercase tracking-widest text-zinc-400 px-1 mb-2">
-                    ♫ Playlist
+                <div className="border-t border-white/60 px-3 pb-3 pt-2 space-y-1 max-h-[156px] overflow-y-auto no-scrollbar">
+                  <p className="text-4xs font-black uppercase tracking-widest text-rose-400/90 px-1 mb-2">
+                    ♫ Our little playlist 💕
                   </p>
                   {tracks.map((t, idx) => (
                     <button
                       key={idx}
                       onClick={() => setCurrentIdx(idx)}
-                      className={`w-full flex items-center gap-2.5 px-2 py-2 rounded-xl transition-all cursor-pointer text-left group ${
-                        idx === currentIdx
-                          ? "bg-gradient-to-r from-rose-50 to-pink-50 border border-rose-200/80"
-                          : "hover:bg-zinc-50 border border-transparent"
+                      className={`music-track-row w-full flex items-center gap-2.5 px-2 py-2 rounded-xl cursor-pointer text-left group ${
+                        idx === currentIdx ? "music-track-row-active" : ""
                       }`}
                     >
                       <span
-                        className={`w-5 h-5 rounded-lg flex items-center justify-center text-[9px] font-black shrink-0 transition-all ${
+                        className={`w-5 h-5 rounded-lg flex items-center justify-center text-4xs font-black shrink-0 transition-all ${
                           idx === currentIdx
                             ? "bg-gradient-to-br from-rose-500 to-pink-500 text-white shadow-sm"
-                            : "bg-zinc-200/70 text-zinc-500 group-hover:bg-zinc-300/70"
+                            : "bg-white/70 text-zinc-500 group-hover:bg-rose-100"
                         }`}
                       >
-                        {idx === currentIdx && embed.isPlaying ? "▶" : idx + 1}
+                        {idx === currentIdx && embed.isPlaying ? "♪" : idx + 1}
                       </span>
                       <div className="min-w-0 flex-1">
                         <p
-                          className={`text-[10px] font-bold truncate ${
+                          className={`text-3xs font-bold truncate ${
                             idx === currentIdx ? "text-rose-600" : "text-zinc-700"
                           }`}
                         >
                           {t.title}
                         </p>
-                        <p className="text-[9px] text-zinc-400 truncate">
+                        <p className="text-4xs text-zinc-400 truncate">
                           {t.artist}
                         </p>
                       </div>
+                      {idx === currentIdx && (
+                        <span className="text-xs shrink-0" aria-hidden="true">💗</span>
+                      )}
                     </button>
                   ))}
                 </div>
 
                 {/* Inspired by footer */}
-                <div className="border-t border-zinc-100/80 px-4 py-2 flex items-center justify-between">
+                <div className="border-t border-white/60 px-4 py-2 flex items-center justify-between">
                   <a
                     href="https://github.com/swiftkimani/AlwaysBeMine"
                     target="_blank"
@@ -378,8 +366,9 @@ export default function FloatingMusicControl({ tracks, fallbackUrl }) {
           <div
             className="absolute -bottom-2 right-5 w-4 h-4 rotate-45"
             style={{
-              background: "rgba(255,255,255,0.97)",
-              border: "1.5px solid rgba(255,255,255,0.8)",
+              background: "rgba(255,240,248,0.9)",
+              backdropFilter: "blur(20px)",
+              border: "1.5px solid rgba(255,255,255,0.85)",
               borderTop: "none",
               borderLeft: "none",
               boxShadow: "2px 2px 6px rgba(225,29,72,0.1)",
@@ -400,8 +389,8 @@ export default function FloatingMusicControl({ tracks, fallbackUrl }) {
         }`}
         style={{
           background: embed.isPlaying
-            ? "linear-gradient(135deg,#f43f5e,#ec4899,#a855f7)"
-            : "linear-gradient(135deg,#f43f5e,#be123c)",
+            ? "linear-gradient(135deg,var(--color-love-bright),var(--color-pink),var(--color-purple))"
+            : "linear-gradient(135deg,var(--color-love-bright),var(--color-love-deep))",
           backgroundSize: "200% 200%",
           animation: embed.isPlaying ? "gradientShift 2s linear infinite" : "none",
         }}
@@ -411,11 +400,20 @@ export default function FloatingMusicControl({ tracks, fallbackUrl }) {
           <span
             className="absolute inset-0 rounded-full"
             style={{
-              background: "linear-gradient(135deg,#f43f5e,#ec4899,#a855f7)",
+              background: "linear-gradient(135deg,var(--color-love-bright),var(--color-pink),var(--color-purple))",
               animation: "fabPulse 1.8s ease-out infinite",
               opacity: 0.4,
             }}
           />
+        )}
+
+        {/* Tiny notes drifting up while a song plays */}
+        {embed.isPlaying && (
+          <span aria-hidden="true">
+            <span className="music-note-rise" style={{ "--note-dx": "-18px", "--note-rot": "-20deg", "--note-delay": "0s" }}>🎵</span>
+            <span className="music-note-rise" style={{ "--note-dx": "14px", "--note-rot": "18deg", "--note-delay": "0.9s" }}>💕</span>
+            <span className="music-note-rise" style={{ "--note-dx": "2px", "--note-rot": "8deg", "--note-delay": "1.7s" }}>🎶</span>
+          </span>
         )}
 
         <span className="relative z-10 text-white">
