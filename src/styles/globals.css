@@ -1,0 +1,150 @@
+/* ============================================================
+   GLOBAL DESIGN SYSTEM — the single source of truth for every
+   color, font family, font size and spacing value in the app.
+
+   Component + animation styles live in index.css and should only
+   reference these tokens (via var(--...) or the generated Tailwind
+   utilities). JS code can use them too: style={{ color: "var(--color-love)" }}.
+   ============================================================ */
+@import url("https://fonts.googleapis.com/css2?family=Protest+Riot&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Beau+Rivage&family=Charm:wght@400;700&family=Elsie:wght@400;900&family=Great+Vibes&family=MonteCarlo&family=Parisienne&family=Prata&family=Quintessential&family=Square+Peg&display=swap");
+@import "tailwindcss";
+
+@theme {
+  /* ---- Font families ----------------------------------------
+     Each token also generates a Tailwind utility:
+     font-body, font-script, font-romantic, font-vibes. */
+  --font-body: "Protest Riot", system-ui, Avenir, Helvetica, Arial, sans-serif;
+  --font-script: "Charm", cursive, serif;
+  --font-romantic: "Beau Rivage", cursive, serif;
+  --font-vibes: "Great Vibes", cursive;
+
+  /* ---- Font sizes -------------------------------------------
+     Extends Tailwind's text-* scale downward for the tiny
+     caption/badge sizes that used to be hardcoded as
+     text-[11px] / text-[10px] / text-[9px]. */
+  --text-2xs: 0.6875rem; /* 11px — captions, tooltips */
+  --text-3xs: 0.625rem;  /* 10px — sub-captions */
+  --text-4xs: 0.5625rem; /* 9px  — count badges */
+
+  /* ---- Brand palette ----------------------------------------
+     Usable as Tailwind utilities (text-love, bg-pink, …) and as
+     var(--color-*) from CSS or inline styles / JS data. */
+  --color-love: #e11d48;        /* primary action rose */
+  --color-love-bright: #f43f5e; /* vivid rose */
+  --color-love-soft: #fb7185;   /* soft rose */
+  --color-love-blush: #fda4af;  /* pale rose */
+  --color-love-deep: #be123c;   /* pressed / gradient depth */
+  --color-love-wine: #9f1239;   /* darkest rose accent */
+  --color-pink: #ec4899;
+  --color-pink-soft: #f472b6;
+  --color-purple: #a855f7;
+  --color-purple-soft: #c084fc;
+  --color-gold: #fbbf24;
+  --color-amber: #f59e0b;
+  --color-sky: #38bdf8;
+  --color-sky-soft: #7dd3fc;
+  --color-teal-soft: #5eead4;
+  --color-violet-soft: #c4b5fd;
+  --color-emerald: #10b981;
+
+  /* Background wash tones (Classic Blush theme + page base) */
+  --color-blush-1: #fff6f8;
+  --color-blush-2: #ffeef2;
+  --color-blush-3: #fdf2f8;
+  --color-lilac: #f6f1ff;
+
+  /* Extra-light pastel backdrops — one per mode "sticker" family on the
+     nav rail (see data/modes.js NAV_ACCENTS), so each mode gets its own
+     gentle color instead of every button being flat white. */
+  --color-peach-light: #fff4e0;
+  --color-mint-light: #e6fff7;
+  --color-sky-light: #e0f6ff;
+  --color-violet-light: #f3e8ff;
+  --color-pink-light: #fff0f5;
+  --color-fuchsia-light: #fbe8ff;
+}
+
+/* ============================================================
+   BASE RESET + PAGE DEFAULTS
+   ============================================================ */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+:root {
+  font-family: var(--font-body);
+  line-height: 1.65;
+  font-weight: 400;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  --safe-top: env(safe-area-inset-top, 0px);
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+  --liquid-bg: linear-gradient(
+    135deg,
+    rgba(255, 240, 245, 0.72),
+    rgba(255, 255, 255, 0.50) 40%,
+    rgba(255, 228, 238, 0.60) 70%,
+    rgba(255, 245, 250, 0.68)
+  );
+
+  /* Shared spacing scale — every card/row/pill in the app should reach
+     for one of these instead of picking its own arbitrary padding, so
+     equivalent elements (e.g. two different "content card" components)
+     actually match instead of drifting p-4 vs p-6 vs p-7 apart. */
+  --space-1: 0.375rem;  /* 6px  — inside tiny chips */
+  --space-2: 0.75rem;   /* 12px — pills/badges */
+  --space-3: 1rem;      /* 16px — compact list rows */
+  --space-4: 1.25rem;   /* 20px — small notice/header cards (mobile) */
+  --space-5: 1.5rem;    /* 24px — small notice/header cards (desktop) / primary cards (mobile) */
+  --space-6: 2rem;      /* 32px — primary content cards (tablet) */
+  --space-7: 2.5rem;    /* 40px — primary content cards (desktop) */
+
+  /* Signature gradients — buttons, headings and accents all pull from
+     these so the whole app shifts together when the palette changes.
+     The text gradient loops (rose → pink → purple → pink → rose) so the
+     proposal heading's shimmer animation cycles seamlessly. */
+  --gradient-love-btn: linear-gradient(
+    135deg,
+    var(--color-love-bright) 0%,
+    var(--color-love) 40%,
+    var(--color-love-deep) 78%,
+    var(--color-purple) 130%
+  );
+  --gradient-love-text: linear-gradient(
+    90deg,
+    var(--color-love) 0%,
+    var(--color-pink) 30%,
+    var(--color-purple) 50%,
+    var(--color-pink) 70%,
+    var(--color-love) 100%
+  );
+  --gradient-accent-bar: linear-gradient(
+    90deg,
+    var(--color-love-soft),
+    var(--color-pink),
+    var(--color-purple)
+  );
+}
+
+body {
+  width: 100%;
+  background-position: center;
+  background-size: cover;
+  background-attachment: fixed;
+}
+
+html, body, #root {
+  width: 100%;
+  min-height: 100dvh;
+  background-color: var(--color-blush-3); /* Base fallback */
+}
+
+html {
+  scroll-behavior: smooth;
+  -webkit-overflow-scrolling: touch;
+}
