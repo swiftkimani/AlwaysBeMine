@@ -98,7 +98,7 @@ export default function LoveLetter({ data, onProgress }) {
               so the cursive swashes never crowd the accent bar or the prose. */}
           <p
             className="text-2xl sm:text-3xl md:text-4xl font-bold text-amber-950 mb-14 sm:mb-16 md:mb-20 tracking-wide"
-            style={{ fontFamily: "Great Vibes, cursive", lineHeight: 1.5 }}
+            style={{ fontFamily: "var(--font-vibes)", lineHeight: 1.5 }}
           >
             {data.greeting}
           </p>
@@ -112,7 +112,7 @@ export default function LoveLetter({ data, onProgress }) {
                 className={`letter-paragraph text-zinc-800 text-[15px] sm:text-base md:text-lg font-medium tracking-wide ${
                   i === 0 ? "letter-dropcap" : ""
                 }`}
-                style={{ fontFamily: "Charm, serif", lineHeight: 2.05 }}
+                style={{ fontFamily: "var(--font-script)", lineHeight: 2.05 }}
               >
                 {p}
               </p>
@@ -122,7 +122,7 @@ export default function LoveLetter({ data, onProgress }) {
                 className={`text-zinc-800 text-[15px] sm:text-base md:text-lg font-medium tracking-wide ${
                   revealedParagraphs === 0 ? "letter-dropcap" : ""
                 }`}
-                style={{ fontFamily: "Charm, serif", lineHeight: 2.05 }}
+                style={{ fontFamily: "var(--font-script)", lineHeight: 2.05 }}
               >
                 {typedText}
                 {isTyping && (
@@ -139,13 +139,13 @@ export default function LoveLetter({ data, onProgress }) {
             <div className="text-right space-y-4 animate-fade-in mt-6 pt-12 border-t border-amber-200/80">
               <p
                 className="text-2xl sm:text-3xl text-amber-800"
-                style={{ fontFamily: "Great Vibes, cursive" }}
+                style={{ fontFamily: "var(--font-vibes)" }}
               >
                 {data.closing}
               </p>
               <p
                 className="text-3xl sm:text-4xl font-bold text-amber-950"
-                style={{ fontFamily: "Great Vibes, cursive" }}
+                style={{ fontFamily: "var(--font-vibes)" }}
               >
                 {data.signature}
               </p>
@@ -191,7 +191,7 @@ export default function LoveLetter({ data, onProgress }) {
       </div>
 
       {/* Gamification footer */}
-      <div className="liquid mt-6 p-4 sm:p-5 flex items-center gap-4 rounded-2xl border border-white/80">
+      <div className="liquid mt-6 card-pad-sm flex items-center gap-4 rounded-2xl border border-white/80">
         <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center text-white text-lg shrink-0 shadow-md">
           ✉️
         </div>

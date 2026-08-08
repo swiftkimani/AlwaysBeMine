@@ -129,7 +129,7 @@ export default function QuizGame({ data, results, onProgress }) {
   if (finished) {
     return (
       <div className="w-full max-w-2xl mx-auto text-center px-2">
-        <div className="liquid p-6 sm:p-8 md:p-10 rounded-3xl border border-white/80 shadow-2xl animate-fade-in">
+        <div className="liquid card-pad rounded-3xl border border-white/80 shadow-2xl animate-fade-in">
           <div className="text-6xl sm:text-7xl mb-4">
             {percentage === 100
               ? "🏆"
@@ -141,7 +141,7 @@ export default function QuizGame({ data, results, onProgress }) {
           </div>
           <h2
             className="text-3xl sm:text-4xl md:text-5xl font-black text-zinc-900 mb-2"
-            style={{ fontFamily: "Charm, serif" }}
+            style={{ fontFamily: "var(--font-script)" }}
           >
             {score}/{total} Correct!
           </h2>
@@ -167,7 +167,7 @@ export default function QuizGame({ data, results, onProgress }) {
 
           <p
             className="text-zinc-800 text-base sm:text-lg mb-8 font-medium bg-rose-50/50 p-6 rounded-2xl border border-rose-100"
-            style={{ fontFamily: "Charm, serif", lineHeight: 1.8 }}
+            style={{ fontFamily: "var(--font-script)", lineHeight: 1.8 }}
           >
             {getResultMessage()}
           </p>
@@ -185,7 +185,7 @@ export default function QuizGame({ data, results, onProgress }) {
 
   return (
     <div className="w-full max-w-3xl mx-auto px-2">
-      <div className="liquid p-6 sm:p-8 md:p-10 rounded-3xl border border-white/80 shadow-2xl">
+      <div className="liquid card-pad rounded-3xl border border-white/80 shadow-2xl">
         {/* Header */}
         <div className="flex justify-between items-center mb-4">
           <span className="text-xs font-black text-rose-600 bg-rose-50 pill-pad rounded-full border border-rose-200 shadow-sm">
@@ -212,7 +212,7 @@ export default function QuizGame({ data, results, onProgress }) {
         {/* Question */}
         <h3
           className="text-lg sm:text-xl md:text-2xl font-black text-zinc-900 mb-7"
-          style={{ fontFamily: "Charm, serif", lineHeight: 1.7 }}
+          style={{ fontFamily: "var(--font-script)", lineHeight: 1.7 }}
         >
           {question.q}
         </h3>
@@ -282,7 +282,7 @@ export default function QuizGame({ data, results, onProgress }) {
           <div className="mt-6 card-pad-sm rounded-2xl bg-rose-50/90 border border-rose-200 text-center animate-bounce-in">
             <p
               className="text-sm sm:text-base font-bold text-rose-700"
-              style={{ fontFamily: "Charm, serif", lineHeight: 1.7 }}
+              style={{ fontFamily: "var(--font-script)", lineHeight: 1.7 }}
             >
               {feedbackMsg}
             </p>
