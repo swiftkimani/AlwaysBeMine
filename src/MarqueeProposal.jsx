@@ -30,7 +30,7 @@ export default function MarqueeProposal({ messages = [] }) {
         <span
           style={{
             fontSize: "clamp(0.9rem, 2.6vw, 1.6rem)",
-            fontFamily: "Charm, serif",
+            fontFamily: "var(--font-script)",
             fontWeight: 700,
             color: "#9f1239",
             textShadow: "0 1px 2px rgba(255,255,255,0.6)",

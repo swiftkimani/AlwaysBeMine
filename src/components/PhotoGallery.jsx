@@ -121,7 +121,7 @@ export default function PhotoGallery({ data, onProgress }) {
 
             {/* Polaroid Caption */}
             <div className="absolute bottom-2.5 sm:bottom-3 inset-x-2 text-center pointer-events-none">
-              <p className="text-zinc-800 text-sm sm:text-base font-bold truncate px-1" style={{ fontFamily: "'Charm', cursive" }}>
+              <p className="text-zinc-800 text-sm sm:text-base font-bold truncate px-1" style={{ fontFamily: "var(--font-script)" }}>
                 {item.caption}
               </p>
             </div>
@@ -213,7 +213,7 @@ export default function PhotoGallery({ data, onProgress }) {
               
               <p
                 className="text-2xl sm:text-5xl text-white font-bold text-center md:text-left leading-tight"
-                style={{ fontFamily: "Charm, serif" }}
+                style={{ fontFamily: "var(--font-script)" }}
               >
                 {data[activeIdx].caption} 💕
               </p>

@@ -34,7 +34,7 @@ export default function ReasonsJar({ data, onProgress }) {
   return (
     <div className="w-full max-w-3xl mx-auto px-2">
       {/* Jar Section Card */}
-      <div className="liquid p-6 sm:p-8 md:p-10 text-center rounded-3xl border border-white/80 shadow-2xl">
+      <div className="liquid card-pad text-center rounded-3xl border border-white/80 shadow-2xl">
         <div className="relative mb-6">
           {/* Animated Glass Jar SVG */}
           <div
@@ -141,7 +141,7 @@ export default function ReasonsJar({ data, onProgress }) {
             <div className="animate-bounce-in mt-4 bg-rose-50/80 card-pad-sm rounded-2xl border border-rose-200">
               <p
                 className="text-base sm:text-lg text-rose-700 font-bold"
-                style={{ fontFamily: "Charm, serif" }}
+                style={{ fontFamily: "var(--font-script)" }}
               >
                 You&apos;ve unlocked all {data.length} reasons why I love you! 🥰✨
               </p>
@@ -171,7 +171,7 @@ export default function ReasonsJar({ data, onProgress }) {
           </div>
           <p
             className="text-base sm:text-lg text-zinc-900 font-semibold break-words"
-            style={{ fontFamily: "Charm, serif", lineHeight: 1.8 }}
+            style={{ fontFamily: "var(--font-script)", lineHeight: 1.8 }}
           >
             {data[currentReason]} 💝
           </p>
@@ -195,7 +195,7 @@ export default function ReasonsJar({ data, onProgress }) {
                 </span>
                 <p
                   className="text-xs sm:text-sm text-zinc-800 font-medium min-w-0 flex-1 break-words"
-                  style={{ fontFamily: "Charm, serif", lineHeight: 1.75 }}
+                  style={{ fontFamily: "var(--font-script)", lineHeight: 1.75 }}
                 >
                   {data[idx]}
                 </p>

@@ -130,7 +130,7 @@ export default function Timeline({ data, onProgress }) {
                   </h3>
                   <p
                     className="text-xs sm:text-sm text-zinc-600 font-medium"
-                    style={{ fontFamily: "Charm, serif", lineHeight: 1.85 }}
+                    style={{ fontFamily: "var(--font-script)", lineHeight: 1.85 }}
                   >
                     {item.description}
                   </p>
@@ -185,7 +185,7 @@ export default function Timeline({ data, onProgress }) {
                   </h3>
                   <p
                     className="text-xs sm:text-sm text-zinc-600 font-medium"
-                    style={{ fontFamily: "Charm, serif", lineHeight: 1.85 }}
+                    style={{ fontFamily: "var(--font-script)", lineHeight: 1.85 }}
                   >
                     {item.description}
                   </p>
