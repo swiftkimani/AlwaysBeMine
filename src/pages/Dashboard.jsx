@@ -1,6 +1,10 @@
 import { useEffect, useState } from "react";
 import { supabase } from "../lib/supabaseClient.js";
 import { useAuth } from "../hooks/useAuth.js";
+import useCoupleContent from "../hooks/useCoupleContent.js";
+import LetterEditor from "../components/editor/LetterEditor.jsx";
+import TimelineEditor from "../components/editor/TimelineEditor.jsx";
+import ReasonsEditor from "../components/editor/ReasonsEditor.jsx";
 
 // Ensures the signed-in user has a couples row (+ empty content/progress
 // rows to match), creating them on first visit from the partner names/slug
@@ -58,33 +62,45 @@ export default function Dashboard() {
   const handleSignOut = () => supabase.auth.signOut();
 
   const publicUrl = couple ? `${window.location.origin}/c/${couple.slug}` : "";
+  const { content, loading: contentLoading, save } = useCoupleContent(couple?.id);
 
   return (
     <div className="min-h-dvh px-4 py-10 flex justify-center">
-      <div className="liquid card-pad-md w-full max-w-lg rounded-3xl space-y-4">
-        <div className="flex items-center justify-between">
-          <h1 className="text-2xl font-bold text-zinc-800">Dashboard</h1>
-          <button onClick={handleSignOut} className="text-sm text-zinc-600 hover:text-love">
-            Sign out
-          </button>
+      <div className="w-full max-w-lg space-y-4">
+        <div className="liquid card-pad-md rounded-3xl space-y-4">
+          <div className="flex items-center justify-between">
+            <h1 className="text-2xl font-bold text-zinc-800">Dashboard</h1>
+            <button onClick={handleSignOut} className="text-sm text-zinc-600 hover:text-love">
+              Sign out
+            </button>
+          </div>
+
+          {error && <p className="text-sm text-love">{error}</p>}
+          {!couple && !error && <p className="text-sm text-zinc-600">Setting up your page...</p>}
+
+          {couple && (
+            <>
+              <p className="text-sm text-zinc-600">
+                {couple.partner_a_name || "You"} &amp; {couple.partner_b_name || "Partner"}
+              </p>
+              <div className="rounded-xl border border-zinc-200 px-3 py-2 text-sm text-zinc-700 break-all">
+                {publicUrl}
+              </div>
+              <p className="text-sm text-zinc-500">
+                Gallery photos, quiz, and playlist editing aren't here yet — this covers letter,
+                timeline, and reasons jar for now.
+              </p>
+            </>
+          )}
         </div>
 
-        {error && <p className="text-sm text-love">{error}</p>}
+        {couple && contentLoading && <p className="text-sm text-zinc-500 text-center">Loading content...</p>}
 
-        {!couple && !error && <p className="text-sm text-zinc-600">Setting up your page...</p>}
-
-        {couple && (
+        {couple && content && (
           <>
-            <p className="text-sm text-zinc-600">
-              {couple.partner_a_name || "You"} &amp; {couple.partner_b_name || "Partner"}
-            </p>
-            <div className="rounded-xl border border-zinc-200 px-3 py-2 text-sm text-zinc-700 break-all">
-              {publicUrl}
-            </div>
-            <p className="text-sm text-zinc-500">
-              Content editing (letter, timeline, photos) is coming next — for now this confirms your
-              account and page are set up.
-            </p>
+            <LetterEditor content={content} onSave={save} />
+            <TimelineEditor content={content} onSave={save} />
+            <ReasonsEditor content={content} onSave={save} />
           </>
         )}
       </div>
