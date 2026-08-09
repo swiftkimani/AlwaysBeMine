@@ -7,6 +7,7 @@ import {
   BsHeartFill,
   BsMusicNoteBeamed,
   BsSpotify,
+  BsChevronDown,
   BsX,
 } from "react-icons/bs";
 import { useSpotifyEmbed } from "../useSpotifyEmbed.js";
@@ -14,6 +15,7 @@ import { useSpotifyEmbed } from "../useSpotifyEmbed.js";
 export default function FloatingMusicControl({ tracks, fallbackUrl }) {
   const [currentIdx, setCurrentIdx] = useState(0);
   const [isOpen, setIsOpen] = useState(false);
+  const [showPlaylist, setShowPlaylist] = useState(false);
   const [liked, setLiked] = useState(new Set());
 
   const panelRef = useRef(null);
@@ -150,25 +152,17 @@ export default function FloatingMusicControl({ tracks, fallbackUrl }) {
         style={{ position: "absolute", width: 1, height: 1, overflow: "hidden", opacity: 0, pointerEvents: "none" }}
       />
 
-      {/* ── Expanded music panel (chatbot tooltip style) ── */}
+      {/* ── Expanded music panel — a macOS Control Center "Now Playing"
+          widget: a clean floating card with no tail/pointer connecting
+          it to the button (that connector was also a recurring source
+          of layout bugs — removing it fixes that for good). ── */}
       {isOpen && (
         <div
           className="absolute bottom-[calc(100%+12px)] right-0 w-80 max-w-[calc(100vw-2rem)] animate-fade-in-up"
           style={{ transformOrigin: "bottom right" }}
         >
-          {/* Panel card — real glass; the animated bg glows through */}
+          {/* Panel card — neutral vibrancy glass; the animated bg glows through */}
           <div className="music-panel relative rounded-[1.75rem] overflow-hidden">
-            {/* Decorative header gradient */}
-            <div
-              className="h-1.5 w-full"
-              style={{
-                background:
-                  "linear-gradient(90deg,var(--color-love-bright),var(--color-pink),var(--color-purple),var(--color-love-bright))",
-                backgroundSize: "200% 100%",
-                animation: "gradientShift 3s linear infinite",
-              }}
-            />
-
             {embed.failed ? (
               <div className="p-5 text-center">
                 <p className="text-xs font-bold text-zinc-700 mb-1">Couldn't load Spotify here 🎵</p>
@@ -302,126 +296,110 @@ export default function FloatingMusicControl({ tracks, fallbackUrl }) {
                   </a>
                 </div>
 
-                {/* Track list */}
-                <div className="border-t border-white/60 px-3 pb-3 pt-2 space-y-1 max-h-[156px] overflow-y-auto no-scrollbar">
-                  <p className="text-4xs font-black uppercase tracking-widest text-rose-400/90 px-1 mb-2">
+                {/* Playlist toggle — collapsed by default so the panel
+                    stays compact; opens into the track list on demand
+                    instead of always paying its height. */}
+                <button
+                  onClick={(e) => { e.stopPropagation(); setShowPlaylist((p) => !p); }}
+                  className="w-full border-t border-white/60 px-4 py-2 flex items-center justify-between cursor-pointer group"
+                  aria-expanded={showPlaylist}
+                >
+                  <span className="text-4xs font-black uppercase tracking-widest text-rose-400/90">
                     ♫ Our little playlist 💕
-                  </p>
-                  {tracks.map((t, idx) => (
-                    <button
-                      key={idx}
-                      onClick={() => setCurrentIdx(idx)}
-                      className={`music-track-row w-full flex items-center gap-2.5 px-2 py-2 rounded-xl cursor-pointer text-left group ${
-                        idx === currentIdx ? "music-track-row-active" : ""
-                      }`}
-                    >
-                      <span
-                        className={`w-5 h-5 rounded-lg flex items-center justify-center text-4xs font-black shrink-0 transition-all ${
-                          idx === currentIdx
-                            ? "bg-gradient-to-br from-rose-500 to-pink-500 text-white shadow-sm"
-                            : "bg-white/70 text-zinc-500 group-hover:bg-rose-100"
+                  </span>
+                  <BsChevronDown
+                    size={11}
+                    className={`text-rose-300 transition-transform duration-300 group-hover:text-rose-500 ${showPlaylist ? "rotate-180" : ""}`}
+                  />
+                </button>
+
+                {showPlaylist && (
+                  <div className="animate-fade-in px-3 pb-2 pt-1 space-y-1 max-h-[156px] overflow-y-auto no-scrollbar">
+                    {tracks.map((t, idx) => (
+                      <button
+                        key={idx}
+                        onClick={() => setCurrentIdx(idx)}
+                        className={`music-track-row w-full flex items-center gap-2.5 px-2 py-2 rounded-xl cursor-pointer text-left group ${
+                          idx === currentIdx ? "music-track-row-active" : ""
                         }`}
                       >
-                        {idx === currentIdx && embed.isPlaying ? "♪" : idx + 1}
-                      </span>
-                      <div className="min-w-0 flex-1">
-                        <p
-                          className={`text-3xs font-bold truncate ${
-                            idx === currentIdx ? "text-rose-600" : "text-zinc-700"
+                        <span
+                          className={`w-5 h-5 rounded-lg flex items-center justify-center text-4xs font-black shrink-0 transition-all ${
+                            idx === currentIdx
+                              ? "bg-gradient-to-br from-rose-500 to-pink-500 text-white shadow-sm"
+                              : "bg-white/70 text-zinc-500 group-hover:bg-rose-100"
                           }`}
                         >
-                          {t.title}
-                        </p>
-                        <p className="text-4xs text-zinc-400 truncate">
-                          {t.artist}
-                        </p>
-                      </div>
-                      {idx === currentIdx && (
-                        <span className="text-xs shrink-0" aria-hidden="true">💗</span>
-                      )}
-                    </button>
-                  ))}
-                </div>
+                          {idx === currentIdx && embed.isPlaying ? "♪" : idx + 1}
+                        </span>
+                        <div className="min-w-0 flex-1">
+                          <p
+                            className={`text-3xs font-bold truncate ${
+                              idx === currentIdx ? "text-rose-600" : "text-zinc-700"
+                            }`}
+                          >
+                            {t.title}
+                          </p>
+                          <p className="text-4xs text-zinc-400 truncate">
+                            {t.artist}
+                          </p>
+                        </div>
+                        {idx === currentIdx && (
+                          <span className="text-xs shrink-0" aria-hidden="true">💗</span>
+                        )}
+                      </button>
+                    ))}
+                  </div>
+                )}
 
-                {/* Inspired by footer */}
-                <div className="border-t border-white/60 px-4 py-2 flex items-center justify-between">
+                {/* Footer credit — one centered, wrapping line instead of
+                    two independently-clipped ends, so it can never
+                    overflow regardless of panel width. */}
+                <div className="border-t border-white/60 px-4 py-2 flex flex-wrap items-center justify-center gap-x-2 gap-y-0.5 text-center">
                   <a
                     href="https://github.com/swiftkimani/AlwaysBeMine"
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-[9px] font-semibold text-zinc-400 hover:text-rose-500 transition-colors"
+                    className="text-4xs font-semibold text-zinc-400 hover:text-rose-500 transition-colors"
                   >
                     Inspired by Swift ✨
                   </a>
-                  <span className="text-[9px] text-zinc-300 flex items-center gap-1">
-                    <BsSpotify size={10} className="text-[#1DB954]" />
+                  <span className="text-4xs text-zinc-300" aria-hidden="true">·</span>
+                  <span className="text-4xs text-zinc-300 inline-flex items-center gap-1">
+                    <BsSpotify size={9} className="text-[#1DB954]" />
                     via Spotify
                   </span>
                 </div>
               </>
             )}
           </div>
-
-          {/* Tail / caret pointing down to FAB */}
-          <div
-            className="absolute -bottom-2 right-5 w-4 h-4 rotate-45"
-            style={{
-              background: "rgba(255,240,248,0.9)",
-              backdropFilter: "blur(20px)",
-              border: "1.5px solid rgba(255,255,255,0.85)",
-              borderTop: "none",
-              borderLeft: "none",
-              boxShadow: "2px 2px 6px rgba(225,29,72,0.1)",
-            }}
-          />
         </div>
       )}
 
-      {/* ── FAB bubble button ── */}
+      {/* ── FAB — a macOS Control Center tile: quiet frosted glass when
+          idle, solid rose fill only once something is playing. ── */}
       <button
         onClick={() => setIsOpen((p) => !p)}
         aria-label="Open music player"
         title="Music Player"
-        className={`relative flex items-center justify-center w-14 h-14 rounded-full cursor-pointer transition-all duration-300 select-none ${
-          isOpen
-            ? "shadow-[0_8px_30px_-4px_rgba(225,29,72,0.5)] scale-95"
-            : "shadow-[0_8px_30px_-4px_rgba(225,29,72,0.4)] hover:scale-105 hover:shadow-[0_12px_40px_-4px_rgba(225,29,72,0.55)] active:scale-95"
-        }`}
-        style={{
-          background: embed.isPlaying
-            ? "linear-gradient(135deg,var(--color-love-bright),var(--color-pink),var(--color-purple))"
-            : "linear-gradient(135deg,var(--color-love-bright),var(--color-love-deep))",
-          backgroundSize: "200% 200%",
-          animation: embed.isPlaying ? "gradientShift 2s linear infinite" : "none",
-        }}
+        className={`music-fab relative flex items-center justify-center w-14 h-14 rounded-full cursor-pointer transition-all duration-300 select-none ${
+          embed.isPlaying ? "music-fab-playing" : "music-fab-idle"
+        } ${isOpen ? "scale-95" : "hover:scale-105 active:scale-95"}`}
       >
         {/* Pulsing ring when playing */}
         {embed.isPlaying && (
           <span
             className="absolute inset-0 rounded-full"
             style={{
-              background: "linear-gradient(135deg,var(--color-love-bright),var(--color-pink),var(--color-purple))",
+              background: "var(--color-love-bright)",
               animation: "fabPulse 1.8s ease-out infinite",
               opacity: 0.4,
             }}
           />
         )}
 
-        {/* Tiny notes drifting up while a song plays */}
-        {embed.isPlaying && (
-          <span aria-hidden="true">
-            <span className="music-note-rise" style={{ "--note-dx": "-18px", "--note-rot": "-20deg", "--note-delay": "0s" }}>🎵</span>
-            <span className="music-note-rise" style={{ "--note-dx": "14px", "--note-rot": "18deg", "--note-delay": "0.9s" }}>💕</span>
-            <span className="music-note-rise" style={{ "--note-dx": "2px", "--note-rot": "8deg", "--note-delay": "1.7s" }}>🎶</span>
-          </span>
-        )}
-
-        <span className="relative z-10 text-white">
-          {embed.isPlaying ? (
-            <BsMusicNoteBeamed size={22} className="animate-bounce" />
-          ) : (
-            <BsMusicNoteBeamed size={22} />
-          )}
+        <span className="relative z-10">
+          <BsMusicNoteBeamed size={20} />
         </span>
 
         {/* Playing indicator dot */}
@@ -431,11 +409,6 @@ export default function FloatingMusicControl({ tracks, fallbackUrl }) {
       </button>
 
       <style>{`
-        @keyframes gradientShift {
-          0% { background-position: 0% 50%; }
-          50% { background-position: 100% 50%; }
-          100% { background-position: 0% 50%; }
-        }
         @keyframes fabPulse {
           0% { transform: scale(1); opacity: 0.5; }
           80% { transform: scale(1.7); opacity: 0; }
@@ -446,7 +419,7 @@ export default function FloatingMusicControl({ tracks, fallbackUrl }) {
           to { transform: scaleY(1); }
         }
         @keyframes fade-in-up {
-          from { opacity: 0; transform: translateY(10px) scale(0.97); }
+          from { opacity: 0; transform: translateY(6px) scale(0.94); }
           to { opacity: 1; transform: translateY(0) scale(1); }
         }
         .animate-fade-in-up {
