@@ -58,7 +58,6 @@ export default function FloatingMusicControl({ tracks, fallbackUrl }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [embed.ready]);
 
-  // Auto-open panel when playing starts
   useEffect(() => {
     if (embed.isPlaying) setIsOpen(true);
   }, [embed.isPlaying]);
@@ -68,9 +67,6 @@ export default function FloatingMusicControl({ tracks, fallbackUrl }) {
     return () => document.body.classList.remove("music-playing");
   }, [embed.isPlaying]);
 
-  // Best-effort "track ended" detection — the iFrame API doesn't expose an
-  // explicit ended event, but playback settling at/near the very end is a
-  // reliable enough signal to auto-advance.
   const lastPositionRef = useRef(0);
   useEffect(() => {
     const nearEnd = embed.duration > 0 && embed.position >= embed.duration - 0.4;
@@ -81,7 +77,6 @@ export default function FloatingMusicControl({ tracks, fallbackUrl }) {
     lastPositionRef.current = embed.position;
   }, [embed.position, embed.duration, embed.isPlaying, tracks?.length]);
 
-  // close panel on outside click
   useEffect(() => {
     if (!isOpen) return;
     const onDown = (e) => {
@@ -93,15 +88,10 @@ export default function FloatingMusicControl({ tracks, fallbackUrl }) {
     return () => window.removeEventListener("pointerdown", onDown);
   }, [isOpen]);
 
-  const skipNext = () => {
-    setCurrentIdx((p) => (p + 1) % tracks.length);
-  };
+  const skipNext = () => setCurrentIdx((p) => (p + 1) % tracks.length);
   const skipPrev = () => {
-    if (embed.position > 3) {
-      embed.seek(0);
-    } else {
-      setCurrentIdx((p) => (p - 1 + tracks.length) % tracks.length);
-    }
+    if (embed.position > 3) embed.seek(0);
+    else setCurrentIdx((p) => (p - 1 + tracks.length) % tracks.length);
   };
 
   const seek = (e) => {
@@ -120,9 +110,7 @@ export default function FloatingMusicControl({ tracks, fallbackUrl }) {
 
   const fmt = (s) => {
     if (!s || isNaN(s)) return "0:00";
-    return `${Math.floor(s / 60)}:${Math.floor(s % 60)
-      .toString()
-      .padStart(2, "0")}`;
+    return `${Math.floor(s / 60)}:${Math.floor(s % 60).toString().padStart(2, "0")}`;
   };
 
   if (!track) return null;
@@ -132,298 +120,237 @@ export default function FloatingMusicControl({ tracks, fallbackUrl }) {
   return (
     <div
       ref={panelRef}
+      className="fixed z-60"
       style={{
-        position: "fixed",
         top: "75%",
-        // translateZ(0) promotes this to its own GPU layer so it doesn't
-        // repaint on every scroll frame on mobile browsers.
         transform: "translateY(-50%) translateZ(0)",
         willChange: "transform",
-        backfaceVisibility: "hidden",
         right: "max(16px, 2dvw)",
-        zIndex: 60,
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "flex-end"
       }}
     >
-      {/* Hidden mount point for the real Spotify embed — sized to
-          effectively nothing since our own bubble/panel is the UI. */}
       <div
         ref={embed.containerRef}
         aria-hidden="true"
         style={{ position: "absolute", width: 1, height: 1, overflow: "hidden", opacity: 0, pointerEvents: "none" }}
       />
 
-      {/* ── Expanded music panel — a macOS Control Center "Now Playing"
-          widget: a clean floating card with no tail/pointer connecting
-          it to the button (that connector was also a recurring source
-          of layout bugs — removing it fixes that for good). ── */}
+      {/* ── Expanded premium iOS-style music panel ── */}
       {isOpen && (
         <div
-          className="absolute bottom-[calc(100%+12px)] right-0 w-80 max-w-[calc(100vw-2rem)] animate-fade-in-up"
+          className="absolute bottom-[calc(100%+16px)] right-0 w-[340px] max-w-[calc(100vw-2rem)] animate-fade-in-up"
           style={{ transformOrigin: "bottom right" }}
         >
-          {/* Panel card — neutral vibrancy glass; the animated bg glows through */}
-          <div className="music-panel relative rounded-[1.75rem] overflow-hidden">
-            {embed.failed ? (
-              <div className="p-5 text-center">
-                <p className="text-xs font-bold text-zinc-700 mb-1">Couldn't load Spotify here 🎵</p>
-                <p className="text-2xs text-zinc-400 mb-3">
-                  Listen to the real tracks directly instead.
-                </p>
-                {fallbackUrl && (
-                  <a
-                    href={fallbackUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center gap-2 px-4 py-2 rounded-full text-xs font-bold text-white bg-gradient-to-r from-[#1DB954] to-[#1ed760] shadow-md shadow-[#1DB954]/30"
-                  >
-                    <BsSpotify size={14} />
-                    Open on Spotify
-                  </a>
-                )}
+          {/* Main Card */}
+          <div className="relative bg-white/85 backdrop-blur-3xl rounded-[2rem] p-5 shadow-[0_24px_64px_-12px_rgba(0,0,0,0.15)] border border-white/70">
+             
+            {/* The Tip pointing precisely to the center of the FAB (FAB is w-12/48px, so its center is 24px from right. Tip is w-5/20px, so right-[14px] perfectly centers it at 24px) */}
+            <div className="absolute -bottom-2.5 right-[14px] w-5 h-5 bg-white/85 backdrop-blur-3xl rotate-45 border-b border-r border-white/70 shadow-[6px_6px_12px_rgba(0,0,0,0.05)] rounded-sm pointer-events-none" />
+
+            {/* Header / Track Info */}
+            <div className="flex items-center gap-4 mb-6 relative z-10">
+              <div className={`relative w-[60px] h-[60px] rounded-full shadow-lg overflow-hidden shrink-0 transition-transform duration-700 ${embed.isPlaying ? 'animate-[spin_4s_linear_infinite]' : ''}`}>
+                <div className="absolute inset-0 bg-zinc-900 rounded-full" />
+                <div className="absolute inset-1 border border-zinc-700 rounded-full" />
+                <div className="absolute inset-2 border border-zinc-700 rounded-full" />
+                <div className="absolute inset-3 border border-zinc-700 rounded-full" />
+                <div className="absolute inset-4 border border-zinc-700 rounded-full" />
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <div className="w-[18px] h-[18px] bg-gradient-to-br from-rose-400 to-pink-500 rounded-full shadow-inner flex items-center justify-center">
+                    <span className="text-[6px]">💗</span>
+                  </div>
+                </div>
               </div>
-            ) : (
-              <>
-                {/* Header: now playing */}
-                <div className="px-4 pt-3 pb-2 flex items-center gap-3">
-                  {/* Spinning vinyl heart — turns while the song plays */}
-                  <div className={`music-vinyl ${embed.isPlaying ? "music-vinyl-playing" : ""}`}>
-                    <span className="vinyl-heart" aria-hidden="true">💗</span>
-                  </div>
 
-                  <div className="min-w-0 flex-1">
-                    <p className="text-xs font-black text-zinc-800 truncate leading-tight">
-                      {track.title}
-                    </p>
-                    <p className="text-3xs text-zinc-400 truncate leading-tight mt-0.5">
-                      {track.artist}
-                    </p>
-                    {embed.isPlaying && (
-                      <div className="flex gap-[3px] items-end h-2 mt-1" aria-hidden="true">
-                        {[0, 150, 300, 450].map((delay) => (
-                          <span
-                            key={delay}
-                            className="w-[3px] rounded-full bg-gradient-to-t from-rose-500 to-purple-400"
-                            style={{
-                              height: "100%",
-                              animation: `eqBar 0.6s ease-in-out ${delay}ms infinite alternate`,
-                            }}
-                          />
-                        ))}
-                      </div>
-                    )}
-                  </div>
+              <div className="flex-1 min-w-0 flex flex-col justify-center">
+                <h3 className="text-base font-bold text-zinc-900 truncate leading-tight tracking-tight mb-1">{track.title}</h3>
+                <p className="text-sm font-medium text-zinc-500 truncate leading-none">{track.artist}</p>
+              </div>
+              
+              <button
+                onClick={(e) => { e.stopPropagation(); setIsOpen(false); }}
+                className="self-start w-7 h-7 rounded-full flex items-center justify-center text-zinc-400 hover:text-zinc-700 hover:bg-zinc-100 transition-colors -mr-1 -mt-1"
+                aria-label="Close music player"
+              >
+                <BsX size={18} />
+              </button>
+            </div>
 
-                  <button
-                    onClick={(e) => { e.stopPropagation(); toggleLike(e); }}
-                    className={`w-7 h-7 rounded-full flex items-center justify-center transition-all cursor-pointer ${
-                      liked.has(currentIdx)
-                        ? "text-rose-500 bg-rose-50"
-                        : "text-zinc-300 hover:text-rose-400 hover:bg-rose-50"
-                    }`}
-                    aria-label="Like track"
-                  >
-                    <BsHeartFill size={12} />
-                  </button>
+            {/* Seek bar */}
+            <div className="mb-6 relative z-10">
+              <input
+                type="range"
+                min="0" max="100"
+                value={progress}
+                onChange={seek}
+                className="sleek-progress w-full h-1.5 rounded-full appearance-none cursor-pointer bg-zinc-200"
+                style={{
+                  background: `linear-gradient(to right, #18181b ${progress}%, #e4e4e7 ${progress}%)`
+                }}
+              />
+              <div className="flex justify-between text-[11px] font-semibold text-zinc-500 mt-2 px-0.5 tracking-wide">
+                <span>{fmt(embed.position)}</span>
+                <span>{fmt(embed.duration)}</span>
+              </div>
+            </div>
 
-                  <button
-                    onClick={(e) => { e.stopPropagation(); setIsOpen(false); }}
-                    className="w-7 h-7 rounded-full flex items-center justify-center text-zinc-400 hover:text-zinc-700 hover:bg-zinc-100 transition-all cursor-pointer"
-                    aria-label="Close music player"
-                  >
-                    <BsX size={16} />
-                  </button>
-                </div>
+            {/* Controls */}
+            <div className="flex items-center justify-center gap-7 relative z-10 mb-4">
+              <button onClick={skipPrev} className="text-zinc-400 hover:text-zinc-900 transition-colors">
+                <BsSkipBackwardFill size={24} />
+              </button>
+              
+              <button
+                onClick={() => embed.togglePlay()}
+                disabled={!embed.ready}
+                className="w-16 h-16 rounded-full bg-zinc-900 text-white flex items-center justify-center shadow-xl hover:scale-105 active:scale-95 transition-all disabled:opacity-50"
+              >
+                {embed.isPlaying ? <BsPauseFill size={28} /> : <BsPlayFill size={30} className="ml-1.5" />}
+              </button>
+              
+              <button onClick={skipNext} className="text-zinc-400 hover:text-zinc-900 transition-colors">
+                <BsSkipForwardFill size={24} />
+              </button>
+            </div>
 
-                {/* Progress bar — filled with the love gradient */}
-                <div className="px-4 pb-2">
-                  <input
-                    type="range"
-                    min="0"
-                    max="100"
-                    value={progress}
-                    onChange={seek}
-                    className="audio-progress w-full"
-                    style={{ "--progress": `${progress}%` }}
-                    aria-label="Seek position"
-                  />
-                  <div className="flex justify-between text-4xs font-semibold text-zinc-400 mt-1">
-                    <span>{fmt(embed.position)}</span>
-                    <span>{fmt(embed.duration)}</span>
-                  </div>
-                </div>
-
-                {/* Controls */}
-                <div className="px-4 pb-3 flex items-center justify-center gap-3">
-                  <button
-                    onClick={(e) => { e.stopPropagation(); skipPrev(); }}
-                    className="w-9 h-9 rounded-full flex items-center justify-center text-zinc-500 hover:text-zinc-800 hover:bg-zinc-100 transition-all cursor-pointer"
-                    aria-label="Previous"
-                  >
-                    <BsSkipBackwardFill size={15} />
-                  </button>
-
-                  <button
-                    onClick={(e) => { e.stopPropagation(); embed.togglePlay(); }}
-                    disabled={!embed.ready}
-                    className="w-12 h-12 rounded-full flex items-center justify-center bg-gradient-to-br from-rose-500 to-pink-500 text-white shadow-lg shadow-rose-400/50 hover:shadow-xl hover:scale-105 active:scale-95 transition-all cursor-pointer disabled:opacity-50 disabled:cursor-wait"
-                    aria-label={embed.isPlaying ? "Pause" : "Play"}
-                  >
-                    {embed.isPlaying ? (
-                      <BsPauseFill size={22} />
-                    ) : (
-                      <BsPlayFill size={22} className="ml-0.5" />
-                    )}
-                  </button>
-
-                  <button
-                    onClick={(e) => { e.stopPropagation(); skipNext(); }}
-                    className="w-9 h-9 rounded-full flex items-center justify-center text-zinc-500 hover:text-zinc-800 hover:bg-zinc-100 transition-all cursor-pointer"
-                    aria-label="Next"
-                  >
-                    <BsSkipForwardFill size={15} />
-                  </button>
-
-                  <a
-                    href={fallbackUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="w-8 h-8 rounded-full flex items-center justify-center text-[#1DB954] hover:bg-[#1DB954]/10 transition-all cursor-pointer ml-1"
-                    aria-label="Open on Spotify"
-                    title="Open on Spotify"
-                    onClick={(e) => e.stopPropagation()}
-                  >
-                    <BsSpotify size={16} />
-                  </a>
-                </div>
-
-                {/* Playlist toggle — collapsed by default so the panel
-                    stays compact; opens into the track list on demand
-                    instead of always paying its height. */}
-                <button
-                  onClick={(e) => { e.stopPropagation(); setShowPlaylist((p) => !p); }}
-                  className="w-full border-t border-white/60 px-4 py-2 flex items-center justify-between cursor-pointer group"
-                  aria-expanded={showPlaylist}
+            <div className="flex items-center justify-between mt-5 pt-4 border-t border-black/5 relative z-10">
+               <button
+                  onClick={(e) => { e.stopPropagation(); toggleLike(e); }}
+                  className={`flex items-center gap-1.5 px-2 py-1 rounded-full transition-colors ${
+                    liked.has(currentIdx) ? "text-rose-500 bg-rose-50" : "text-zinc-400 hover:text-rose-400 hover:bg-rose-50"
+                  }`}
                 >
-                  <span className="text-4xs font-black uppercase tracking-widest text-rose-400/90">
-                    ♫ Our little playlist 💕
-                  </span>
-                  <BsChevronDown
-                    size={11}
-                    className={`text-rose-300 transition-transform duration-300 group-hover:text-rose-500 ${showPlaylist ? "rotate-180" : ""}`}
-                  />
-                </button>
+                  <BsHeartFill size={13} />
+                  <span className="text-[10px] font-bold tracking-wider uppercase">Love</span>
+               </button>
 
-                {showPlaylist && (
-                  <div className="animate-fade-in px-3 pb-2 pt-1 space-y-1 max-h-[156px] overflow-y-auto no-scrollbar">
-                    {tracks.map((t, idx) => (
-                      <button
-                        key={idx}
-                        onClick={() => setCurrentIdx(idx)}
-                        className={`music-track-row w-full flex items-center gap-2.5 px-2 py-2 rounded-xl cursor-pointer text-left group ${
-                          idx === currentIdx ? "music-track-row-active" : ""
-                        }`}
-                      >
-                        <span
-                          className={`w-5 h-5 rounded-lg flex items-center justify-center text-4xs font-black shrink-0 transition-all ${
-                            idx === currentIdx
-                              ? "bg-gradient-to-br from-rose-500 to-pink-500 text-white shadow-sm"
-                              : "bg-white/70 text-zinc-500 group-hover:bg-rose-100"
-                          }`}
-                        >
-                          {idx === currentIdx && embed.isPlaying ? "♪" : idx + 1}
-                        </span>
-                        <div className="min-w-0 flex-1">
-                          <p
-                            className={`text-3xs font-bold truncate ${
-                              idx === currentIdx ? "text-rose-600" : "text-zinc-700"
-                            }`}
-                          >
-                            {t.title}
-                          </p>
-                          <p className="text-4xs text-zinc-400 truncate">
-                            {t.artist}
-                          </p>
+               <a
+                  href={fallbackUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-1.5 px-2 py-1 rounded-full text-[#1DB954] hover:bg-[#1DB954]/10 transition-colors"
+               >
+                  <BsSpotify size={13} />
+                  <span className="text-[10px] font-bold tracking-wider uppercase">Spotify</span>
+               </a>
+            </div>
+
+            {/* Playlist Toggle */}
+            <div className="mt-2 pt-2 border-t border-black/5 relative z-10">
+              <button
+                onClick={(e) => { e.stopPropagation(); setShowPlaylist((p) => !p); }}
+                className="w-full flex items-center justify-between group py-2"
+              >
+                <span className="text-[10px] font-bold uppercase tracking-wider text-zinc-400 group-hover:text-zinc-700 transition-colors">
+                  Up Next
+                </span>
+                <BsChevronDown size={12} className={`text-zinc-400 transition-transform ${showPlaylist ? "rotate-180" : ""}`} />
+              </button>
+
+              {showPlaylist && (
+                <div className="animate-fade-in pt-2 space-y-1 max-h-[140px] overflow-y-auto no-scrollbar">
+                  {tracks.map((t, idx) => (
+                    <button
+                      key={idx}
+                      onClick={() => setCurrentIdx(idx)}
+                      className={`w-full flex items-center gap-3 px-3 py-2 rounded-xl cursor-pointer text-left transition-colors ${
+                        idx === currentIdx ? "bg-zinc-100" : "hover:bg-zinc-50"
+                      }`}
+                    >
+                      {idx === currentIdx && embed.isPlaying ? (
+                        <div className="flex gap-[2px] items-end h-3 w-4 shrink-0">
+                          {[0, 150, 300].map((delay) => (
+                            <span
+                              key={delay}
+                              className="w-[3px] bg-zinc-900 rounded-full"
+                              style={{ height: "100%", animation: `eqBar 0.6s ease-in-out ${delay}ms infinite alternate` }}
+                            />
+                          ))}
                         </div>
-                        {idx === currentIdx && (
-                          <span className="text-xs shrink-0" aria-hidden="true">💗</span>
-                        )}
-                      </button>
-                    ))}
-                  </div>
-                )}
-
-                {/* Footer credit — one centered, wrapping line instead of
-                    two independently-clipped ends, so it can never
-                    overflow regardless of panel width. */}
-                <div className="border-t border-white/60 px-4 py-2 flex flex-wrap items-center justify-center gap-x-2 gap-y-0.5 text-center">
-                  <a
-                    href="https://github.com/swiftkimani/AlwaysBeMine"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-4xs font-semibold text-zinc-400 hover:text-rose-500 transition-colors"
-                  >
-                    Inspired by Swift ✨
-                  </a>
-                  <span className="text-4xs text-zinc-300" aria-hidden="true">·</span>
-                  <span className="text-4xs text-zinc-300 inline-flex items-center gap-1">
-                    <BsSpotify size={9} className="text-[#1DB954]" />
-                    via Spotify
-                  </span>
+                      ) : (
+                        <span className="w-4 text-center text-[10px] font-bold text-zinc-400 shrink-0">{idx + 1}</span>
+                      )}
+                      <div className="min-w-0 flex-1">
+                        <p className={`text-[11px] font-bold truncate ${idx === currentIdx ? "text-zinc-900" : "text-zinc-600"}`}>
+                          {t.title}
+                        </p>
+                        <p className="text-[9px] text-zinc-400 truncate">{t.artist}</p>
+                      </div>
+                    </button>
+                  ))}
                 </div>
-              </>
-            )}
+              )}
+            </div>
           </div>
         </div>
       )}
 
-      {/* ── FAB — a macOS Control Center tile: quiet frosted glass when
-          idle, solid rose fill only once something is playing. ── */}
+      {/* ── FAB — sleek frosted circle aligned perfectly with the tip ── */}
       <button
         onClick={() => setIsOpen((p) => !p)}
         aria-label="Open music player"
-        title="Music Player"
-        className={`music-fab relative flex items-center justify-center w-14 h-14 rounded-full cursor-pointer transition-all duration-300 select-none ${
-          embed.isPlaying ? "music-fab-playing" : "music-fab-idle"
-        } ${isOpen ? "scale-95" : "hover:scale-105 active:scale-95"}`}
+        className={`relative flex items-center justify-center w-12 h-12 rounded-full cursor-pointer transition-all duration-300 shadow-[0_8px_16px_rgba(0,0,0,0.1)] border border-white/60 select-none ${
+          isOpen ? "bg-white text-zinc-900 scale-95 shadow-md" : "bg-white/80 backdrop-blur-xl text-zinc-700 hover:bg-white hover:scale-105"
+        }`}
       >
-        {/* Pulsing ring when playing */}
-        {embed.isPlaying && (
+        {embed.isPlaying && !isOpen && (
           <span
-            className="absolute inset-0 rounded-full"
-            style={{
-              background: "var(--color-love-bright)",
-              animation: "fabPulse 1.8s ease-out infinite",
-              opacity: 0.4,
-            }}
+            className="absolute inset-0 rounded-full bg-zinc-900/10 pointer-events-none"
+            style={{ animation: "fabPulse 2s ease-out infinite" }}
           />
         )}
 
-        <span className="relative z-10">
-          <BsMusicNoteBeamed size={20} />
+        <span className="relative z-10 transition-transform duration-300" style={{ transform: isOpen ? 'rotate(-10deg)' : 'rotate(0)' }}>
+          <BsMusicNoteBeamed size={18} />
         </span>
 
-        {/* Playing indicator dot */}
-        {embed.isPlaying && (
-          <span className="absolute top-1 right-1 w-2.5 h-2.5 bg-white rounded-full shadow-sm" />
+        {embed.isPlaying && !isOpen && (
+          <span className="absolute top-1 right-1 w-2.5 h-2.5 bg-rose-500 border-2 border-white rounded-full shadow-sm" />
         )}
       </button>
 
       <style>{`
+        .sleek-progress::-webkit-slider-thumb {
+          appearance: none;
+          width: 0px;
+          height: 0px;
+          border-radius: 50%;
+          background: #18181b;
+          transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+          box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+        .sleek-progress:hover::-webkit-slider-thumb {
+          width: 12px;
+          height: 12px;
+        }
+        .sleek-progress::-moz-range-thumb {
+          width: 0px;
+          height: 0px;
+          border-radius: 50%;
+          background: #18181b;
+          transition: all 0.2s;
+          border: none;
+        }
+        .sleek-progress:hover::-moz-range-thumb {
+          width: 12px;
+          height: 12px;
+        }
         @keyframes fabPulse {
-          0% { transform: scale(1); opacity: 0.5; }
-          80% { transform: scale(1.7); opacity: 0; }
-          100% { transform: scale(1.7); opacity: 0; }
+          0% { transform: scale(1); opacity: 0.8; }
+          100% { transform: scale(1.6); opacity: 0; }
         }
         @keyframes eqBar {
-          from { transform: scaleY(0.2); }
+          from { transform: scaleY(0.3); }
           to { transform: scaleY(1); }
         }
         @keyframes fade-in-up {
-          from { opacity: 0; transform: translateY(6px) scale(0.94); }
+          from { opacity: 0; transform: translateY(12px) scale(0.96); }
           to { opacity: 1; transform: translateY(0) scale(1); }
         }
         .animate-fade-in-up {
-          animation: fade-in-up 0.22s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+          animation: fade-in-up 0.3s cubic-bezier(0.2, 0.9, 0.4, 1) forwards;
         }
       `}</style>
     </div>

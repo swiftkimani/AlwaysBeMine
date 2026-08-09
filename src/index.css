@@ -553,6 +553,63 @@ p, h1, h2, h3, h4, h5, h6, span, li, td, th {
 }
 
 /* ============================================================
+   PROPOSAL MARQUEE — full-bleed, oversized scrolling headline with a
+   soft blurred gradient glow instead of a small card. Breaks out of
+   its centered/padded container to span the true viewport width via
+   the standard left:50%/-50vw technique; safe because .proposal-stage
+   (its ancestor) already sets overflow-x:hidden, so this can never
+   cause page-level horizontal scroll.
+   ============================================================ */
+.marquee-proposal-bleed {
+  width: 100vw;
+  position: relative;
+  left: 50%;
+  right: 50%;
+  margin-left: -50vw;
+  margin-right: -50vw;
+  margin-top: 1.5rem;
+}
+
+.marquee-proposal {
+  position: relative;
+  width: 100%;
+  height: clamp(4.5rem, 14vw, 8rem);
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+}
+
+.marquee-glow-text {
+  position: relative;
+  z-index: 1;
+  padding: 0 2rem;
+  font-family: var(--font-script);
+  font-weight: 700;
+  font-size: clamp(2.25rem, 9vw, 5.5rem);
+  line-height: 1;
+  background-image: var(--gradient-love-text);
+  background-clip: text;
+  -webkit-background-clip: text;
+  color: transparent;
+  /* The "blurred color" — a soft glowing halo behind the gradient
+     text, built from stacked blurred shadows in the app's rose/pink/
+     purple palette, rather than one flat drop shadow. text-shadow
+     renders off the glyph outlines regardless of the transparent
+     fill above, so the glow shows through correctly. */
+  text-shadow:
+    0 0 18px color-mix(in srgb, var(--color-love-bright) 55%, transparent),
+    0 0 42px color-mix(in srgb, var(--color-purple) 45%, transparent),
+    0 0 80px color-mix(in srgb, var(--color-pink) 35%, transparent);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .marquee-proposal {
+    height: auto;
+    overflow: visible;
+  }
+}
+
+/* ============================================================
    YES BUTTON PULSE
    ============================================================ */
 @keyframes yes-pulse {
