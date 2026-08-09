@@ -2,8 +2,11 @@ import { useState, useEffect } from "react";
 
 // How long one message takes to scroll fully across, and how often the
 // next one starts — kept equal so each phrase gets one clean, complete
-// pass instead of getting cut off mid-scroll by the next swap.
-const SCROLL_SECONDS = 13;
+// pass instead of getting cut off mid-scroll by the next swap. Now that
+// the marquee spans the full viewport (not a narrow card), the text
+// travels a much longer distance per pass, so this is slower than it
+// was before to keep the actual on-screen speed comfortable to read.
+const SCROLL_SECONDS = 24;
 
 export default function MarqueeProposal({ messages = [] }) {
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -33,7 +36,15 @@ export default function MarqueeProposal({ messages = [] }) {
           animation-iteration-count: infinite;
         }
         @keyframes marquee {
-          0% { transform: translateX(100%); }
+          /* Start position is viewport-relative (100vw), not
+             text-relative (100%) — with a full-bleed container, a
+             short phrase's "100% of itself" isn't nearly enough
+             distance to actually start off-screen, which is what
+             made this look like it was rushing in from mid-air.
+             The end position stays text-relative (-100%) so it
+             correctly clears the left edge regardless of how long
+             the phrase is. */
+          0% { transform: translateX(100vw); }
           100% { transform: translateX(-100%); }
         }
         @media (prefers-reduced-motion: reduce) {
