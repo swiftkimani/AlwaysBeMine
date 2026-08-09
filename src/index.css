@@ -553,18 +553,17 @@ p, h1, h2, h3, h4, h5, h6, span, li, td, th {
 }
 
 /* ============================================================
-   PROPOSAL MARQUEE — full-bleed, oversized scrolling headline with a
-   soft blurred gradient glow instead of a small card. Breaks out of
-   its centered/padded container to span the true viewport width via
-   the standard left:50%/-50vw technique; safe because .proposal-stage
-   (its ancestor) already sets overflow-x:hidden, so this can never
-   cause page-level horizontal scroll.
+   PROPOSAL MARQUEE — full-bleed, oversized scrolling headline
+   instead of a small card. Breaks out of its centered/padded flex
+   container to span the true viewport width via a pure margin-based
+   technique (margin: calc(50% - 50vw)) — deliberately not
+   position:relative + left:50%/-50vw, which can fight with a flex
+   parent's own sizing pass. The caller also wraps this in an inert
+   block-level div (see MarqueeProposal.jsx) so this element's
+   containing block is never itself a flex item. Safe against
+   page-level horizontal scroll because .proposal-stage (its
+   ancestor) already sets overflow-x:hidden.
    ============================================================ */
-/* Pure margin-based full-bleed breakout — deliberately not the
-   position:relative + left:50%/-50vw technique, which can fight with
-   a flex parent's own sizing algorithm (this sits inside a flex
-   column with align-items:center). Margins are always respected
-   as-specified by flex layout, so this is the more robust choice. */
 .marquee-proposal-bleed {
   width: 100vw;
   max-width: 100vw;
@@ -582,7 +581,7 @@ p, h1, h2, h3, h4, h5, h6, span, li, td, th {
   align-items: center;
 }
 
-.marquee-glow-text {
+.marquee-text {
   position: relative;
   z-index: 1;
   padding: 0 2rem;
@@ -594,15 +593,6 @@ p, h1, h2, h3, h4, h5, h6, span, li, td, th {
   background-clip: text;
   -webkit-background-clip: text;
   color: transparent;
-  /* The "blurred color" — a soft glowing halo behind the gradient
-     text, built from stacked blurred shadows in the app's rose/pink/
-     purple palette, rather than one flat drop shadow. text-shadow
-     renders off the glyph outlines regardless of the transparent
-     fill above, so the glow shows through correctly. */
-  text-shadow:
-    0 0 18px color-mix(in srgb, var(--color-love-bright) 55%, transparent),
-    0 0 42px color-mix(in srgb, var(--color-purple) 45%, transparent),
-    0 0 80px color-mix(in srgb, var(--color-pink) 35%, transparent);
 }
 
 @media (prefers-reduced-motion: reduce) {

@@ -19,12 +19,21 @@ export default function MarqueeProposal({ messages = [] }) {
   }, [messages.length]);
 
   return (
-    <div className="marquee-proposal-bleed">
-      <div className="marquee-proposal">
-        <div className="marquee-track" key={currentIndex} style={{ animationDuration: `${SCROLL_SECONDS}s` }}>
-          <span className="marquee-glow-text">
-            {messages[currentIndex]}
-          </span>
+    // Plain, unstyled wrapper with no width/flex opinion of its own —
+    // it exists purely so .marquee-proposal-bleed's containing block is
+    // a normal block box instead of a flex item directly. The caller
+    // (ProposalScene) renders this inside a `flex items-center`
+    // column, and a flex item's own sizing pass can conflict with a
+    // margin-based full-bleed breakout applied directly to it. One
+    // inert block wrapper in between removes that ambiguity entirely.
+    <div className="w-full">
+      <div className="marquee-proposal-bleed">
+        <div className="marquee-proposal">
+          <div className="marquee-track" key={currentIndex} style={{ animationDuration: `${SCROLL_SECONDS}s` }}>
+            <span className="marquee-text">
+              {messages[currentIndex]}
+            </span>
+          </div>
         </div>
       </div>
       <style>{`
