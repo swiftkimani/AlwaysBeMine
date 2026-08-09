@@ -17,7 +17,10 @@ import {
 // hover gifs, keyboard shortcuts and the three Swal popups. Lives in a
 // hook (owned by App, not the proposal component) so progress survives
 // switching to another mode and back.
-export default function useProposal(activeMode, { unlockAchievement, onCelebrate }) {
+export default function useProposal(
+  activeMode,
+  { unlockAchievement, onCelebrate, initialNoCount = 0, onNoCountChange }
+) {
   const config = useCoupleConfig();
   const swalBase = useMemo(
     () => ({
@@ -29,6 +32,13 @@ export default function useProposal(activeMode, { unlockAchievement, onCelebrate
     [config.popupColor]
   );
   const [noCount, setNoCount] = useState(0);
+
+  // initialNoCount arrives asynchronously (after a Supabase fetch resolves,
+  // on the couple-page route only) — it's undefined until then and stable
+  // once set, so this only ever fires once and never clobbers later clicks.
+  useEffect(() => {
+    if (initialNoCount != null) setNoCount(initialNoCount);
+  }, [initialNoCount]);
   const [yesPressed, setYesPressed] = useState(false);
   const [currentGifIndex, setCurrentGifIndex] = useState(0);
   const [popupShown, setPopupShown] = useState(false);
@@ -60,11 +70,12 @@ export default function useProposal(activeMode, { unlockAchievement, onCelebrate
   const handleNoClick = useCallback(() => {
     const next = noCount + 1;
     setNoCount(next);
+    onNoCountChange?.(next);
     if (next >= 4 && gifRef.current) gifRef.current.src = NoGifs[(next - 4) % NoGifs.length];
     if (next === 5) unlockAchievement("persistent", "😤", "Persistent - Clicked No 5 times!");
     if (next === 10) unlockAchievement("stubborn", "💢", "Stubborn - 10 No clicks!");
     if (next === 15) unlockAchievement("unbreakable", "🛡️", "Unbreakable - 15 No clicks!");
-  }, [noCount, unlockAchievement]);
+  }, [noCount, unlockAchievement, onNoCountChange]);
 
   // Keyboard shortcuts, proposal mode only: Enter/Space = yes, Esc = no
   useEffect(() => {

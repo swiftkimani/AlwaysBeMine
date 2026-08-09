@@ -14,6 +14,7 @@ import App from "../App.jsx";
 function mergeConfig(couple, content) {
   return {
     ...staticConfig,
+    coupleId: couple.id,
     navTitle: `${couple.partner_a_name || staticConfig.navTitle} & ${couple.partner_b_name || ""}`.trim(),
     togetherSince: couple.anniversary_date || staticConfig.togetherSince,
     letter: {

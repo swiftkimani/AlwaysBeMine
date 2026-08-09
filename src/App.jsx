@@ -9,6 +9,7 @@ import useAchievements from "./hooks/useAchievements.js";
 import useTapHearts from "./hooks/useTapHearts.js";
 import useModeProgress from "./hooks/useModeProgress.js";
 import useProposal from "./hooks/useProposal.js";
+import useCoupleProgress from "./hooks/useCoupleProgress.js";
 
 import Nav from "./components/layout/Nav.jsx";
 import GreetingBadge from "./components/layout/GreetingBadge.jsx";
@@ -30,7 +31,12 @@ export default function App() {
   const config = useCoupleConfig();
   const { activeMode, setActiveMode, visitedModes } = useActiveMode();
   const { scrollProgress, showBackToTop } = useScrollProgress(activeMode);
-  const { achievements, pendingAchievement, unlockAchievement, dismissPending } = useAchievements();
+  const { progress, save: saveProgress } = useCoupleProgress(config.coupleId);
+  const onAchievementsChange = useCallback((list) => saveProgress({ achievements: list }), [saveProgress]);
+  const { achievements, pendingAchievement, unlockAchievement, dismissPending } = useAchievements({
+    initialAchievements: progress?.achievements,
+    onAchievementsChange,
+  });
   const { handleModeProgress } = useModeProgress();
   const tapHearts = useTapHearts();
   const { burst } = useRomance();
@@ -43,7 +49,25 @@ export default function App() {
   const [showOnboarding, setShowOnboarding] = useState(() => !localStorage.getItem("abm_onboarded"));
 
   const celebrate = useCallback(() => setShowConfetti(true), []);
-  const proposal = useProposal(activeMode, { unlockAchievement, onCelebrate: celebrate });
+  const onNoCountChange = useCallback((n) => saveProgress({ no_count: n }), [saveProgress]);
+  const proposal = useProposal(activeMode, {
+    unlockAchievement,
+    onCelebrate: celebrate,
+    initialNoCount: progress?.no_count,
+    onNoCountChange,
+  });
+
+  const onLetterRevealChange = useCallback(
+    (n) => saveProgress({ letter_revealed_paragraphs: n }),
+    [saveProgress]
+  );
+  const onLetterSeal = useCallback(() => saveProgress({ letter_sealed: true }), [saveProgress]);
+  const letterProgress = {
+    initialRevealed: progress?.letter_revealed_paragraphs,
+    initialSealed: progress?.letter_sealed,
+    onRevealChange: onLetterRevealChange,
+    onSeal: onLetterSeal,
+  };
 
   const dismissOnboarding = () => {
     setShowOnboarding(false);
@@ -122,7 +146,7 @@ export default function App() {
                 </div>
               </div>
               <div className="mode-body">
-                <ModeContent mode={activeMode} onProgress={handleModeProgress} />
+                <ModeContent mode={activeMode} onProgress={handleModeProgress} letterProgress={letterProgress} />
               </div>
             </div>
           )}

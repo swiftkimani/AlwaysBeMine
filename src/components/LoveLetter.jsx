@@ -1,7 +1,14 @@
 import { useState, useEffect, useRef } from "react";
 import { useRomance } from "../RomanceFX.jsx";
 
-export default function LoveLetter({ data, onProgress }) {
+export default function LoveLetter({
+  data,
+  onProgress,
+  initialRevealed,
+  initialSealed,
+  onRevealChange,
+  onSeal,
+}) {
   const [revealedParagraphs, setRevealedParagraphs] = useState(0);
   const [typedText, setTypedText] = useState("");
   const [isTyping, setIsTyping] = useState(true);
@@ -9,6 +16,19 @@ export default function LoveLetter({ data, onProgress }) {
   const containerRef = useRef(null);
   const intervalRef = useRef(null);
   const { burstFromEvent } = useRomance();
+
+  // initialRevealed/initialSealed arrive asynchronously (after a Supabase
+  // fetch, on the couple-page route only) and are stable once set, so
+  // these only ever fire once and never clobber the reader's own progress.
+  useEffect(() => {
+    if (initialRevealed == null) return;
+    setRevealedParagraphs(initialRevealed);
+    setIsTyping(initialRevealed < data.paragraphs.length);
+  }, [initialRevealed, data.paragraphs.length]);
+
+  useEffect(() => {
+    if (initialSealed != null) setSealed(initialSealed);
+  }, [initialSealed]);
 
   useEffect(() => {
     if (!isTyping || revealedParagraphs >= data.paragraphs.length) return;
@@ -41,8 +61,10 @@ export default function LoveLetter({ data, onProgress }) {
 
   const handleContinue = () => {
     if (revealedParagraphs < data.paragraphs.length) {
-      setRevealedParagraphs((prev) => prev + 1);
+      const next = revealedParagraphs + 1;
+      setRevealedParagraphs(next);
       setIsTyping(true);
+      onRevealChange?.(next);
     }
   };
 
@@ -51,6 +73,7 @@ export default function LoveLetter({ data, onProgress }) {
     setRevealedParagraphs(data.paragraphs.length);
     setTypedText("");
     setIsTyping(false);
+    onRevealChange?.(data.paragraphs.length);
   };
 
   useEffect(() => {
@@ -159,7 +182,7 @@ export default function LoveLetter({ data, onProgress }) {
               {/* Seal with Love Button */}
               <div className="mt-8 flex justify-end">
                 <button
-                  onClick={(e) => { setSealed(true); burstFromEvent(e, "💌"); }}
+                  onClick={(e) => { setSealed(true); onSeal?.(); burstFromEvent(e, "💌"); }}
                   className={`flex items-center gap-2 px-6 py-2.5 rounded-full text-xs sm:text-sm font-bold transition-all cursor-pointer ${
                     sealed
                       ? "bg-rose-500 text-white shadow-lg shadow-rose-500/30 scale-105"

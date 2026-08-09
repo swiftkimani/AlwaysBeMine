@@ -9,13 +9,22 @@ import Playlist from "./Playlist.jsx";
 
 // Maps every non-proposal mode to its component (proposal has its own
 // scene + hook, see components/proposal/).
-export default function ModeContent({ mode, onProgress }) {
+export default function ModeContent({ mode, onProgress, letterProgress }) {
   const config = useCoupleConfig();
   switch (mode) {
     case "timeline":
       return <Timeline data={config.timeline} onProgress={(p) => onProgress("timeline", p)} />;
     case "letter":
-      return <LoveLetter data={config.letter} onProgress={(p) => onProgress("letter", p)} />;
+      return (
+        <LoveLetter
+          data={config.letter}
+          onProgress={(p) => onProgress("letter", p)}
+          initialRevealed={letterProgress?.initialRevealed}
+          initialSealed={letterProgress?.initialSealed}
+          onRevealChange={letterProgress?.onRevealChange}
+          onSeal={letterProgress?.onSeal}
+        />
+      );
     case "quiz":
       return <QuizGame data={config.quiz} results={config.quizResults} onProgress={(p) => onProgress("quiz", p)} />;
     case "jar":
