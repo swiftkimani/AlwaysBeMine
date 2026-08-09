@@ -34,7 +34,12 @@ export default function useProposal(activeMode, { unlockAchievement, onCelebrate
   const [isTransitioning, setIsTransitioning] = useState(false);
   const gifRef = useRef(null);
 
-  const yesButtonSize = noCount === 0 ? "1.2rem" : (noCount * 12 + 16) + "px";
+  // Grows with every "No" click for comic effect, but capped — the app
+  // itself encourages repeated No-clicking (achievements at 5/10/15,
+  // stubbornCount can be set to 25+ in config), and an uncapped value
+  // here would grow past 300px and break the page layout for exactly
+  // the users the game design rewards for clicking No the most.
+  const yesButtonSize = noCount === 0 ? "1.2rem" : Math.min(noCount * 12 + 16, 96) + "px";
   const noButtonLabel =
     noCount === 0 ? "No" : config.noPhrases[Math.min(noCount, config.noPhrases.length - 1)];
 
