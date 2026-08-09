@@ -1,11 +1,11 @@
-import config from "../config.js";
-
 // Initial mode comes from the URL hash when it names a valid mode,
-// otherwise the first configured mode.
-export function getInitialMode() {
+// otherwise the first configured mode. Takes `modes` as a parameter
+// (rather than importing config directly) since it now needs to work for
+// both the static demo and a couple's Supabase-driven config.
+export function getInitialMode(modes) {
   const hash = window.location.hash.replace("#", "");
-  if (hash && config.modes.includes(hash)) return hash;
-  return config.modes[0];
+  if (hash && modes.includes(hash)) return hash;
+  return modes[0];
 }
 
 export function daysBetween(dateStr) {

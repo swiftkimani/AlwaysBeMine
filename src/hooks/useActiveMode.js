@@ -1,14 +1,15 @@
 import { useState, useEffect } from "react";
-import config from "../config.js";
+import useCoupleConfig from "./useCoupleConfig.js";
 import { getInitialMode } from "../utils/helpers.js";
 
 // Owns which mode is on screen: hash-derived initial mode, hashchange
 // syncing, and the persisted set of modes the visitor has already seen.
 export default function useActiveMode() {
-  const [activeMode, setActiveMode] = useState(getInitialMode);
+  const config = useCoupleConfig();
+  const [activeMode, setActiveMode] = useState(() => getInitialMode(config.modes));
   const [visitedModes, setVisitedModes] = useState(() => {
     const saved = localStorage.getItem("abm_visited");
-    return new Set(saved ? JSON.parse(saved) : [getInitialMode()]);
+    return new Set(saved ? JSON.parse(saved) : [getInitialMode(config.modes)]);
   });
 
   // Track visited modes
@@ -29,7 +30,7 @@ export default function useActiveMode() {
     };
     window.addEventListener("hashchange", onHash);
     return () => window.removeEventListener("hashchange", onHash);
-  }, []);
+  }, [config]);
 
   return { activeMode, setActiveMode, visitedModes };
 }

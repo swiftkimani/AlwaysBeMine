@@ -1,4 +1,4 @@
-import config from "../../config.js";
+import useCoupleConfig from "../../hooks/useCoupleConfig.js";
 import MouseStealing from "../../MouseStealer.jsx";
 import WordMarquee from "../../MarqueeProposal.jsx";
 import LiveCountdown from "../LiveCountdown.jsx";
@@ -8,6 +8,7 @@ import SendLoveBar from "./SendLoveBar.jsx";
 // Purely presentational — all proposal state/logic lives in useProposal
 // (see hooks/useProposal.js); the whole hook result arrives as `proposal`.
 export default function ProposalScene({ proposal, onLovePopup }) {
+  const config = useCoupleConfig();
   const {
     gifRef,
     noCount,

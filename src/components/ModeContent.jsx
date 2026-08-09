@@ -1,4 +1,4 @@
-import config from "../config.js";
+import useCoupleConfig from "../hooks/useCoupleConfig.js";
 import Timeline from "./Timeline.jsx";
 import LoveLetter from "./LoveLetter.jsx";
 import QuizGame from "./QuizGame.jsx";
@@ -10,6 +10,7 @@ import Playlist from "./Playlist.jsx";
 // Maps every non-proposal mode to its component (proposal has its own
 // scene + hook, see components/proposal/).
 export default function ModeContent({ mode, onProgress }) {
+  const config = useCoupleConfig();
   switch (mode) {
     case "timeline":
       return <Timeline data={config.timeline} onProgress={(p) => onProgress("timeline", p)} />;

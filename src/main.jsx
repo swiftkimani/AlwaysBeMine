@@ -9,6 +9,7 @@ import ProtectedRoute from "./components/auth/ProtectedRoute.jsx";
 import Login from "./pages/Login.jsx";
 import Signup from "./pages/Signup.jsx";
 import Dashboard from "./pages/Dashboard.jsx";
+import PublicCouplePage from "./pages/PublicCouplePage.jsx";
 import config from "./config.js";
 import "./index.css";
 
@@ -32,9 +33,9 @@ function Root() {
           <BrowserRouter>
             <AuthProvider>
               <Routes>
-                {/* The original static demo, unchanged — still config.js-driven.
-                    /c/:slug (couple-content-driven) lands here in a later pass. */}
+                {/* The original static demo, unchanged — still config.js-driven. */}
                 <Route path="/" element={<App />} />
+                <Route path="/c/:slug" element={<PublicCouplePage />} />
                 <Route path="/login" element={<Login />} />
                 <Route path="/signup" element={<Signup />} />
                 <Route

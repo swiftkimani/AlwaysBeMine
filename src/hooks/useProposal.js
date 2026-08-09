@@ -1,6 +1,6 @@
-import { useState, useRef, useEffect, useCallback } from "react";
+import { useState, useRef, useEffect, useCallback, useMemo } from "react";
 import Swal from "sweetalert2";
-import config from "../config.js";
+import useCoupleConfig from "./useCoupleConfig.js";
 import { createFloatingGifs } from "../utils/floatingGifs.js";
 import {
   YesGifs,
@@ -13,18 +13,21 @@ import {
   stubbornBackdrop,
 } from "../data/proposalAssets.js";
 
-const swalBase = {
-  padding: "2.5em 2em",
-  color: config.popupColor,
-  background: `#fff url(${swalbg})`,
-  confirmButtonColor: "var(--color-love)",
-};
-
 // The whole proposal state machine: yes/no counting, gif swapping,
 // hover gifs, keyboard shortcuts and the three Swal popups. Lives in a
 // hook (owned by App, not the proposal component) so progress survives
 // switching to another mode and back.
 export default function useProposal(activeMode, { unlockAchievement, onCelebrate }) {
+  const config = useCoupleConfig();
+  const swalBase = useMemo(
+    () => ({
+      padding: "2.5em 2em",
+      color: config.popupColor,
+      background: `#fff url(${swalbg})`,
+      confirmButtonColor: "var(--color-love)",
+    }),
+    [config.popupColor]
+  );
   const [noCount, setNoCount] = useState(0);
   const [yesPressed, setYesPressed] = useState(false);
   const [currentGifIndex, setCurrentGifIndex] = useState(0);
@@ -114,7 +117,7 @@ export default function useProposal(activeMode, { unlockAchievement, onCelebrate
         unlockAchievement("first-yes", "💕", "First Yes! You said yes!");
       }, 400);
     }
-  }, [yesPressed, noCount, popupShown, unlockAchievement]);
+  }, [yesPressed, noCount, popupShown, unlockAchievement, config.earlyPopup, swalBase]);
 
   // Eventual yes after 4+ No clicks — the big celebration
   useEffect(() => {
@@ -134,7 +137,7 @@ export default function useProposal(activeMode, { unlockAchievement, onCelebrate
         unlockAchievement("eventual-yes", "🎉", "Eventual Yes! Love conquers all!");
       }, 400);
     }
-  }, [yesPressed, noCount, yesPopupShown, unlockAchievement, onCelebrate]);
+  }, [yesPressed, noCount, yesPopupShown, unlockAchievement, onCelebrate, config.latePopup, swalBase]);
 
   // Gentle nudge once the No count hits the configured stubborn threshold
   useEffect(() => {
@@ -146,7 +149,7 @@ export default function useProposal(activeMode, { unlockAchievement, onCelebrate
         backdrop: `rgba(0,0,0,0.75) url(${stubbornBackdrop}) right bottom / contain no-repeat`,
       });
     }
-  }, [noCount]);
+  }, [noCount, config.stubbornCount, config.stubbornPopup, swalBase]);
 
   return {
     gifRef,

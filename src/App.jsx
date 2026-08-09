@@ -1,5 +1,5 @@
 import { useState, useCallback } from "react";
-import config from "./config.js";
+import useCoupleConfig from "./hooks/useCoupleConfig.js";
 import { useRomance } from "./RomanceFX.jsx";
 import { loveTracks } from "./data/tracks.js";
 
@@ -27,6 +27,7 @@ import ModeContent from "./components/ModeContent.jsx";
 import FloatingMusicControl from "./components/FloatingMusicControl.jsx";
 
 export default function App() {
+  const config = useCoupleConfig();
   const { activeMode, setActiveMode, visitedModes } = useActiveMode();
   const { scrollProgress, showBackToTop } = useScrollProgress(activeMode);
   const { achievements, pendingAchievement, unlockAchievement, dismissPending } = useAchievements();

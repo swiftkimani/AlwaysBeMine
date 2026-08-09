@@ -1,8 +1,9 @@
-import config from "../../config.js";
+import useCoupleConfig from "../../hooks/useCoupleConfig.js";
 import { modeLabels } from "../../data/modes.js";
 
 // First-visit welcome tour; parent decides visibility and persists dismissal.
 export default function OnboardingOverlay({ onDismiss }) {
+  const config = useCoupleConfig();
   return (
     <div className="onboarding-overlay" onClick={onDismiss} role="dialog" aria-label="Welcome tour">
       <div className="onboarding-card" onClick={(e) => e.stopPropagation()}>

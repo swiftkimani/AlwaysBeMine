@@ -1,5 +1,5 @@
 import { useState } from "react";
-import config from "../../config.js";
+import useCoupleConfig from "../../hooks/useCoupleConfig.js";
 import { modeLabels, NAV_ACCENTS } from "../../data/modes.js";
 
 /* Main navigation: a small heart tab stays permanently reachable at
@@ -17,6 +17,7 @@ import { modeLabels, NAV_ACCENTS } from "../../data/modes.js";
    permanently on screen; it only appears as a tooltip on hover, in
    the spirit of a macOS Finder sidebar / VS Code activity bar. */
 export default function Nav({ activeMode, setActiveMode, visitedModes, onNavClick }) {
+  const config = useCoupleConfig();
   const [isOpen, setIsOpen] = useState(true);
 
   return (

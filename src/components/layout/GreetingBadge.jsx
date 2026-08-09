@@ -1,4 +1,4 @@
-import config from "../../config.js";
+import useCoupleConfig from "../../hooks/useCoupleConfig.js";
 import { daysBetween, getTimeGreeting } from "../../utils/helpers.js";
 
 function TimeGreeting() {
@@ -13,6 +13,7 @@ function TimeGreeting() {
 
 // Floating top-right badge: time-of-day greeting + days-together counter.
 export default function GreetingBadge() {
+  const config = useCoupleConfig();
   const days = daysBetween(config.togetherSince);
   return (
     <div className="greeting-badge">
