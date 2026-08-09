@@ -1,8 +1,14 @@
 import { useState, useEffect } from "react";
 import { createRoot } from "react-dom/client";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
 import App from "./App.jsx";
 import Preloader from "./Preloaders/preloader1.jsx";
 import { RomanceFXProvider } from "./RomanceFX.jsx";
+import { AuthProvider } from "./context/AuthProvider.jsx";
+import ProtectedRoute from "./components/auth/ProtectedRoute.jsx";
+import Login from "./pages/Login.jsx";
+import Signup from "./pages/Signup.jsx";
+import Dashboard from "./pages/Dashboard.jsx";
 import config from "./config.js";
 import "./index.css";
 
@@ -23,7 +29,25 @@ function Root() {
     <>
       <div className="app-mount w-full h-full">
         <RomanceFXProvider>
-          <App />
+          <BrowserRouter>
+            <AuthProvider>
+              <Routes>
+                {/* The original static demo, unchanged — still config.js-driven.
+                    /c/:slug (couple-content-driven) lands here in a later pass. */}
+                <Route path="/" element={<App />} />
+                <Route path="/login" element={<Login />} />
+                <Route path="/signup" element={<Signup />} />
+                <Route
+                  path="/dashboard"
+                  element={
+                    <ProtectedRoute>
+                      <Dashboard />
+                    </ProtectedRoute>
+                  }
+                />
+              </Routes>
+            </AuthProvider>
+          </BrowserRouter>
         </RomanceFXProvider>
       </div>
       {loading && (
