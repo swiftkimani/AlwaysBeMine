@@ -575,24 +575,32 @@ p, h1, h2, h3, h4, h5, h6, span, li, td, th {
 .marquee-proposal {
   position: relative;
   width: 100%;
-  height: clamp(4.5rem, 14vw, 8rem);
+  height: clamp(6rem, 18vw, 11rem);
   overflow: hidden;
   display: flex;
   align-items: center;
 }
 
+/* Watermark-style type: huge and low-opacity, blended into the
+   animated background via mix-blend-mode rather than sitting on top
+   of it as an opaque colored banner — the same technique used for
+   .animated-bg-tint, so this reads as part of the page's atmosphere,
+   not a separate boxed element. No background/border anywhere in
+   this rule chain — the "box" a bright glow used to imply is gone. */
 .marquee-text {
   position: relative;
   z-index: 1;
   padding: 0 2rem;
   font-family: var(--font-script);
   font-weight: 700;
-  font-size: clamp(2.25rem, 9vw, 5.5rem);
+  font-size: clamp(3.5rem, 16vw, 11rem);
   line-height: 1;
   background-image: var(--gradient-love-text);
   background-clip: text;
   -webkit-background-clip: text;
   color: transparent;
+  opacity: 0.55;
+  mix-blend-mode: soft-light;
 }
 
 @media (prefers-reduced-motion: reduce) {
