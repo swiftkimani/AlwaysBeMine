@@ -555,21 +555,26 @@ p, h1, h2, h3, h4, h5, h6, span, li, td, th {
 /* ============================================================
    PROPOSAL MARQUEE — full-bleed, oversized scrolling headline
    instead of a small card. Breaks out of its centered/padded flex
-   container to span the true viewport width via a pure margin-based
-   technique (margin: calc(50% - 50vw)) — deliberately not
-   position:relative + left:50%/-50vw, which can fight with a flex
-   parent's own sizing pass. The caller also wraps this in an inert
-   block-level div (see MarqueeProposal.jsx) so this element's
-   containing block is never itself a flex item. Safe against
-   page-level horizontal scroll because .proposal-stage (its
+   container to span the viewport width (capped at 1280px on wide
+   screens, like a standard content container) via left:50% +
+   translateX(-50%) — this centers correctly whether the element's
+   actual rendered width is 100vw (mobile) or clamped to 1280px
+   (desktop), with no separate calc() needed for the two cases. This
+   technique is safe here specifically because the caller wraps it in
+   an inert block-level div (see MarqueeProposal.jsx), so this
+   element's containing block is never itself a flex item — that was
+   the root cause of it fighting the page's flex layout before. Safe
+   against page-level horizontal scroll because .proposal-stage (its
    ancestor) already sets overflow-x:hidden.
    ============================================================ */
 .marquee-proposal-bleed {
   width: 100vw;
-  max-width: 100vw;
-  margin-left: calc(50% - 50vw);
-  margin-right: calc(50% - 50vw);
+  max-width: 1280px;
+  position: relative;
+  left: 50%;
+  transform: translateX(-50%);
   margin-top: 1.5rem;
+  margin-bottom: 2rem;
 }
 
 .marquee-proposal {
