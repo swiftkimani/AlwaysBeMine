@@ -1446,7 +1446,23 @@ a:focus-visible {
   justify-content: center;
   gap: 6px;
   margin-bottom: 1.25rem;
-  flex-wrap: wrap;
+  /* Deliberately nowrap, not wrap — flex-wrap breaks the 7 children
+     (4 units + 3 separators) individually rather than as a group, so
+     a narrow screen could strand the seconds unit alone on its own
+     line with an orphaned ":" next to it. Shrinking the units below
+     to guarantee a single row is more robust than allowing any wrap
+     state at all. */
+  flex-wrap: nowrap;
+}
+
+/* Shrink to guarantee everything still fits on one line down to
+   narrow phones — tuned against a 320px-wide viewport. */
+@media (max-width: 380px) {
+  .live-countdown { gap: 4px; }
+  .countdown-unit { min-width: 44px; padding: 6px 8px; }
+  .countdown-num { font-size: 1.05rem; }
+  .countdown-label { font-size: 0.48rem; }
+  .countdown-sep { font-size: 0.95rem; }
 }
 
 .countdown-unit {
