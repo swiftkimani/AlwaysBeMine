@@ -137,14 +137,20 @@ export default function LoveLetter({ data, onProgress }) {
           {/* Closing & Signature */}
           {allDone && (
             <div className="text-right space-y-4 animate-fade-in mt-6 pt-12 border-t border-amber-200/80">
+              {/* break-words: some signature variants (e.g. "— The one who
+                  likes you") are long enough in the cursive font that a
+                  word can miss a natural break point and overflow past the
+                  card's padded edge — silently clipped by the card's
+                  overflow-hidden with no visual warning. break-words lets
+                  it wrap instead of escaping. */}
               <p
-                className="text-2xl sm:text-3xl text-amber-800"
+                className="text-2xl sm:text-3xl text-amber-800 break-words"
                 style={{ fontFamily: "var(--font-vibes)" }}
               >
                 {data.closing}
               </p>
               <p
-                className="text-3xl sm:text-4xl font-bold text-amber-950"
+                className="text-3xl sm:text-4xl font-bold text-amber-950 break-words"
                 style={{ fontFamily: "var(--font-vibes)" }}
               >
                 {data.signature}
