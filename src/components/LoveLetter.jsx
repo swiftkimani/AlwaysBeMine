@@ -92,7 +92,7 @@ export default function LoveLetter({ data, onProgress }) {
           💌
         </div>
 
-        <div className="relative px-6 sm:px-12 md:px-16 lg:px-20 pt-16 sm:pt-20 md:pt-24 pb-10 sm:pb-14 md:pb-16">
+        <div className="relative px-7 sm:px-12 md:px-16 lg:px-20 xl:px-24 pt-16 sm:pt-20 md:pt-24 pb-10 sm:pb-14 md:pb-16">
           {/* Greeting — sized down from a billboard-scale script to something that
               actually reads as an opening line, with real air above and below it
               so the cursive swashes never crowd the accent bar or the prose. */}
