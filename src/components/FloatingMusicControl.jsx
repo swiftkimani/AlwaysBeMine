@@ -5,18 +5,61 @@ import {
   BsSkipForwardFill,
   BsSkipBackwardFill,
   BsHeartFill,
-  BsMusicNoteBeamed,
+  BsHeart,
   BsSpotify,
-  BsChevronDown,
+  BsChevronUp,
   BsX,
+  BsVolumeUpFill,
+  BsVolumeMuteFill,
 } from "react-icons/bs";
 import { useSpotifyEmbed } from "../useSpotifyEmbed.js";
 
-export default function FloatingMusicControl({ tracks, fallbackUrl }) {
+/* ─── Reusable icon button ─── */
+const IconBtn = ({ onClick, children, active, color = "#f43f5e", title, style = {} }) => (
+  <button
+    onClick={onClick}
+    title={title}
+    style={{
+      width: 32, height: 32, borderRadius: "50%", border: "none",
+      display: "flex", alignItems: "center", justifyContent: "center",
+      cursor: "pointer", transition: "all 0.15s",
+      background: active ? `${color}18` : "transparent",
+      color: active ? color : "#b0b0bc",
+      ...style,
+    }}
+    onMouseEnter={(e) => { e.currentTarget.style.background = active ? `${color}28` : "#f4f4f6"; e.currentTarget.style.color = active ? color : "#52525b"; }}
+    onMouseLeave={(e) => { e.currentTarget.style.background = active ? `${color}18` : "transparent"; e.currentTarget.style.color = active ? color : "#b0b0bc"; }}
+  >
+    {children}
+  </button>
+);
+
+/* ─── Reusable pill button ─── */
+/* active = color change only — no fill — keeps Love & Queue visually balanced */
+const PillBtn = ({ onClick, children, active, "aria-label": ariaLabel }) => (
+  <button
+    onClick={onClick}
+    aria-label={ariaLabel}
+    style={{
+      display: "flex", alignItems: "center", gap: 5,
+      padding: "5px 10px", borderRadius: 20, border: "none",
+      background: "transparent",
+      color: active ? "#f43f5e" : "#b0b0bc",
+      fontSize: 10, fontWeight: 800, letterSpacing: "0.07em",
+      textTransform: "uppercase", cursor: "pointer", transition: "color 0.15s",
+    }}
+    onMouseEnter={(e) => { e.currentTarget.style.color = "#f43f5e"; }}
+    onMouseLeave={(e) => { e.currentTarget.style.color = active ? "#f43f5e" : "#b0b0bc"; }}
+  >
+    {children}
+  </button>
+);
+
+export default function FloatingMusicControl({ tracks, fallbackUrl, isOpen, onToggle, onPlayingChange }) {
   const [currentIdx, setCurrentIdx] = useState(0);
-  const [isOpen, setIsOpen] = useState(false);
   const [showPlaylist, setShowPlaylist] = useState(false);
   const [liked, setLiked] = useState(new Set());
+  const [isMuted, setIsMuted] = useState(false);
 
   const panelRef = useRef(null);
   const track = tracks?.[currentIdx];
@@ -24,320 +67,428 @@ export default function FloatingMusicControl({ tracks, fallbackUrl }) {
 
   const didMountRef = useRef(false);
   useEffect(() => {
-    if (!didMountRef.current) {
-      didMountRef.current = true;
-      return;
-    }
+    if (!didMountRef.current) { didMountRef.current = true; return; }
     if (!track?.spotifyUri) return;
     embed.loadTrack(track.spotifyUri);
-    embed.play();
+    if (!isMuted) embed.play();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentIdx]);
 
   const autoPlayedRef = useRef(false);
   useEffect(() => {
     if (autoPlayedRef.current || !embed.ready) return;
-    const tryAutoplay = () => {
+    const go = () => {
       if (autoPlayedRef.current) return;
       autoPlayedRef.current = true;
-      embed.play();
-      document.removeEventListener("click", tryAutoplay);
-      document.removeEventListener("touchstart", tryAutoplay);
+      if (!isMuted) embed.play();
+      document.removeEventListener("click", go);
+      document.removeEventListener("touchstart", go);
     };
-    document.addEventListener("click", tryAutoplay);
-    document.addEventListener("touchstart", tryAutoplay);
-    return () => {
-      document.removeEventListener("click", tryAutoplay);
-      document.removeEventListener("touchstart", tryAutoplay);
-    };
+    document.addEventListener("click", go);
+    document.addEventListener("touchstart", go);
+    return () => { document.removeEventListener("click", go); document.removeEventListener("touchstart", go); };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [embed.ready]);
 
   useEffect(() => {
-    if (embed.isPlaying) setIsOpen(true);
+    onPlayingChange?.(embed.isPlaying);
+    if (embed.isPlaying && !isOpen) onToggle?.();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [embed.isPlaying]);
-
   useEffect(() => {
     document.body.classList.toggle("music-playing", embed.isPlaying);
     return () => document.body.classList.remove("music-playing");
   }, [embed.isPlaying]);
 
-  const lastPositionRef = useRef(0);
+  const lastPosRef = useRef(0);
   useEffect(() => {
     const nearEnd = embed.duration > 0 && embed.position >= embed.duration - 0.4;
-    const wasAdvancing = lastPositionRef.current < embed.duration - 0.4;
-    if (nearEnd && !embed.isPlaying && wasAdvancing && tracks?.length) {
+    const wasAdvancing = lastPosRef.current < embed.duration - 0.4;
+    if (nearEnd && !embed.isPlaying && wasAdvancing && tracks?.length)
       setCurrentIdx((p) => (p + 1) % tracks.length);
-    }
-    lastPositionRef.current = embed.position;
+    lastPosRef.current = embed.position;
   }, [embed.position, embed.duration, embed.isPlaying, tracks?.length]);
 
   useEffect(() => {
     if (!isOpen) return;
-    const onDown = (e) => {
-      if (panelRef.current && !panelRef.current.contains(e.target)) {
-        setIsOpen(false);
-      }
-    };
+    const onDown = (e) => { if (panelRef.current && !panelRef.current.contains(e.target)) onToggle?.(); };
     window.addEventListener("pointerdown", onDown);
     return () => window.removeEventListener("pointerdown", onDown);
-  }, [isOpen]);
+  }, [isOpen, onToggle]);
 
   const skipNext = () => setCurrentIdx((p) => (p + 1) % tracks.length);
   const skipPrev = () => {
     if (embed.position > 3) embed.seek(0);
     else setCurrentIdx((p) => (p - 1 + tracks.length) % tracks.length);
   };
-
-  const seek = (e) => {
-    const val = Number(e.target.value);
-    embed.seek((val / 100) * (embed.duration || 0));
+  const seek = (e) => embed.seek((Number(e.target.value) / 100) * (embed.duration || 0));
+  const toggleMute = (e) => {
+    e.stopPropagation();
+    if (embed.isPlaying) { embed.pause(); setIsMuted(true); }
+    else { embed.play(); setIsMuted(false); }
   };
-
   const toggleLike = (e) => {
     e.stopPropagation();
-    setLiked((p) => {
-      const n = new Set(p);
-      n.has(currentIdx) ? n.delete(currentIdx) : n.add(currentIdx);
-      return n;
-    });
+    setLiked((p) => { const n = new Set(p); n.has(currentIdx) ? n.delete(currentIdx) : n.add(currentIdx); return n; });
   };
-
-  const fmt = (s) => {
-    if (!s || isNaN(s)) return "0:00";
-    return `${Math.floor(s / 60)}:${Math.floor(s % 60).toString().padStart(2, "0")}`;
-  };
+  const fmt = (s) => (!s || isNaN(s)) ? "0:00" : `${Math.floor(s / 60)}:${Math.floor(s % 60).toString().padStart(2, "0")}`;
 
   if (!track) return null;
-
   const progress = embed.duration ? (embed.position / embed.duration) * 100 : 0;
+  const isLiked = liked.has(currentIdx);
+  const isActive = embed.isPlaying && !isMuted;
+
+  /* 
+    Card anchors to bottom-right, positioned so it sits above the
+    UtilityRail column (bottom-6 = 24px, button is 44px, gap-3 = 12px).
+    We offset bottom by 24 + 44 + 12 = 80px so the tip points at the music FAB.
+    Right aligns to the same 16px/20px the rail uses.
+    Tip center = FAB center: rail button w-11 = 44px, center = 22px from right edge
+    of the rail (right-4 = 16px) => 16 + 22 = 38px from viewport right.
+    Tip is 12px wide, so tip right = 38 - 6 = 32px from card right edge... 
+    but since card has right: 16px, tip offset = 38 - 16 - 6 = 16px.
+  */
+  const RAIL_RIGHT = 16;           /* right-4 = 16px */
+  const FAB_W     = 44;            /* w-11 = 44px */
+  const FAB_CENTER_FROM_VIEWPORT = RAIL_RIGHT + FAB_W / 2; /* 38px */
+  const CARD_RIGHT = RAIL_RIGHT;   /* card right edge aligns with rail */
+  const TIP_W     = 12;
+  const TIP_RIGHT = FAB_CENTER_FROM_VIEWPORT - CARD_RIGHT - TIP_W / 2; /* 16px */
+  const CARD_BOTTOM = 24 + FAB_W + 12; /* 80px: 24px rail bottom + 44px FAB + 12px gap */
 
   return (
     <div
       ref={panelRef}
-      className="fixed z-60"
       style={{
-        top: "67%",
-        transform: "translateY(-50%) translateZ(0)",
-        willChange: "transform",
-        right: "max(16px, 2dvw)",
-        display: "flex",
-        flexDirection: "column",
-        alignItems: "flex-end"
+        position: "fixed", zIndex: 60,
+        bottom: CARD_BOTTOM,
+        right: CARD_RIGHT,
+        display: "flex", flexDirection: "column", alignItems: "flex-end",
       }}
     >
-      <div
-        ref={embed.containerRef}
-        aria-hidden="true"
-        style={{ position: "absolute", width: 1, height: 1, overflow: "hidden", opacity: 0, pointerEvents: "none" }}
-      />
+      {/* Hidden embed */}
+      <div ref={embed.containerRef} aria-hidden="true"
+        style={{ position: "absolute", width: 1, height: 1, overflow: "hidden", opacity: 0, pointerEvents: "none" }} />
 
+      {/* ══════════════════════════════
+          PLAYER CARD + TIP (relative wrapper)
+      ══════════════════════════════ */}
       {isOpen && (
         <div
-          className="absolute bottom-[calc(100%+16px)] right-0 w-[330px] max-w-[calc(100vw-2rem)] animate-fade-in-up"
-          style={{ transformOrigin: "bottom right" }}
+          className="fmc-enter"
+          style={{
+            position: "relative",
+            transformOrigin: "bottom right",
+            maxHeight: `calc(100dvh - ${CARD_BOTTOM + 20}px)`,
+            display: "flex",
+            flexDirection: "column",
+          }}
         >
-          <div className="relative bg-white/95 backdrop-blur-2xl rounded-[2rem] p-5 shadow-[0_20px_50px_rgba(244,63,94,0.15)] border border-white/90 overflow-hidden">
-            
-            <div className="flex items-center gap-3.5 mb-4 relative z-10">
-              <div className={`relative w-[52px] h-[52px] rounded-full shadow-md overflow-hidden shrink-0 transition-transform duration-700 ${embed.isPlaying ? 'animate-[spin_5s_linear_infinite]' : ''}`}>
-                <div className="absolute inset-0 bg-zinc-900 rounded-full" />
-                <div className="absolute inset-1 border border-zinc-700/60 rounded-full" />
-                <div className="absolute inset-2 border border-zinc-700/60 rounded-full" />
-                <div className="absolute inset-3 border border-zinc-700/60 rounded-full" />
-                <div className="absolute inset-0 flex items-center justify-center">
-                  <div className="w-[16px] h-[16px] bg-gradient-to-br from-rose-400 to-pink-500 rounded-full shadow-inner flex items-center justify-center">
-                    <span className="text-[6px]">💗</span>
+
+          {/* ── Card ── */}
+          <div style={{
+            width: 290,
+            maxWidth: "calc(100vw - 2rem)",
+            borderRadius: 26,
+            overflow: "hidden",
+            boxShadow: "0 20px 56px rgba(100,0,40,0.24), 0 4px 16px rgba(244,63,94,0.14)",
+            /* Fix #7 — card itself is also flex-column so white body can scroll */
+            display: "flex",
+            flexDirection: "column",
+            minHeight: 0,
+          }}>
+
+            {/* Dark header */}
+            <div style={{
+              padding: "16px 16px 18px",
+              background: "linear-gradient(150deg, #430019 0%, #2d0550 60%, #190230 100%)",
+            }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+
+                {/* Vinyl */}
+                <div className={isActive ? "fmc-spin" : ""} style={{
+                  position: "relative", width: 56, height: 56,
+                  borderRadius: "50%", flexShrink: 0,
+                  boxShadow: "0 0 0 1px rgba(255,255,255,0.07), 0 4px 16px rgba(244,63,94,0.4)",
+                }}>
+                  {[0, 5, 10, 15, 20].map(i => (
+                    <div key={i} style={{
+                      position: "absolute", inset: i, borderRadius: "50%",
+                      background: i === 0 ? "#0f0f10" : "transparent",
+                      border: `1px solid rgba(255,255,255,${Math.max(0.03, 0.14 - i * 0.025)})`,
+                    }} />
+                  ))}
+                  <div style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center" }}>
+                    <div style={{
+                      width: 18, height: 18, borderRadius: "50%",
+                      background: "linear-gradient(135deg, #fb7185, #e11d48)",
+                      boxShadow: "0 2px 10px rgba(244,63,94,0.7)",
+                      display: "flex", alignItems: "center", justifyContent: "center", fontSize: 7,
+                    }}>💗</div>
                   </div>
+                </div>
+
+                {/* Track info */}
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <p style={{
+                    color: "#fff", fontWeight: 800, fontSize: 13,
+                    lineHeight: 1.2, margin: "0 0 3px",
+                    overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
+                    letterSpacing: "-0.3px",
+                  }}>{track.title}</p>
+                  <p style={{
+                    color: "#fda4af", fontWeight: 600, fontSize: 11,
+                    margin: 0,
+                    overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
+                  }}>{track.artist}</p>
+                  {isActive && (
+                    <div style={{ display: "flex", gap: 3, alignItems: "flex-end", marginTop: 7, height: 9 }}>
+                      {[0, 70, 140, 210, 280].map(d => (
+                        <span key={d} style={{
+                          width: 3, height: "100%", borderRadius: 2,
+                          background: "rgba(251,113,133,0.7)",
+                          animation: `fmcEq 0.65s ease-in-out ${d}ms infinite alternate`,
+                        }} />
+                      ))}
+                    </div>
+                  )}
+                </div>
+
+                {/* Close */}
+                <button
+                  onClick={(e) => { e.stopPropagation(); onToggle?.(); }}
+                  style={{
+                    width: 26, height: 26, borderRadius: "50%", border: "none",
+                    background: "rgba(255,255,255,0.07)", color: "rgba(255,255,255,0.45)",
+                    cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center",
+                    transition: "all 0.15s", flexShrink: 0, alignSelf: "flex-start",
+                  }}
+                  onMouseEnter={(e) => { e.currentTarget.style.background = "rgba(255,255,255,0.15)"; e.currentTarget.style.color = "#fff"; }}
+                  onMouseLeave={(e) => { e.currentTarget.style.background = "rgba(255,255,255,0.07)"; e.currentTarget.style.color = "rgba(255,255,255,0.45)"; }}
+                  aria-label="Close"
+                ><BsX size={16} /></button>
+              </div>
+            </div>
+
+            {/* Fix #2 — 2px hairline seam instead of thick stripe */}
+            <div style={{
+              height: 2,
+              background: "linear-gradient(to bottom, rgba(80,10,100,0.35), rgba(248,248,252,0))",
+              pointerEvents: "none",
+            }} />
+
+            {/* White controls body — Fix #6 give seek bar breathing room with more top padding */}
+            <div style={{ background: "#f8f8fc", padding: "18px 16px 16px", flex: 1, minHeight: 0, display: "flex", flexDirection: "column" }}>
+
+              {/* Progress bar */}
+              <div style={{ marginBottom: 14 }}>
+                <input
+                  type="range" min="0" max="100" value={progress} onChange={seek}
+                  className="fmc-seek"
+                  style={{
+                    width: "100%", height: 3, borderRadius: 3,
+                    appearance: "none", cursor: "pointer", display: "block", outline: "none",
+                    background: `linear-gradient(to right, #f43f5e ${progress}%, #e8d8ef ${progress}%)`,
+                  }}
+                />
+                <div style={{
+                  display: "flex", justifyContent: "space-between",
+                  fontSize: 10, fontWeight: 700, color: "#c4b8d0",
+                  marginTop: 5, padding: "0 1px",
+                  fontVariantNumeric: "tabular-nums",
+                }}>
+                  <span>{fmt(embed.position)}</span>
+                  <span>{fmt(embed.duration)}</span>
                 </div>
               </div>
 
-              <div className="flex-1 min-w-0 flex flex-col justify-center">
-                <h3 className="text-sm font-bold text-zinc-900 truncate leading-tight tracking-tight mb-0.5">{track.title}</h3>
-                <p className="text-xs font-medium text-rose-500/80 truncate leading-none">{track.artist}</p>
-              </div>
-              
-              <button
-                onClick={(e) => { e.stopPropagation(); setIsOpen(false); }}
-                className="w-7 h-7 rounded-full flex items-center justify-center text-zinc-400 hover:text-zinc-700 hover:bg-rose-50 transition-colors shrink-0"
-                aria-label="Close music player"
-              >
-                <BsX size={18} />
-              </button>
-            </div>
+              {/* Controls row */}
+              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 16 }}>
+                {/* Fix #3 — Skip back: transparent bg so it doesn't compete with play button */}
+                <button
+                  onClick={skipPrev}
+                  aria-label="Previous"
+                  style={{
+                    width: 40, height: 40, borderRadius: "50%", border: "none",
+                    background: "transparent", color: "#c4b0cc",
+                    cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center",
+                    transition: "all 0.15s",
+                  }}
+                  onMouseEnter={(e) => { e.currentTarget.style.background = "rgba(244,63,94,0.08)"; e.currentTarget.style.color = "#f43f5e"; }}
+                  onMouseLeave={(e) => { e.currentTarget.style.background = "transparent"; e.currentTarget.style.color = "#c4b0cc"; }}
+                ><BsSkipBackwardFill size={18} /></button>
 
-            <div className="mb-4 relative z-10">
-              <input
-                type="range"
-                min="0" max="100"
-                value={progress}
-                onChange={seek}
-                className="sleek-progress w-full h-1.5 rounded-full appearance-none cursor-pointer bg-rose-100/60"
-                style={{
-                  background: `linear-gradient(to right, #f43f5e ${progress}%, #ffe4e6 ${progress}%)`
-                }}
-              />
-              <div className="flex justify-between text-[10px] font-semibold text-rose-400 mt-1.5 px-0.5 tracking-wide">
-                <span>{fmt(embed.position)}</span>
-                <span>{fmt(embed.duration)}</span>
-              </div>
-            </div>
-
-            <div className="flex items-center justify-center gap-6 relative z-10 mb-4">
-              <button onClick={skipPrev} className="text-zinc-400 hover:text-rose-500 transition-colors">
-                <BsSkipBackwardFill size={20} />
-              </button>
-              
-              <button
-                onClick={() => embed.togglePlay()}
-                disabled={!embed.ready}
-                className="w-13 h-13 rounded-full bg-gradient-to-tr from-rose-500 to-pink-500 text-white flex items-center justify-center shadow-lg shadow-rose-500/30 hover:scale-105 active:scale-95 transition-all disabled:opacity-50"
-              >
-                {embed.isPlaying ? <BsPauseFill size={24} /> : <BsPlayFill size={26} className="ml-1" />}
-              </button>
-              
-              <button onClick={skipNext} className="text-zinc-400 hover:text-rose-500 transition-colors">
-                <BsSkipForwardFill size={20} />
-              </button>
-            </div>
-
-            <div className="flex items-center justify-between pt-3 border-t border-rose-100/80 relative z-10">
-               <button
-                  onClick={(e) => { e.stopPropagation(); toggleLike(e); }}
-                  className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold tracking-wider uppercase transition-colors ${
-                    liked.has(currentIdx) ? "text-rose-600 bg-rose-100/80" : "text-zinc-400 hover:text-rose-500 hover:bg-rose-50"
-                  }`}
+                {/* Play/pause */}
+                <button
+                  onClick={() => embed.togglePlay()}
+                  disabled={!embed.ready}
+                  aria-label={embed.isPlaying ? "Pause" : "Play"}
+                  style={{
+                    width: 60, height: 60, borderRadius: "50%", border: "none",
+                    background: "linear-gradient(135deg, #f43f5e 0%, #ec4899 100%)",
+                    color: "#fff", cursor: embed.ready ? "pointer" : "default",
+                    display: "flex", alignItems: "center", justifyContent: "center",
+                    /* Crisp, contained shadow — not a blob */
+                    boxShadow: "0 4px 16px rgba(244,63,94,0.5), 0 1px 4px rgba(244,63,94,0.3)",
+                    transition: "all 0.18s cubic-bezier(0.34,1.56,0.64,1)",
+                    opacity: embed.ready ? 1 : 0.45,
+                  }}
+                  onMouseEnter={(e) => { if (embed.ready) { e.currentTarget.style.transform = "scale(1.07)"; e.currentTarget.style.boxShadow = "0 6px 22px rgba(244,63,94,0.55), 0 2px 6px rgba(244,63,94,0.3)"; } }}
+                  onMouseLeave={(e) => { e.currentTarget.style.transform = "scale(1)"; e.currentTarget.style.boxShadow = "0 4px 16px rgba(244,63,94,0.5), 0 1px 4px rgba(244,63,94,0.3)"; }}
+                  onMouseDown={(e) => { if (embed.ready) e.currentTarget.style.transform = "scale(0.94)"; }}
+                  onMouseUp={(e) => { if (embed.ready) e.currentTarget.style.transform = "scale(1.07)"; }}
                 >
-                  <BsHeartFill size={12} className={liked.has(currentIdx) ? "text-rose-500" : ""} />
-                  <span>Love</span>
-               </button>
+                  {embed.isPlaying
+                    ? <BsPauseFill size={25} />
+                    : <BsPlayFill size={27} style={{ marginLeft: 2 }} />}
+                </button>
 
-               <a
-                  href={fallbackUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold tracking-wider uppercase text-[#1DB954] hover:bg-[#1DB954]/10 transition-colors"
-               >
-                  <BsSpotify size={12} />
-                  <span>Spotify</span>
-               </a>
-            </div>
+                {/* Fix #3 — Skip forward: transparent bg to match skip back */}
+                <button
+                  onClick={skipNext}
+                  aria-label="Next"
+                  style={{
+                    width: 40, height: 40, borderRadius: "50%", border: "none",
+                    background: "transparent", color: "#c4b0cc",
+                    cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center",
+                    transition: "all 0.15s",
+                  }}
+                  onMouseEnter={(e) => { e.currentTarget.style.background = "rgba(244,63,94,0.08)"; e.currentTarget.style.color = "#f43f5e"; }}
+                  onMouseLeave={(e) => { e.currentTarget.style.background = "transparent"; e.currentTarget.style.color = "#c4b0cc"; }}
+                ><BsSkipForwardFill size={18} /></button>
+              </div>
 
-            <div className="mt-2 pt-2 border-t border-rose-100/80 relative z-10">
-              <button
-                onClick={(e) => { e.stopPropagation(); setShowPlaylist((p) => !p); }}
-                className="w-full flex items-center justify-between group py-1 px-1"
-              >
-                <span className="text-[10px] font-bold uppercase tracking-wider text-rose-400 group-hover:text-rose-600 transition-colors">
-                  Up Next
-                </span>
-                <BsChevronDown size={12} className={`text-rose-300 transition-transform ${showPlaylist ? "rotate-180" : ""}`} />
-              </button>
+              {/* Action row */}
+              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 2 }}>
+                  <PillBtn onClick={(e) => { e.stopPropagation(); toggleLike(e); }} active={isLiked}>
+                    {isLiked ? <BsHeartFill size={10} /> : <BsHeart size={10} />}
+                    Love
+                  </PillBtn>
+                  <IconBtn onClick={toggleMute} active={isMuted} title={isMuted ? "Unmute" : "Mute"}>
+                    {isMuted ? <BsVolumeMuteFill size={12} /> : <BsVolumeUpFill size={12} />}
+                  </IconBtn>
+                </div>
 
-              {showPlaylist && (
-                <div className="animate-fade-in pt-2 space-y-1 max-h-[140px] overflow-y-auto no-scrollbar">
+                <div style={{ display: "flex", alignItems: "center", gap: 2 }}>
+                  <PillBtn onClick={(e) => { e.stopPropagation(); setShowPlaylist(p => !p); }} active={showPlaylist} aria-label="Toggle queue">
+                    <BsChevronUp size={9} style={{ transition: "transform 0.3s", transform: showPlaylist ? "none" : "rotate(180deg)" }} />
+                    Queue
+                  </PillBtn>
+                  <a
+                    href={fallbackUrl} target="_blank" rel="noopener noreferrer"
+                    style={{ width: 30, height: 30, borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", color: "#1DB954", textDecoration: "none", transition: "background 0.15s" }}
+                    onMouseEnter={(e) => { e.currentTarget.style.background = "rgba(29,185,84,0.1)"; }}
+                    onMouseLeave={(e) => { e.currentTarget.style.background = "transparent"; }}
+                    aria-label="Open on Spotify"
+                  ><BsSpotify size={14} /></a>
+                </div>
+              </div>
+
+              {/* Fix #1 & #7 — Queue accordion: flex-grow so it fills remaining space, scrolls internally */}
+              <div style={{
+                overflow: "hidden",
+                flex: showPlaylist ? "1 1 auto" : "0 0 0px",
+                maxHeight: showPlaylist ? "160px" : "0px",
+                opacity: showPlaylist ? 1 : 0,
+                marginTop: showPlaylist ? 12 : 0,
+                transition: "max-height 0.32s cubic-bezier(0.4,0,0.2,1), opacity 0.22s ease, margin-top 0.22s ease",
+                minHeight: 0,
+              }}>
+                <div style={{
+                  borderTop: "1px solid rgba(244,63,94,0.08)",
+                  paddingTop: 6,
+                  paddingBottom: 6,
+                  height: "100%",
+                  overflowY: "auto",
+                }}>
                   {tracks.map((t, idx) => (
                     <button
                       key={idx}
                       onClick={() => setCurrentIdx(idx)}
-                      className={`w-full flex items-center gap-3 px-2.5 py-1.5 rounded-xl cursor-pointer text-left transition-colors ${
-                        idx === currentIdx ? "bg-rose-50/80 text-rose-600 font-bold" : "hover:bg-rose-50/40 text-zinc-600"
-                      }`}
+                      style={{
+                        width: "100%", display: "flex", alignItems: "center", gap: 10,
+                        padding: "7px 8px", borderRadius: 11, border: "none",
+                        cursor: "pointer", textAlign: "left",
+                        background: idx === currentIdx ? "linear-gradient(90deg,rgba(244,63,94,0.07),rgba(236,72,153,0.05))" : "transparent",
+                        transition: "background 0.15s",
+                      }}
+                      onMouseEnter={(e) => { if (idx !== currentIdx) e.currentTarget.style.background = "rgba(244,63,94,0.04)"; }}
+                      onMouseLeave={(e) => { if (idx !== currentIdx) e.currentTarget.style.background = "transparent"; }}
                     >
-                      {idx === currentIdx && embed.isPlaying ? (
-                        <div className="flex gap-[2px] items-end h-3 w-4 shrink-0">
-                          {[0, 150, 300].map((delay) => (
-                            <span
-                              key={delay}
-                              className="w-[3px] bg-rose-500 rounded-full"
-                              style={{ height: "100%", animation: `eqBar 0.6s ease-in-out ${delay}ms infinite alternate` }}
-                            />
-                          ))}
-                        </div>
-                      ) : (
-                        <span className="w-4 text-center text-[10px] font-bold text-rose-300 shrink-0">{idx + 1}</span>
-                      )}
-                      <div className="min-w-0 flex-1">
-                        <p className={`text-[11px] truncate ${idx === currentIdx ? "text-rose-700 font-bold" : "text-zinc-700"}`}>
-                          {t.title}
-                        </p>
-                        <p className="text-[9px] text-zinc-400 truncate">{t.artist}</p>
+                      <div style={{ width: 16, flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "center" }}>
+                        {idx === currentIdx && isActive ? (
+                          <div style={{ display: "flex", gap: 2, alignItems: "flex-end", height: 12 }}>
+                            {[0, 120, 240].map(d => (
+                              <span key={d} style={{ width: 3, height: "100%", borderRadius: 2, background: "#f43f5e", animation: `fmcEq 0.55s ease-in-out ${d}ms infinite alternate` }} />
+                            ))}
+                          </div>
+                        ) : (
+                          <span style={{ fontSize: 10, fontWeight: 700, color: idx === currentIdx ? "#f43f5e" : "#d4d4d8" }}>{idx + 1}</span>
+                        )}
                       </div>
+                      <div style={{ flex: 1, minWidth: 0 }}>
+                        <p style={{ margin: 0, fontSize: 11, fontWeight: 700, lineHeight: 1.3, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", color: idx === currentIdx ? "#f43f5e" : "#3f3f46" }}>{t.title}</p>
+                        <p style={{ margin: "1px 0 0", fontSize: 10, color: "#b0aab8", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", lineHeight: 1.4 }}>{t.artist}</p>
+                      </div>
+                      {idx === currentIdx && <div style={{ width: 6, height: 6, borderRadius: "50%", background: "#f43f5e", flexShrink: 0 }} />}
                     </button>
                   ))}
                 </div>
-              )}
-            </div>
-          </div>
+              </div>
 
-          <div className="absolute -bottom-2 right-[20px] w-4 h-4 bg-white/95 rotate-45 border-b border-r border-rose-100 shadow-sm rounded-xs pointer-events-none z-0" />
+            </div>{/* end white body */}
+          </div>{/* end card */}
+
+          {/* Fix #4 — Tip shrunk to 12px, crisp and proportional */}
+          <div style={{
+            position: "absolute",
+            bottom: -6,
+            right: TIP_RIGHT + 3,
+            width: 12, height: 12,
+            transform: "rotate(45deg)",
+            background: "#f8f8fc",
+            borderRight: "1px solid rgba(220,170,200,0.4)",
+            borderBottom: "1px solid rgba(220,170,200,0.4)",
+            borderRadius: "0 0 3px 0",
+            boxShadow: "2px 2px 5px rgba(160,40,80,0.07)",
+            pointerEvents: "none",
+          }} />
         </div>
       )}
 
-      <button
-        onClick={() => setIsOpen((p) => !p)}
-        aria-label="Open music player"
-        className={`relative flex items-center justify-center w-12 h-12 rounded-full cursor-pointer transition-all duration-300 shadow-[0_8px_20px_rgba(244,63,94,0.2)] border border-white/80 select-none ${
-          isOpen ? "bg-gradient-to-tr from-rose-500 to-pink-500 text-white scale-95 shadow-md" : "bg-white/90 backdrop-blur-xl text-rose-500 hover:bg-white hover:scale-105"
-        }`}
-      >
-        {embed.isPlaying && !isOpen && (
-          <span
-            className="absolute inset-0 rounded-full bg-rose-400/20 pointer-events-none"
-            style={{ animation: "fabPulse 2s ease-out infinite" }}
-          />
-        )}
-
-        <span className="relative z-10 transition-transform duration-300" style={{ transform: isOpen ? 'rotate(-10deg)' : 'rotate(0)' }}>
-          <BsMusicNoteBeamed size={18} />
-        </span>
-
-        {embed.isPlaying && !isOpen && (
-          <span className="absolute top-1 right-1 w-2.5 h-2.5 bg-rose-500 border-2 border-white rounded-full shadow-sm" />
-        )}
-      </button>
-
       <style>{`
-        .sleek-progress::-webkit-slider-thumb {
-          appearance: none;
-          width: 0px;
-          height: 0px;
-          border-radius: 50%;
-          background: #f43f5e;
-          transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
-          box-shadow: 0 2px 5px rgba(244,63,94,0.4);
+        .fmc-seek { -webkit-appearance: none; }
+        .fmc-seek::-webkit-slider-thumb {
+          -webkit-appearance: none;
+          width: 0; height: 0; border-radius: 50%;
+          background: #f43f5e; box-shadow: 0 2px 6px rgba(244,63,94,0.45);
+          transition: width 0.2s cubic-bezier(0.34,1.56,0.64,1), height 0.2s cubic-bezier(0.34,1.56,0.64,1);
+          cursor: grab;
         }
-        .sleek-progress:hover::-webkit-slider-thumb {
-          width: 12px;
-          height: 12px;
+        .fmc-seek:hover::-webkit-slider-thumb,
+        .fmc-seek:active::-webkit-slider-thumb { width: 14px; height: 14px; }
+        .fmc-seek::-moz-range-thumb {
+          width: 0; height: 0; border: none; border-radius: 50%;
+          background: #f43f5e; cursor: grab;
+          transition: width 0.2s, height 0.2s;
         }
-        .sleek-progress::-moz-range-thumb {
-          width: 0px;
-          height: 0px;
-          border-radius: 50%;
-          background: #f43f5e;
-          transition: all 0.2s;
-          border: none;
+        .fmc-seek:hover::-moz-range-thumb { width: 14px; height: 14px; }
+        .fmc-spin { animation: fmcSpin 4s linear infinite; }
+        @keyframes fmcSpin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+        @keyframes fmcPulse {
+          0%   { transform: scale(1); opacity: 0.85; }
+          100% { transform: scale(1.72); opacity: 0; }
         }
-        .sleek-progress:hover::-moz-range-thumb {
-          width: 12px;
-          height: 12px;
+        @keyframes fmcEq {
+          from { transform: scaleY(0.18); }
+          to   { transform: scaleY(1); }
         }
-        @keyframes fabPulse {
-          0% { transform: scale(1); opacity: 0.8; }
-          100% { transform: scale(1.6); opacity: 0; }
+        @keyframes fmcIn {
+          from { opacity: 0; transform: translateY(18px) scale(0.92); }
+          to   { opacity: 1; transform: translateY(0) scale(1); }
         }
-        @keyframes eqBar {
-          from { transform: scaleY(0.3); }
-          to { transform: scaleY(1); }
-        }
-        @keyframes fade-in-up {
-          from { opacity: 0; transform: translateY(10px) scale(0.97); }
-          to { opacity: 1; transform: translateY(0) scale(1); }
-        }
-        .animate-fade-in-up {
-          animation: fade-in-up 0.25s cubic-bezier(0.2, 0.9, 0.4, 1) forwards;
-        }
+        .fmc-enter { animation: fmcIn 0.32s cubic-bezier(0.16,1,0.3,1) forwards; }
       `}</style>
     </div>
   );

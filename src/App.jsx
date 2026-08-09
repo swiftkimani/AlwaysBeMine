@@ -37,6 +37,8 @@ export default function App() {
   const [showConfetti, setShowConfetti] = useState(false);
   const [ripple, setRipple] = useState(false);
   const [showAchievementHistory, setShowAchievementHistory] = useState(false);
+  const [musicOpen, setMusicOpen] = useState(false);
+  const [musicIsPlaying, setMusicIsPlaying] = useState(false);
   const [showOnboarding, setShowOnboarding] = useState(() => !localStorage.getItem("abm_onboarded"));
 
   const celebrate = useCallback(() => setShowConfetti(true), []);
@@ -126,14 +128,23 @@ export default function App() {
         </div>
       </main>
 
-      {/* Music FAB — chatbot-style, bottom right */}
-      <FloatingMusicControl tracks={loveTracks} fallbackUrl={config.playlist?.languages?.[0]?.spotifyUrl} />
+      {/* Music card panel — FAB lives in UtilityRail */}
+      <FloatingMusicControl
+        tracks={loveTracks}
+        fallbackUrl={config.playlist?.languages?.[0]?.spotifyUrl}
+        isOpen={musicOpen}
+        onToggle={() => setMusicOpen(p => !p)}
+        onPlayingChange={setMusicIsPlaying}
+      />
 
       <UtilityRail
         achievementsCount={achievements.length}
         historyOpen={showAchievementHistory}
         onToggleHistory={() => setShowAchievementHistory((p) => !p)}
         showBackToTop={showBackToTop}
+        musicOpen={musicOpen}
+        onToggleMusic={() => setMusicOpen(p => !p)}
+        musicIsPlaying={musicIsPlaying}
       />
 
       {/* Achievement Toast */}
