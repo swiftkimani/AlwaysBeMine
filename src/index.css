@@ -302,6 +302,12 @@ p, h1, h2, h3, h4, h5, h6, span, li, td, th {
   width: 100%;
   min-height: calc(100dvh - 2rem);
   padding: 0.5rem 1rem;
+  /* Reserves room for the now-fixed bottom marquee (see .marquee-sticky,
+     MarqueeProposal.jsx) so it can never cover the Yes/No buttons or
+     send-love bar on a short viewport — the marquee itself is
+     pointer-events:none regardless, but this keeps it from visually
+     sitting on top of them at all. */
+  padding-bottom: calc(4.5rem + var(--safe-bottom, 0px));
   text-align: center;
   overflow-x: hidden;
   word-break: break-word;
@@ -309,7 +315,7 @@ p, h1, h2, h3, h4, h5, h6, span, li, td, th {
 }
 
 @media (min-width: 640px) {
-  .proposal-stage { padding: 0.75rem 1.5rem; }
+  .proposal-stage { padding: 0.75rem 1.5rem calc(4.5rem + var(--safe-bottom, 0px)); }
 }
 
 /* Non-proposal modes */
@@ -558,34 +564,34 @@ p, h1, h2, h3, h4, h5, h6, span, li, td, th {
 }
 
 /* ============================================================
-   PROPOSAL MARQUEE — full-bleed, oversized scrolling headline
-   instead of a small card. Breaks out of its centered/padded flex
-   container to span the viewport width (capped at 1280px on wide
-   screens, like a standard content container) via left:50% +
-   translateX(-50%) — this centers correctly whether the element's
-   actual rendered width is 100vw (mobile) or clamped to 1280px
-   (desktop), with no separate calc() needed for the two cases. This
-   technique is safe here specifically because the caller wraps it in
-   an inert block-level div (see MarqueeProposal.jsx), so this
-   element's containing block is never itself a flex item — that was
-   the root cause of it fighting the page's flex layout before. Safe
-   against page-level horizontal scroll because .proposal-stage (its
-   ancestor) already sets overflow-x:hidden.
+   PROPOSAL MARQUEE — a persistent ticker pinned to the bottom of the
+   viewport, capped at 1280px on wide screens like a standard content
+   container. position:fixed is always relative to the viewport
+   regardless of any ancestor's flex/padding/max-width, so unlike the
+   earlier in-flow version this needs no wrapper trick to size
+   correctly — that whole class of bug goes away by construction.
+
+   z-index sits below the nav (50) and utility rail (40) on purpose:
+   both live in the same bottom-of-screen territory, and where they
+   overlap the real, clickable UI should always render on top of the
+   decorative ticker, never the other way round. pointer-events:none
+   backs that up structurally — this can never intercept a click.
    ============================================================ */
-.marquee-proposal-bleed {
-  width: 100vw;
-  max-width: 1280px;
-  position: relative;
+.marquee-sticky {
+  position: fixed;
   left: 50%;
   transform: translateX(-50%);
-  margin-top: 1.5rem;
-  margin-bottom: 2rem;
+  bottom: var(--safe-bottom, 0px);
+  width: 100vw;
+  max-width: 1280px;
+  z-index: 30;
+  pointer-events: none;
 }
 
 .marquee-proposal {
   position: relative;
   width: 100%;
-  height: clamp(6rem, 18vw, 11rem);
+  height: clamp(4rem, 11vw, 6.5rem);
   overflow: hidden;
   display: flex;
   align-items: center;
@@ -603,7 +609,7 @@ p, h1, h2, h3, h4, h5, h6, span, li, td, th {
   padding: 0 2rem;
   font-family: var(--font-script);
   font-weight: 700;
-  font-size: clamp(3.5rem, 16vw, 11rem);
+  font-size: clamp(2.25rem, 9vw, 4.5rem);
   line-height: 1;
   background-image: var(--gradient-love-text);
   background-clip: text;
