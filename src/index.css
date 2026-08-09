@@ -251,13 +251,18 @@ p, h1, h2, h3, h4, h5, h6, span, li, td, th {
 .page-scroll {
   width: 100%;
   min-height: 100dvh;
-  /* Offset for the fixed left nav so it never covers page content.
-     Matches the nav's actual rest-state footprint: 12px wrap offset +
-     9px panel padding + 46px sticker + 9px panel padding = 76px, plus
-     a few px of safety margin for the panel's shadow/rounded corners.
-     This width doesn't change across breakpoints (only nav icon size
-     does, at short *heights*), so one value covers every screen. */
-  padding-left: 80px;
+  /* No reserved padding for the nav — it's position:fixed and floats
+     over content, exactly like the music FAB and utility rail on the
+     right edge (neither of those reserves page space either). A
+     previous version tried to keep a hardcoded padding-left in exact
+     pixel sync with the nav's rendered width, which is a fragile
+     coupling: every time the nav's size changed (icon size, hover
+     magnify, breakpoints), the padding silently fell out of sync and
+     either wasted space or let the nav overlap content anyway. Content
+     is free to flow the full width, including "behind" the nav's own
+     narrow footprint — the nav's glass panel keeps its own icons
+     legible regardless of what scrolls underneath, and .side-nav-scrim
+     (below) still gives a soft visual transition at that edge. */
   overflow-x: hidden;
 }
 
